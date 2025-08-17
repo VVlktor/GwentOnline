@@ -1,0 +1,6 @@
+@GwentApi_HostAddress = http://localhost:5277
+
+GET {{GwentApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
