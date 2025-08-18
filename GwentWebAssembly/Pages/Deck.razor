@@ -1,0 +1,84 @@
+﻿@page "/Deck"
+
+<div class="div-body">
+    <div class="container-fluid mt-3">
+
+        <div class="d-flex justify-content-center deck-buttons">
+            <button class="btn btn-outline-light mx-2">Nilfgaard</button>
+            <button class="btn btn-outline-light mx-2">Królestwa Północy</button>
+            <button class="btn btn-outline-light mx-2">Potwory</button>
+            <button class="btn btn-outline-light mx-2">Scoia'tael</button>
+            <button class="btn btn-outline-light border-danger text-danger disabled mx-2">Skellige</button>
+        </div>
+
+        <div class="row">
+            <div class="col-5">
+                <div class="deck-list">
+                    <div class="card-row">
+                        <div class="card-col">
+                            <div class="card-item">
+                                <img src="images/ddd.png" alt="Deyna" class="card-img">
+                                <div class="card-content">
+                                    <div class="card-name">Deyna</div>
+                                    <div class="card-description">Opis karty</div>
+                                    <div class="card-meta">Siła: 5 | Lane: Melee</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-2 d-flex flex-column align-items-center">
+                <div class="center-card">
+                    <img src="images/commander_north.png" alt="Dowódca Skellige" class="center-card-img">
+                    <div class="center-card-content">
+                        <div class="center-card-name">Dowódca Skellige</div>
+                        <div class="center-card-description">Umiejętność: Przywołaj losowego wojownika z cmentarza.</div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-1 mb-4 w-100">
+                    <button class="btn btn-sm btn-outline-light me-1">⟵ Poprzedni</button>
+                    <button class="btn btn-sm btn-outline-light ms-1">Następny ⟶</button>
+                </div>
+
+                <div class="deck-stats">
+                    <div>Karty w talii: 25</div>
+                    <div>Karty jednostek: 18</div>
+                    <div>Karty specjalne: 7</div>
+                </div>
+
+                <button class="btn btn-success ready-btn">Gotowy</button>
+
+                <div class="opponent-status opponent-waiting">
+                    Oczekiwanie na przeciwnika...
+                </div>
+
+                <!-- <div class="opponent-status opponent-ready">Przeciwnik gotowy</div> -->
+                <p class="lobby-code">Kod lobby: i4nis8v</p>
+            </div>
+
+            <div class="col-5">
+                <div class="deck-list">
+                    <div class="card-row">
+                        <div class="card-col">
+                            <div class="card-item">
+                                <img src="images/ddd.png" alt="Deyna" class="card-img">
+                                <div class="card-content">
+                                    <div class="card-name">Geralt</div>
+                                    <div class="card-description">Wiedźmin</div>
+                                    <div class="card-meta">Siła: 15 | Lane: All</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code{
+
+}
