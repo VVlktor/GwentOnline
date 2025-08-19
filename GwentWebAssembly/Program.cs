@@ -1,3 +1,5 @@
+using GwentWebAssembly.Services;
+using GwentWebAssembly.Services.Interfaces;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
@@ -12,6 +14,8 @@ namespace GwentWebAssembly
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+            builder.Services.AddTransient<IHomePageService, HomePageService>();
+            builder.Services.AddSingleton<PlayerService>();
 
             await builder.Build().RunAsync();
         }

@@ -1,15 +1,43 @@
 ﻿@page "/"
+@inject IHomePageService homePageService
+@inject NavigationManager navigationManager
+@inject PlayerService playerService
 
 <PageTitle>Join lobby</PageTitle>
 <div class="container">
     <div class="row">
         <div class="col-4 offset-4">
             <h2 class="text-center display-3">Gwent</h2>
-            <button class="btn btn-lg btn-primary text-center mb-4">Create lobby</button>
+            <button class="btn btn-lg btn-primary text-center mb-4" @onclick="CreateLobby">Create lobby</button>
             <hr />
             <p class="text-center mt-4">Join lobby</p>
-            <input type="text" class="form-control" placeholder="lobby id" />
-            <button class="btn text-center">Join</button>
+            <input type="text" class="form-control" placeholder="lobby code" @bind-value="lobbyInput" />
+            <button class="btn text-center" @onclick="JoinLobby">Join</button>
         </div>
     </div>
 </div>
+
+@code{
+    private string lobbyInput = "";
+
+    private async Task JoinLobby()
+    {
+        if (string.IsNullOrEmpty(lobbyInput)) return;
+
+        bool lobbyExists = await homePageService.JoinLobby(lobbyInput);
+        if (!lobbyExists) return;
+
+        playerService.SetData(PlayerIdentity.PlayerTwo, lobbyInput);
+        navigationManager.NavigateTo($"/Deck");
+    }
+
+    private async Task CreateLobby()
+    {
+        string lobbyCode = await homePageService.CreateLobby();
+        if(string.IsNullOrEmpty(lobbyCode)) return;
+
+
+        playerService.SetData(PlayerIdentity.PlayerOne, lobbyCode);
+        navigationManager.NavigateTo($"/Deck");
+    }
+}

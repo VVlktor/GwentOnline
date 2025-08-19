@@ -1,4 +1,6 @@
-﻿@page "/Deck"
+﻿@inject PlayerService playerService
+@inject NavigationManager navigationManager
+@page "/Deck"
 
 <div class="div-body">
     <div class="container-fluid mt-3">
@@ -53,6 +55,7 @@
 
                 <div class="opponent-status opponent-waiting">
                     Oczekiwanie na przeciwnika...
+                    @playerService._lobbyCode
                 </div>
 
                 <!-- <div class="opponent-status opponent-ready">Przeciwnik gotowy</div> -->
@@ -80,5 +83,9 @@
 </div>
 
 @code{
-
+    protected override void OnInitialized()
+    {
+        if (!playerService.IsDataValid())
+            navigationManager.NavigateTo("/");
+    }
 }
