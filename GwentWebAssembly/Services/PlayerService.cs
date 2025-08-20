@@ -6,17 +6,17 @@ namespace GwentWebAssembly.Services
     public class PlayerService
     {
         private PlayerIdentity _identity;
-        public string _lobbyCode;
+        public string LobbyCode { get; set; }
 
         public void SetData(PlayerIdentity identity, string lobbyCode)
         {
             _identity = identity;
-            _lobbyCode = lobbyCode;
+            LobbyCode = lobbyCode;
         }
 
         public bool IsDataValid()
         {
-            if(string.IsNullOrEmpty(_lobbyCode)) return false;
+            if(string.IsNullOrEmpty(LobbyCode)) return false;
             return true;
         }
     }

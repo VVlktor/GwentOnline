@@ -1,32 +1,42 @@
 ﻿@inject PlayerService playerService
 @inject NavigationManager navigationManager
+@inject CardService cardService
 @page "/Deck"
 
 <div class="div-body">
     <div class="container-fluid mt-3">
 
         <div class="d-flex justify-content-center deck-buttons">
-            <button class="btn btn-outline-light mx-2">Nilfgaard</button>
-            <button class="btn btn-outline-light mx-2">Królestwa Północy</button>
-            <button class="btn btn-outline-light mx-2">Potwory</button>
-            <button class="btn btn-outline-light mx-2">Scoia'tael</button>
-            <button class="btn btn-outline-light border-danger text-danger disabled mx-2">Skellige</button>
+            <button class="btn btn-outline-light mx-2" @onclick="() => SetFaction(CardFaction.NorthernRealms)">Królestwa Północy</button>
+            <button class="btn btn-outline-light mx-2" @onclick="()=>SetFaction(CardFaction.NilfgaardianEmpire)">Nilfgaard</button>
+            <button class="btn btn-outline-light mx-2" @onclick="() => SetFaction(CardFaction.Monsters)">Potwory</button>
+            <button class="btn btn-outline-light mx-2" @onclick="() => SetFaction(CardFaction.Scoiatael)">Scoia'tael</button>
+            <button class="btn btn-outline-light border-danger text-danger disabled mx-2" @onclick="() => SetFaction(CardFaction.Skellige)">Skellige</button>
         </div>
 
         <div class="row">
             <div class="col-5">
                 <div class="deck-list">
                     <div class="card-row">
-                        <div class="card-col">
-                            <div class="card-item">
-                                <img src="images/ddd.png" alt="Deyna" class="card-img">
-                                <div class="card-content">
-                                    <div class="card-name">Deyna</div>
-                                    <div class="card-description">Opis karty</div>
-                                    <div class="card-meta">Siła: 5 | Lane: Melee</div>
+                        @foreach (var card in CardList.Where(x => (x.Faction == SelectedFaction || x.Faction == CardFaction.Neutral || x.Faction == CardFaction.Weather || x.Faction == CardFaction.Special) && x.Placement != TroopPlacement.Leader))
+                        {
+                            <div class="card-col" @onclick="() => AddSelectedCard(card)">
+                                <div class="card-item">
+                                    <img src="images/ddd.png" alt="card" class="card-img">
+                                    <div class="card-content">
+                                        <div class="card-name">@card.Name</div>
+                                        <div class="card-description">@card.Description @card.Faction</div>
+                                        <div class="card-meta">
+                                            @if(card.Placement!=TroopPlacement.Special && card.Placement!=TroopPlacement.Weather)
+                                            { 
+                                                <label>Siła: @card.Strength | &nbsp;</label>
+                                            }
+                                            @card.Placement
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -46,35 +56,44 @@
                 </div>
 
                 <div class="deck-stats">
-                    <div>Karty w talii: 25</div>
-                    <div>Karty jednostek: 18</div>
-                    <div>Karty specjalne: 7</div>
+                    <div>Karty w talii: @SelectedCards.Count</div>
+                    <div>Karty jednostek: @SelectedCards.Count(x => x.Placement == TroopPlacement.Melee || x.Placement == TroopPlacement.Agile || x.Placement == TroopPlacement.Range || x.Placement == TroopPlacement.Siege)</div>
+                    <div>Karty specjalne: @SelectedCards.Count(x => x.Placement == TroopPlacement.Special || x.Placement == TroopPlacement.Weather)</div>
                 </div>
 
                 <button class="btn btn-success ready-btn">Gotowy</button>
 
                 <div class="opponent-status opponent-waiting">
                     Oczekiwanie na przeciwnika...
-                    @playerService._lobbyCode
+                    
                 </div>
 
                 <!-- <div class="opponent-status opponent-ready">Przeciwnik gotowy</div> -->
-                <p class="lobby-code">Kod lobby: i4nis8v</p>
+                <p class="lobby-code">Kod lobby: @playerService.LobbyCode</p>
             </div>
 
             <div class="col-5">
                 <div class="deck-list">
                     <div class="card-row">
-                        <div class="card-col">
-                            <div class="card-item">
-                                <img src="images/ddd.png" alt="Deyna" class="card-img">
-                                <div class="card-content">
-                                    <div class="card-name">Geralt</div>
-                                    <div class="card-description">Wiedźmin</div>
-                                    <div class="card-meta">Siła: 15 | Lane: All</div>
+                        @foreach(var card in SelectedCards)
+                        {
+                            <div class="card-col" @onclick="() => RemoveSelectedCard(card)">
+                                <div class="card-item">
+                                    <img src="images/ddd.png" alt="card" class="card-img">
+                                    <div class="card-content">
+                                        <div class="card-name">@card.Name</div>
+                                        <div class="card-description">@card.Description @card.Faction</div>
+                                        <div class="card-meta">
+                                            @if (card.Placement != TroopPlacement.Special && card.Placement != TroopPlacement.Weather)
+                                            {
+                                                <label>Siła: @card.Strength | &nbsp;</label>
+                                            }
+                                            @card.Placement
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -83,6 +102,42 @@
 </div>
 
 @code{
+    private List<GwentCard> CardList = new();
+    private List<GwentCard> SelectedCards = new();
+    private List<GwentCard> LeaderCards = new();
+
+    private int leaderIndex = 0;
+
+    private GwentCard? SelecterdLeader;
+
+    private CardFaction SelectedFaction = CardFaction.NorthernRealms;
+
+    private void RemoveSelectedCard(GwentCard card)
+    {
+        CardList.Add(card);
+        SelectedCards.Remove(card);
+    }
+
+    private void AddSelectedCard(GwentCard card)
+    {
+        SelectedCards.Add(card);
+        CardList.Remove(card);
+    }
+
+    private void SetFaction(CardFaction faction)
+    {
+        SelectedFaction = faction;
+        CardList.AddRange(SelectedCards);
+        SelectedCards.Clear();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        CardList = await cardService.GetCardData();
+        LeaderCards = SelectedCards.Where(x => x.Placement == TroopPlacement.Leader && x.Faction == SelectedFaction).ToList();
+        
+    }
+
     protected override void OnInitialized()
     {
         if (!playerService.IsDataValid())
