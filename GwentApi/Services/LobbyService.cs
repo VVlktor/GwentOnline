@@ -13,24 +13,25 @@ namespace GwentApi.Services
             _lobbyRepository = lobbyRepository;
         }
 
-        public string CreateLobby()
+        public async Task<string> CreateLobby()
         {
-            string lobbyCode = Guid.NewGuid().ToString("N")[..6].ToUpper();
-
-            while (_lobbyRepository.ExistsByCode(lobbyCode))
+            string lobbyCode = "";
+            do
+            {
                 lobbyCode = Guid.NewGuid().ToString("N")[..6].ToUpper();
+            }while(await _lobbyRepository.ExistsByCode(lobbyCode));
 
             Lobby newLobby = new(lobbyCode);
-            _lobbyRepository.AddLobby(newLobby);
+            await _lobbyRepository.AddLobby(newLobby);
             return lobbyCode;
         }
 
-        public bool JoinLobby(string lobbyCode)
+        public async Task<bool> JoinLobby(string lobbyCode)
         {
-            if (!_lobbyRepository.ExistsByCode(lobbyCode))
+            if (!await _lobbyRepository.ExistsByCode(lobbyCode))
                 return false;
 
-            Lobby lobby = _lobbyRepository.GetLobbyByCode(lobbyCode);
+            Lobby lobby = await _lobbyRepository.GetLobbyByCode(lobbyCode);
             if (lobby.PlayersCount >= 2)
                 return false;
 

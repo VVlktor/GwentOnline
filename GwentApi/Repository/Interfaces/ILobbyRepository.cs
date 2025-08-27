@@ -4,8 +4,8 @@ namespace GwentApi.Repository.Interfaces
 {
     public interface ILobbyRepository
     {
-        public Lobby AddLobby(Lobby lobby);
-        public bool ExistsByCode(string lobbyCode);
-        public Lobby GetLobbyByCode(string lobbyCode);
+        public Task<Lobby> AddLobby(Lobby lobby);
+        public Task<bool> ExistsByCode(string lobbyCode);
+        public Task<Lobby> GetLobbyByCode(string lobbyCode);
     }
 }

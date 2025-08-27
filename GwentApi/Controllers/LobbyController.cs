@@ -1,4 +1,5 @@
-﻿using GwentApi.Services.Interfaces;
+﻿using GwentApi.Classes;
+using GwentApi.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GwentApi.Controllers
@@ -15,19 +16,26 @@ namespace GwentApi.Controllers
         }
 
         [HttpGet("CreateLobby")]
-        public IActionResult CreateLobby()
+        public async Task<IActionResult> CreateLobby()
         {
-            string lobbyCode = _lobbyService.CreateLobby();
+            string lobbyCode = await _lobbyService.CreateLobby();
             return Ok(lobbyCode);
         }
 
         [HttpGet("JoinLobby/{lobbyCode}")]
-        public IActionResult JoinLobby(string lobbyCode)
+        public async Task<IActionResult> JoinLobby(string lobbyCode)
         {
-            bool joined = _lobbyService.JoinLobby(lobbyCode);
+            bool joined = await _lobbyService.JoinLobby(lobbyCode);
             if(joined) 
                 return Ok(lobbyCode);
             return BadRequest("Lobby is full or doesnt exist.");
+        }
+
+        [HttpPost("VerifyDeck/{lobbyCode}")]
+        public async Task<IActionResult> VerifyDeck(string lobbyCode, [FromBody] PlayerInfo playerInfo)
+        {
+            
+            return Conflict();
         }
     }
 }

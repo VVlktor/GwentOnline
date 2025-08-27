@@ -2,7 +2,7 @@
 {
     public interface ILobbyService
     {
-        public string CreateLobby();
-        public bool JoinLobby(string lobbyCode);
+        public Task<string> CreateLobby();
+        public Task<bool> JoinLobby(string lobbyCode);
     }
 }

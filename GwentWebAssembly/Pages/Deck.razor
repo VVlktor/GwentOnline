@@ -1,6 +1,7 @@
 ﻿@inject PlayerService playerService
 @inject NavigationManager navigationManager
 @inject CardService cardService
+@inject IDeckService deckService
 @page "/Deck"
 
 <div class="div-body">
@@ -28,10 +29,20 @@
                                         <div class="card-description">@card.Description @card.Faction</div>
                                         <div class="card-meta">
                                             @if(card.Placement!=TroopPlacement.Special && card.Placement!=TroopPlacement.Weather)
-                                            { 
-                                                <label>Siła: @card.Strength | &nbsp;</label>
+                                            {
+                                                <label>Siła: @card.Strength | @card.Placement</label><br />
                                             }
-                                            @card.Placement
+                                            @if (card.Abilities != Abilities.None)
+                                            {
+                                                <label>Abilities: &nbsp</label>
+                                                @foreach(Abilities ability in Enum.GetValues(typeof(Abilities)))
+                                                {
+                                                    if(ability != Abilities.None && card.Abilities.HasFlag(ability))
+                                                    {
+                                                        <label>@ability, &nbsp</label>
+                                                    }
+                                                }
+                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -43,10 +54,10 @@
 
             <div class="col-2 d-flex flex-column align-items-center">
                 <div class="center-card">
-                    <img src="images/commander_north.png" alt="Dowódca Skellige" class="center-card-img">
+                    <img src="images/commander_north.png" alt="Dowódca" class="center-card-img">
                     <div class="center-card-content">
-                        <div class="center-card-name">Dowódca Skellige</div>
-                        <div class="center-card-description">Umiejętność: Przywołaj losowego wojownika z cmentarza.</div>
+                        <div class="center-card-name">@SelectedLeader.Name</div>
+                        <div class="center-card-description">@SelectedLeader.Description</div>
                     </div>
                 </div>
 
@@ -61,14 +72,14 @@
                     <div>Karty specjalne: @SelectedCards.Count(x => x.Placement == TroopPlacement.Special || x.Placement == TroopPlacement.Weather)</div>
                 </div>
 
-                <button class="btn btn-success ready-btn">Gotowy</button>
-
+                <button class="btn btn-success ready-btn" @onclick="async()=>await ReadyClicked()">Gotowy</button>
+                <!-- lepiej bedzie napisac na przycisku ze oczekiwanie na przeciwnika i wylaczyc buttona
                 <div class="opponent-status opponent-waiting">
                     Oczekiwanie na przeciwnika...
                     
                 </div>
 
-                <!-- <div class="opponent-status opponent-ready">Przeciwnik gotowy</div> -->
+                <div class="opponent-status opponent-ready">Przeciwnik gotowy</div> -->
                 <p class="lobby-code">Kod lobby: @playerService.LobbyCode</p>
             </div>
 
@@ -86,9 +97,19 @@
                                         <div class="card-meta">
                                             @if (card.Placement != TroopPlacement.Special && card.Placement != TroopPlacement.Weather)
                                             {
-                                                <label>Siła: @card.Strength | &nbsp;</label>
+                                                <label>Siła: @card.Strength | @card.Placement</label><br />
                                             }
-                                            @card.Placement
+                                            @if (card.Abilities != Abilities.None)
+                                            {
+                                                <label>Abilities: &nbsp</label>
+                                                @foreach (Abilities ability in Enum.GetValues(typeof(Abilities)))
+                                                {
+                                                    if (ability != Abilities.None && card.Abilities.HasFlag(ability))
+                                                    {
+                                                        <label>@ability, &nbsp</label>
+                                                    }
+                                                }
+                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -108,9 +129,22 @@
 
     private int leaderIndex = 0;
 
-    private GwentCard? SelecterdLeader;
+    private GwentCard? SelectedLeader;
 
     private CardFaction SelectedFaction = CardFaction.NorthernRealms;
+
+    private string responseMessage = "";
+
+    private async Task ReadyClicked()
+    {
+        PlayerInfo playerInfo = new(SelectedFaction, SelectedCards, SelectedLeader);
+        ResponseData responseData = await deckService.VerifyDeck(playerInfo);
+        responseMessage = responseData.Message;
+        if (responseData.IsValid)
+        {
+            //nasluchiwac drugiego gracza
+        }
+    }
 
     private void RemoveSelectedCard(GwentCard card)
     {
@@ -135,7 +169,7 @@
     {
         CardList = await cardService.GetCardData();
         LeaderCards = SelectedCards.Where(x => x.Placement == TroopPlacement.Leader && x.Faction == SelectedFaction).ToList();
-        
+        SelectedLeader = LeaderCards[0];
     }
 
     protected override void OnInitialized()

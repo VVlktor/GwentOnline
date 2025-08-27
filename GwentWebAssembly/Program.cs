@@ -17,6 +17,7 @@ namespace GwentWebAssembly
             builder.Services.AddTransient<IHomePageService, HomePageService>();
             builder.Services.AddSingleton<PlayerService>();
             builder.Services.AddTransient<CardService>();
+            builder.Services.AddTransient<IDeckService, DeckService>();
 
             await builder.Build().RunAsync();
         }
