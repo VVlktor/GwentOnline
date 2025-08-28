@@ -1,6 +1,7 @@
 ﻿using GwentApi.Classes;
 using GwentApi.Repository.Interfaces;
 using GwentApi.Services.Interfaces;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace GwentApi.Services
 {
@@ -37,6 +38,12 @@ namespace GwentApi.Services
 
             lobby.PlayersCount++;
             return true;
+        }
+
+        public async Task SetDeck(string lobbyCode, int player, PlayerInfo playerInfo)
+        {
+            PlayerIdentity identity = player == 1 ? PlayerIdentity.PlayerOne : PlayerIdentity.PlayerTwo;
+            await _lobbyRepository.SetDeckForPlayer(identity, lobbyCode, playerInfo);
         }
     }
 }

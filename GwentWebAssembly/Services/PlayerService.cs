@@ -19,5 +19,10 @@ namespace GwentWebAssembly.Services
             if(string.IsNullOrEmpty(LobbyCode)) return false;
             return true;
         }
+
+        public PlayerIdentity WhichPlayer()
+        {
+            return _identity;
+        }
     }
 }

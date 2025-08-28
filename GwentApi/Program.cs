@@ -24,7 +24,7 @@ namespace GwentApi
                 options.AddPolicy(name: MyAllowSpecificOrigins,
                                   policy =>
                                   {
-                                      policy.WithOrigins("http://localhost:5140");
+                                      policy.WithOrigins("http://localhost:5140").AllowAnyMethod().AllowAnyHeader();
                                   });
             });
 

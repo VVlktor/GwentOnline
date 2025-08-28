@@ -16,7 +16,7 @@ namespace GwentApi.Services
             if (playerInfo.Cards.Count(x => x.Placement == TroopPlacement.Melee || x.Placement == TroopPlacement.Siege || x.Placement == TroopPlacement.Agile || x.Placement == TroopPlacement.Range) < 22)
                 return new(false, "Your deck contains less than 22 unit cards.");
 
-            return new(true, "Deck has been approved");
+            return new(true, "Your deck has been approved. Awaiting for the second player");
         }
     }
 }

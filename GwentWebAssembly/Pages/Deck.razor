@@ -23,7 +23,7 @@
                         {
                             <div class="card-col" @onclick="() => AddSelectedCard(card)">
                                 <div class="card-item">
-                                    <img src="images/ddd.png" alt="card" class="card-img">
+                                    <img src="" alt="card" class="card-img">
                                     <div class="card-content">
                                         <div class="card-name">@card.Name</div>
                                         <div class="card-description">@card.Description @card.Faction</div>
@@ -54,7 +54,7 @@
 
             <div class="col-2 d-flex flex-column align-items-center">
                 <div class="center-card">
-                    <img src="images/commander_north.png" alt="Dowódca" class="center-card-img">
+                    <img src="" alt="Dowódca" class="center-card-img">
                     <div class="center-card-content">
                         <div class="center-card-name">@SelectedLeader.Name</div>
                         <div class="center-card-description">@SelectedLeader.Description</div>
@@ -72,15 +72,18 @@
                     <div>Karty specjalne: @SelectedCards.Count(x => x.Placement == TroopPlacement.Special || x.Placement == TroopPlacement.Weather)</div>
                 </div>
 
-                <button class="btn btn-success ready-btn" @onclick="async()=>await ReadyClicked()">Gotowy</button>
-                <!-- lepiej bedzie napisac na przycisku ze oczekiwanie na przeciwnika i wylaczyc buttona
-                <div class="opponent-status opponent-waiting">
-                    Oczekiwanie na przeciwnika...
-                    
-                </div>
-
-                <div class="opponent-status opponent-ready">Przeciwnik gotowy</div> -->
+                <button class="btn btn-success ready-btn" disabled="@deckVerificationClicked" @onclick="ReadyClicked">
+                    @if (deckVerificationClicked)
+                    {
+                        <p>Oczekiwanie na przeciwnika...</p>
+                    }
+                    else
+                    {
+                        <p>Gotowy</p>
+                    }
+                </button>
                 <p class="lobby-code">Kod lobby: @playerService.LobbyCode</p>
+                <p class="lobby-code">@responseMessage</p>
             </div>
 
             <div class="col-5">
@@ -90,7 +93,7 @@
                         {
                             <div class="card-col" @onclick="() => RemoveSelectedCard(card)">
                                 <div class="card-item">
-                                    <img src="images/ddd.png" alt="card" class="card-img">
+                                    <img src="" alt="card" class="card-img">
                                     <div class="card-content">
                                         <div class="card-name">@card.Name</div>
                                         <div class="card-description">@card.Description @card.Faction</div>
@@ -129,21 +132,32 @@
 
     private int leaderIndex = 0;
 
-    private GwentCard? SelectedLeader;
+    private GwentCard SelectedLeader = new() { Name="", Description="" };
 
     private CardFaction SelectedFaction = CardFaction.NorthernRealms;
 
     private string responseMessage = "";
+    private bool deckVerificationClicked = false;
 
     private async Task ReadyClicked()
     {
+        deckVerificationClicked = true;
         PlayerInfo playerInfo = new(SelectedFaction, SelectedCards, SelectedLeader);
         ResponseData responseData = await deckService.VerifyDeck(playerInfo);
         responseMessage = responseData.Message;
-        if (responseData.IsValid)
-        {
-            //nasluchiwac drugiego gracza
+        StateHasChanged();
+        if (!responseData.IsValid) {
+            deckVerificationClicked = false;
+            return; 
         }
+        await deckService.SetDeck(playerInfo);
+
+        while (true)
+        {
+            if (await deckService.PlayersReady(playerService.LobbyCode)) break;
+            await Task.Delay(4000);
+        }
+        navigationManager.NavigateTo("/Weather");
     }
 
     private void RemoveSelectedCard(GwentCard card)
@@ -163,13 +177,15 @@
         SelectedFaction = faction;
         CardList.AddRange(SelectedCards);
         SelectedCards.Clear();
+        LeaderCards = CardList.Where(x => x.Placement == TroopPlacement.Leader && x.Faction == SelectedFaction).ToList();
+        SelectedLeader = LeaderCards.First();
     }
 
     protected override async Task OnInitializedAsync()
     {
         CardList = await cardService.GetCardData();
-        LeaderCards = SelectedCards.Where(x => x.Placement == TroopPlacement.Leader && x.Faction == SelectedFaction).ToList();
-        SelectedLeader = LeaderCards[0];
+        LeaderCards = CardList.Where(x => x.Placement == TroopPlacement.Leader && x.Faction == SelectedFaction).ToList();
+        SelectedLeader = LeaderCards.First();
     }
 
     protected override void OnInitialized()

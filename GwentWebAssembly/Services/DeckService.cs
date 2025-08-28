@@ -12,18 +12,32 @@ namespace GwentWebAssembly.Services
 
         public DeckService(HttpClient client, PlayerService playerService)
         {
-            _playerService = playerService;
             _httpClient = client;
+            _playerService = playerService;
         }
 
         public async Task<ResponseData> VerifyDeck(PlayerInfo playerInfo)
         {
             string json = JsonSerializer.Serialize(playerInfo);
             var data = new StringContent(json, Encoding.UTF8, "application/json");
-            HttpResponseMessage response = await _httpClient.PostAsync($"http://localhost:5277/lobby/SetReady/{_playerService.LobbyCode}", data);
+            HttpResponseMessage response = await _httpClient.PostAsync($"http://localhost:5277/Lobby/VerifyDeck", data);
             string stringResponse = await response.Content.ReadAsStringAsync();
-            ResponseData responeData = JsonSerializer.Deserialize<ResponseData>(stringResponse);
+            var options = new JsonSerializerOptions{ PropertyNameCaseInsensitive = true };
+            ResponseData responeData = JsonSerializer.Deserialize<ResponseData>(stringResponse, options);
             return responeData;
+        }
+
+        public async Task SetDeck(PlayerInfo playerInfo)
+        {
+            string json = JsonSerializer.Serialize<PlayerInfo>(playerInfo);
+            var data = new StringContent(json, Encoding.UTF8, "application/json");
+            int player = _playerService.WhichPlayer() == PlayerIdentity.PlayerOne ? 1 : 2;
+            await _httpClient.PostAsync($"http://localhost:5277/Lobby/SetDeck/{_playerService.LobbyCode}/{player}", data);
+        }
+
+        public async Task<bool> PlayersReady(string lobbyCode)
+        {
+            return true;//zrobic endpoint w kontrolerze
         }
     }
 }
