@@ -37,7 +37,10 @@ namespace GwentWebAssembly.Services
 
         public async Task<bool> PlayersReady(string lobbyCode)
         {
-            return true;//zrobic endpoint w kontrolerze
+            var response = await _httpClient.GetAsync($"http://localhost:5277/lobby/PlayersReady/{lobbyCode}");
+            if (!response.IsSuccessStatusCode) return false;
+            bool result = bool.Parse(await response.Content.ReadAsStringAsync());
+            return result;
         }
     }
 }

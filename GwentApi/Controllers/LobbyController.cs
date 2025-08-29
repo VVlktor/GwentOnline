@@ -46,5 +46,12 @@ namespace GwentApi.Controllers
             await _lobbyService.SetDeck(lobbyCode, player, playerInfo);
             return Ok();
         }
+
+        [HttpGet("PlayersReady/{lobbyCode}")]
+        public async Task<IActionResult> PlayersReady(string lobbyCode)
+        {
+            bool result = await _lobbyService.PlayersReady(lobbyCode);
+            return Ok(result);
+        }
     }
 }

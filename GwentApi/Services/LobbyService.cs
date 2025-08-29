@@ -45,5 +45,10 @@ namespace GwentApi.Services
             PlayerIdentity identity = player == 1 ? PlayerIdentity.PlayerOne : PlayerIdentity.PlayerTwo;
             await _lobbyRepository.SetDeckForPlayer(identity, lobbyCode, playerInfo);
         }
+
+        public async Task<bool> PlayersReady(string lobbyCode)
+        {
+            return await _lobbyRepository.PlayersReady(lobbyCode);
+        }
     }
 }

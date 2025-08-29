@@ -7,5 +7,6 @@ namespace GwentApi.Services.Interfaces
         public Task<string> CreateLobby();
         public Task<bool> JoinLobby(string lobbyCode);
         Task SetDeck(string lobbyCode, int player, PlayerInfo playerInfo);
+        Task<bool> PlayersReady(string lobbyCode);
     }
 }
