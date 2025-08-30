@@ -41,7 +41,7 @@ namespace GwentApi.Controllers
         }
 
         [HttpPost("SetDeck/{lobbyCode}/{player}")]
-        public async Task<IActionResult> SetDeck(string lobbyCode, int player, [FromBody] PlayerInfo playerInfo)
+        public async Task<IActionResult> SetDeck(string lobbyCode, PlayerIdentity player, [FromBody] PlayerInfo playerInfo)
         {
             await _lobbyService.SetDeck(lobbyCode, player, playerInfo);
             return Ok();
@@ -52,6 +52,20 @@ namespace GwentApi.Controllers
         {
             bool result = await _lobbyService.PlayersReady(lobbyCode);
             return Ok(result);
+        }
+
+        [HttpGet("GetPlayerInfo/{lobbyCode}/{player}")]
+        public async Task<IActionResult> GetPlayerInfo(string lobbyCode, PlayerIdentity player)
+        {
+            PlayerInfo playerInfo = await _lobbyService.GetPlayerInfo(lobbyCode, player);
+            return Ok(playerInfo);
+        }
+
+        [HttpPost("SwapCards/{lobbyCode}/{player}")]
+        public async Task<IActionResult> SwapCards(string lobbyCode, PlayerIdentity identity, [FromBody]List<GwentCard> Cards)
+        {
+            await _lobbyService.SwapCards(lobbyCode, identity, Cards);
+            return Ok();//yes I know this is bad. Its only technical demo at this point. This will be changed I promise (not only here)
         }
     }
 }

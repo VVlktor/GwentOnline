@@ -2,10 +2,10 @@
 {
     public class PlayerInfo
     {
-        public PlayerInfo(CardFaction faction, List<GwentCard> gwentCards, GwentCard leaderCard)
+        public PlayerInfo(CardFaction faction, List<GwentCard> cards, GwentCard leaderCard)
         {
             Faction = faction;
-            Cards = gwentCards;
+            Cards = cards;
             LeaderCard = leaderCard;
         }
 

@@ -40,15 +40,25 @@ namespace GwentApi.Services
             return true;
         }
 
-        public async Task SetDeck(string lobbyCode, int player, PlayerInfo playerInfo)
+        public async Task SetDeck(string lobbyCode, PlayerIdentity player, PlayerInfo playerInfo)
         {
-            PlayerIdentity identity = player == 1 ? PlayerIdentity.PlayerOne : PlayerIdentity.PlayerTwo;
-            await _lobbyRepository.SetDeckForPlayer(identity, lobbyCode, playerInfo);
+            await _lobbyRepository.SetDeckForPlayer(player, lobbyCode, playerInfo);
         }
 
         public async Task<bool> PlayersReady(string lobbyCode)
         {
             return await _lobbyRepository.PlayersReady(lobbyCode);
+        }
+
+        public async Task<PlayerInfo> GetPlayerInfo(string lobbyCode, PlayerIdentity identity)
+        {
+            PlayerInfo playerInfo = await _lobbyRepository.GetPlayerInfo(lobbyCode, identity);
+            return playerInfo;
+        }
+
+        public async Task SwapCards(string lobbyCode, PlayerIdentity player, List<GwentCard> Cards)
+        {
+            await _lobbyRepository.SwapDeck(lobbyCode, player, Cards);
         }
     }
 }

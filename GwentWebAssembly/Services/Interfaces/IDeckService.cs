@@ -7,5 +7,7 @@ namespace GwentWebAssembly.Services.Interfaces
         Task<ResponseData> VerifyDeck(PlayerInfo playerInfo);
         Task SetDeck(PlayerInfo playerInfo);
         Task<bool> PlayersReady(string lobbyCode);
+        Task<PlayerInfo> GetPlayerInfo();
+        Task SwapDeck(List<GwentCard> cards);
     }
 }
