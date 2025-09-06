@@ -10,7 +10,7 @@
                 <div class="cards-container d-flex flex-wrap justify-content-between">
                     @foreach(var card in TenCards)
                     {
-                        <div class="card-item mt-4" style="width: 18%;" @onclick="()=>SwapCard(card)">
+                        <div class="card-item mt-4" style="width: 18%;" @onclick="async()=>await SwapCard(card)">
                             <img src="" alt="Deyna" class="card-img">
                             <div class="card-content">
                                 <div class="card-name">@card.Name</div>
@@ -38,6 +38,10 @@
                         </div>                        
                     }
                 </div>
+                @foreach(GwentCard card1 in AllCards)
+                {
+                    <p>@card1.Name , </p>
+                }
             </div>
 
             <div class="col-2">
@@ -65,21 +69,19 @@
     private async Task ReadyClicked()
     {
         IsReady = true;
-        if(CardsSwapped!=0)
-            await deckService.SwapDeck(AllCards);
+
 
         //oczekiwac na drugiego gracza. utworzyc gre a nie lobby
     }
 
-    private void SwapCard(GwentCard card)
+    private async Task SwapCard(GwentCard card)
     {
         if (CardsSwapped >= 2) return;
-        int index = TenCards.IndexOf(card);
-        GwentCard holder = AllCards[10 + CardsSwapped];
-        AllCards[10 + CardsSwapped] = card;
-        TenCards[index] = holder;
-        AllCards[index] = holder;
-        CardsSwapped++;
+        PlayerInfo playerInfo = await deckService.SwapCardInDeck(card.PrimaryId);
+
+        CardsSwapped = playerInfo.CardsSwapped;
+        AllCards = playerInfo.Cards;
+        TenCards = playerInfo.Cards[..10];
         StateHasChanged();
     }
 
@@ -88,7 +90,6 @@
         PlayerInfo playerInfo = await deckService.GetPlayerInfo();
         AllCards = playerInfo.Cards;
         TenCards = playerInfo.Cards[..10];
-
     }
 
     protected override void OnInitialized()

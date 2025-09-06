@@ -9,6 +9,6 @@ namespace GwentApi.Services.Interfaces
         Task SetDeck(string lobbyCode, PlayerIdentity player, PlayerInfo playerInfo);
         Task<bool> PlayersReady(string lobbyCode);
         Task<PlayerInfo> GetPlayerInfo(string lobbyCode, PlayerIdentity identity);
-        Task SwapCards(string lobbyCode, PlayerIdentity player, List<GwentCard> Cards);
+        Task<PlayerInfo> SwapCard(string lobbyCode, PlayerIdentity player, int id);
     }
 }

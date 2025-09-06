@@ -16,22 +16,15 @@ namespace GwentWebAssembly.Services
             _playerService = playerService;
         }
 
-        public async Task<ResponseData> VerifyDeck(PlayerInfo playerInfo)
+        public async Task<ResponseData> VerifyAndSetDeck(PlayerInfo playerInfo)
         {
             string json = JsonSerializer.Serialize(playerInfo);
             var data = new StringContent(json, Encoding.UTF8, "application/json");
-            HttpResponseMessage response = await _httpClient.PostAsync($"http://localhost:5277/Lobby/VerifyDeck", data);
+            HttpResponseMessage response = await _httpClient.PostAsync($"http://localhost:5277/Lobby/VerifyAndSetDeck/{_playerService.LobbyCode}/{_playerService.WhichPlayer()}", data);
             string stringResponse = await response.Content.ReadAsStringAsync();
             var options = new JsonSerializerOptions{ PropertyNameCaseInsensitive = true };
             ResponseData responeData = JsonSerializer.Deserialize<ResponseData>(stringResponse, options);
             return responeData;
-        }
-
-        public async Task SetDeck(PlayerInfo playerInfo)
-        {
-            string json = JsonSerializer.Serialize<PlayerInfo>(playerInfo);
-            var data = new StringContent(json, Encoding.UTF8, "application/json");
-            await _httpClient.PostAsync($"http://localhost:5277/Lobby/SetDeck/{_playerService.LobbyCode}/{_playerService.WhichPlayer()}", data);
         }
 
         public async Task<bool> PlayersReady(string lobbyCode)
@@ -51,11 +44,15 @@ namespace GwentWebAssembly.Services
             return responeData;
         }
 
-        public async Task SwapDeck(List<GwentCard> cards)
+        public async Task<PlayerInfo> SwapCardInDeck(int id)
         {
-            string json = JsonSerializer.Serialize(cards);
+            string json = JsonSerializer.Serialize(id);
             var data = new StringContent(json, Encoding.UTF8, "application/json");
-            await _httpClient.PostAsync($"http://localhost:5277/Lobby/SwapCards/{_playerService.LobbyCode}/{_playerService.WhichPlayer()}", data);
+            var response = await _httpClient.PostAsync($"http://localhost:5277/Lobby/SwapCard/{_playerService.LobbyCode}/{_playerService.WhichPlayer()}", data);
+            string stringResponse = await response.Content.ReadAsStringAsync();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, IncludeFields = true };
+            PlayerInfo playerInfo = JsonSerializer.Deserialize<PlayerInfo>(stringResponse, options);
+            return playerInfo;
         }
     }
 }

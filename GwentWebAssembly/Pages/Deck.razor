@@ -153,14 +153,13 @@
     {
         deckVerificationClicked = true;
         PlayerInfo playerInfo = new(SelectedFaction, SelectedCards, SelectedLeader);
-        ResponseData responseData = await deckService.VerifyDeck(playerInfo);
+        ResponseData responseData = await deckService.VerifyAndSetDeck(playerInfo);
         responseMessage = responseData.Message;
         StateHasChanged();
         if (!responseData.IsValid) {
             deckVerificationClicked = false;
             return; 
         }
-        await deckService.SetDeck(playerInfo);
 
         while (true)
         {
