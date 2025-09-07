@@ -22,7 +22,7 @@ namespace GwentWebAssembly.Services
             var data = new StringContent(json, Encoding.UTF8, "application/json");
             HttpResponseMessage response = await _httpClient.PostAsync($"http://localhost:5277/Lobby/VerifyAndSetDeck/{_playerService.LobbyCode}/{_playerService.WhichPlayer()}", data);
             string stringResponse = await response.Content.ReadAsStringAsync();
-            var options = new JsonSerializerOptions{ PropertyNameCaseInsensitive = true };
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             ResponseData responeData = JsonSerializer.Deserialize<ResponseData>(stringResponse, options);
             return responeData;
         }
@@ -39,7 +39,7 @@ namespace GwentWebAssembly.Services
         {
             var response = await _httpClient.GetAsync($"http://localhost:5277/lobby/GetPlayerInfo/{_playerService.LobbyCode}/{_playerService.WhichPlayer()}");
             string responseString = await response.Content.ReadAsStringAsync();
-            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, IncludeFields=true };
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, IncludeFields = true };
             PlayerInfo responeData = JsonSerializer.Deserialize<PlayerInfo>(responseString, options);
             return responeData;
         }
@@ -53,6 +53,22 @@ namespace GwentWebAssembly.Services
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, IncludeFields = true };
             PlayerInfo playerInfo = JsonSerializer.Deserialize<PlayerInfo>(stringResponse, options);
             return playerInfo;
+        }
+
+        public async Task<bool> SetReady()
+        {
+            var response = await _httpClient.GetAsync($"http://localhost:5277/Game/ReadyForGame/{_playerService.LobbyCode}/{_playerService.WhichPlayer()}");
+            if (!response.IsSuccessStatusCode) return false;
+            bool result = bool.Parse(await response.Content.ReadAsStringAsync());
+            return result;
+        }
+
+        public async Task<bool> GameReady()
+        {
+            var response = await _httpClient.GetAsync($"http://localhost:5277/Game/PlayersReady/{_playerService.LobbyCode}");
+            if (!response.IsSuccessStatusCode) return false;
+            bool result = bool.Parse(await response.Content.ReadAsStringAsync());
+            return result;
         }
     }
 }

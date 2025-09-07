@@ -38,10 +38,6 @@
                         </div>                        
                     }
                 </div>
-                @foreach(GwentCard card1 in AllCards)
-                {
-                    <p>@card1.Name , </p>
-                }
             </div>
 
             <div class="col-2">
@@ -69,9 +65,13 @@
     private async Task ReadyClicked()
     {
         IsReady = true;
-
-
-        //oczekiwac na drugiego gracza. utworzyc gre a nie lobby
+        await deckService.SetReady();
+        while (true)
+        {
+            if (await deckService.GameReady()) break;
+            await Task.Delay(4000);
+        }
+        navigationManager.NavigateTo("/GwentBoard");
     }
 
     private async Task SwapCard(GwentCard card)
@@ -82,7 +82,7 @@
         CardsSwapped = playerInfo.CardsSwapped;
         AllCards = playerInfo.Cards;
         TenCards = playerInfo.Cards[..10];
-        StateHasChanged();
+        StateHasChanged();//sprawdzic czy zadziala bez
     }
 
     protected override async Task OnInitializedAsync()

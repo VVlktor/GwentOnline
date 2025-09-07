@@ -34,6 +34,7 @@ namespace GwentApi
 
             builder.Services.AddSingleton<CardsService>();
             builder.Services.AddSingleton<ILobbyRepository, LobbyRepository>();//potencjalnie do zmiany na transient w przyszlosci
+            builder.Services.AddSingleton<IGameRepository, GameRepository>();
 
             var app = builder.Build();
 

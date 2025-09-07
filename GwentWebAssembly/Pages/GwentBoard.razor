@@ -1,0 +1,19 @@
+﻿@page "/GwentBoard"
+@inject PlayerService playerService
+@inject NavigationManager navigationManager
+
+
+<h3>GwentBoard</h3>
+
+@code {
+    protected override void OnInitialized()
+    {
+        if (!playerService.IsDataValid())
+            navigationManager.NavigateTo("/");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+    }
+}

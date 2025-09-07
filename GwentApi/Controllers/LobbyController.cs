@@ -71,5 +71,11 @@ namespace GwentApi.Controllers
             PlayerInfo playerInfo = await _lobbyService.SwapCard(lobbyCode, identity, id);
             return Ok(playerInfo);
         }
+
+        [HttpPost("ReadyForGame/{lobbyCode}/{identity}")]
+        public async Task<IActionResult> ReadyForGame(string lobbyCode, PlayerIdentity identity)
+        {
+            return Ok();//todo: kontynuowac
+        }
     }
 }
