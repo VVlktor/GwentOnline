@@ -2,10 +2,244 @@
 @inject PlayerService playerService
 @inject NavigationManager navigationManager
 
+<div class="background-board">
+    <div class="gwent-board">
+        <div class="board-frame">
+            <div class="container-fluid">
+                <div class="row g-3">
+                    <!-- lewa strona -->
+                    <div class="col-12 col-md-3 col-lg-3">
+                        <div class="side">
+                            <!-- Panel przeciwnika -->
+                            <div class="player-info">
+                                <div class="player-top">
+                                    <div class="commander-slot">
+                                        <img src="" alt="">
+                                    </div>
+                                    <div class="faction-label">Królestwa Północy</div>
+                                </div>
+                                <div class="stats-row mt-3">
+                                    <div class="stat">Karty: 10</div>
+                                    <div>
+                                        <span class="hp-dot"></span>
+                                        <span class="hp-dot"></span>
+                                    </div>
+                                    <div class="stat">Pkt: 25</div>
+                                </div>
+                            </div>
 
-<h3>GwentBoard</h3>
+                            <!-- pogoda -->
+                            <div class="slot">
+                                <div class="weather-lane">
+                                    @foreach(var card in RandomCards)
+                                    {
+                                        <div class="card-slot"></div>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- panel gracza -->
+                            <div class="player-info border-warning">
+                                <!-- border warning czyja tura - do zmieniania dynamicznie -->
+                                <div class="stats-row mb-3">
+                                    <div class="stat">Karty: 8</div>
+                                    <div>
+                                        <span class="hp-dot"></span>
+                                        <span class="hp-dot"></span>
+                                    </div>
+                                    <div class="stat">Pkt: 30</div>
+                                </div>
+                                <div class="player-bottom">
+                                    <div class="commander-slot">
+                                        <img src="" alt="">
+                                    </div>
+                                    <div class="faction-label">Nilfgaard</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- srodek -->
+                    <div class="col-12 col-md-6 col-lg-8">
+                        <div class="panel-wood">
+
+                            <!-- rowsy wroga -->
+                            <div class="lane-wrapper">
+                                <div class="lane-score">0</div>
+                                <div class="lane-extra-slot"></div>
+                                <div class="lane">
+                                    @foreach(var card in RandomCards)
+                                    {
+                                        <div class="card-slot">
+                                            <div class="card">
+                                                <img src="" alt="Karta wroga">
+                                                <div class="pow">5</div>
+                                                <div class="name">Balista</div>
+                                            </div>
+                                        </div>   
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="lane-wrapper">
+                                <div class="lane-score">0</div>
+                                <div class="lane-extra-slot"></div>
+                                <div class="lane">
+                                    @foreach (var card in RandomCards)
+                                    {
+                                        <div class="card-slot">
+                                            <div class="card">
+                                                <img src="" alt="Karta wroga">
+                                                <div class="pow">5</div>
+                                                <div class="name">Balista</div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="lane-wrapper">
+                                <div class="lane-score">0</div>
+                                <div class="lane-extra-slot"></div>
+                                <div class="lane">
+                                    @foreach (var card in RandomCards)
+                                    {
+                                        <div class="card-slot">
+                                            <div class="card">
+                                                <img src="" alt="Karta wroga">
+                                                <div class="pow">5</div>
+                                                <div class="name">Balista</div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <hr class="border-3 border-dark opacity-75 my-2">
+
+                            <!-- rowsy gracza -->
+                            <div class="lane-wrapper">
+                                <div class="lane-score">0</div>
+                                <div class="lane-extra-slot"></div>
+                                <div class="lane">
+                                    @foreach (var card in RandomCards)
+                                    {
+                                        <div class="card-slot">
+                                            <div class="card">
+                                                <img src="" alt="Karta">
+                                                <div class="pow">5</div>
+                                                <div class="name">Balista</div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="lane-wrapper">
+                                <div class="lane-score">0</div>
+                                <div class="lane-extra-slot"></div>
+                                <div class="lane">
+                                    @foreach (var card in RandomCards)
+                                    {
+                                        <div class="card-slot">
+                                            <div class="card">
+                                                <img src="" alt="">
+                                                <div class="pow">5</div>
+                                                <div class="name">Balista</div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="lane-wrapper">
+                                <div class="lane-score">0</div>
+                                <div class="lane-extra-slot"></div>
+                                <div class="lane">
+                                    @foreach (var card in RandomCards)
+                                    {
+                                        <div class="card-slot">
+                                            <div class="card">
+                                                <img src="" alt="Karta">
+                                                <div class="pow">5</div>
+                                                <div class="name">Balista</div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <hr class="border-3 border-dark opacity-75 my-2">
+
+                            <!-- deck gracza -->
+                            <div class="lane-wrapper">
+                                <div class="lane border-warning">
+                                    @foreach(var card in RandomCards)
+                                    {
+                                        <div class="card-slot">
+                                            <div class="card">
+                                                <img src="" alt="">
+                                                <div class="pow">3</div>
+                                                <div class="name">Trebusz</div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- lewa strona -->
+                    <div class="col-1">
+                        <div class="side">
+                            <div class="deck-slot">
+                                <div class="title">Odrzucone karty wroga</div>
+                                <div class="card-holder">
+                                    <img src="" alt="Odrzucone karty wroga">
+                                </div>
+                                <div class="count">x0</div>
+                            </div>
+
+                            <div class="deck-slot">
+                                <div class="title">Talia wroga</div>
+                                <div class="card-holder">
+                                    <img src="" alt="Taila wroga">
+                                </div>
+                                <div class="count">x25</div>
+                            </div>
+
+                            <div class="deck-slot">
+                                <div class="title">Twoje odrzucone karty</div>
+                                <div class="card-holder">
+                                    <img src="" alt="Twoje odrzucone karty">
+                                </div>
+                                <div class="count">x0</div>
+                            </div>
+
+                            <div class="deck-slot">
+                                <div class="title">Twoja talia</div>
+                                <div class="card-holder">
+                                    <img src="" alt="Twoja talia">
+                                </div>
+                                <div class="count">x27</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
 
 @code {
+    private List<int> RandomCards = new() { 1,2,3 };
+
     protected override void OnInitialized()
     {
         if (!playerService.IsDataValid())

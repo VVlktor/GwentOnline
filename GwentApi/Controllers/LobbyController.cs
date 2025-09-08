@@ -23,6 +23,7 @@ namespace GwentApi.Controllers
         [HttpGet("Cards")]
         public IActionResult GetCards()
         {
+            throw new Exception("Unexpected question");
             return Ok(_cardsService.Cards);
         }
 
