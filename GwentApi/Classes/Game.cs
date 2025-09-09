@@ -10,7 +10,10 @@
         public PlayerSide PlayerOne = new();
         public PlayerSide PlayerTwo = new();
 
-        public PlayerIdentity Turn;
+        public List<GwentBoardCard> CardsOnBoard = new();
+        public List<GwentAction> Actions = new();
+
+        public PlayerIdentity Turn = PlayerIdentity.PlayerOne;//do zmiany w zaleznosci od talii
 
         public string Code { get; set; }
         public DateTime LastMove = DateTime.Now;
@@ -32,6 +35,21 @@
                 PlayerOne = playerSide;
             else
                 PlayerTwo = playerSide;
+        }
+
+        public void AddAction(GwentActionType actionType, PlayerIdentity issuer, Abilities ability, List<GwentBoardCard> affectedCards, GwentCard? playedCard = null)
+        {
+            int index = Actions.Count;
+            GwentAction action = new()
+            {
+                Id=index,
+                ActionType=actionType,
+                Issuer=issuer,
+                AbilitiyUsed=ability,
+                CardsAffected=affectedCards,
+                CardPlayed=playedCard,
+            };
+            Actions.Add(action);
         }
     }
 }

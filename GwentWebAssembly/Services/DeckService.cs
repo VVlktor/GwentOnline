@@ -1,4 +1,5 @@
 ﻿using GwentWebAssembly.Data;
+using GwentWebAssembly.Data.Dtos;
 using GwentWebAssembly.Services.Interfaces;
 using System.Text;
 using System.Text.Json;
@@ -59,16 +60,20 @@ namespace GwentWebAssembly.Services
         {
             var response = await _httpClient.GetAsync($"http://localhost:5277/Game/ReadyForGame/{_playerService.LobbyCode}/{_playerService.WhichPlayer()}");
             if (!response.IsSuccessStatusCode) return false;
-            bool result = bool.Parse(await response.Content.ReadAsStringAsync());
-            return result;
+            string stringResponse = await response.Content.ReadAsStringAsync();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, IncludeFields = true };
+            var result = JsonSerializer.Deserialize<ReadyDto>(stringResponse, options);
+            return result.Ready;
         }
 
         public async Task<bool> GameReady()
         {
             var response = await _httpClient.GetAsync($"http://localhost:5277/Game/PlayersReady/{_playerService.LobbyCode}");
             if (!response.IsSuccessStatusCode) return false;
-            bool result = bool.Parse(await response.Content.ReadAsStringAsync());
-            return result;
+            string stringResponse = await response.Content.ReadAsStringAsync();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, IncludeFields = true };
+            var result = JsonSerializer.Deserialize<ReadyDto>(stringResponse, options);
+            return result.Ready;
         }
     }
 }

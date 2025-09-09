@@ -5,8 +5,9 @@ namespace GwentApi.Services.Interfaces
 {
     public interface IGameService
     {
-        Task<bool> ReadyForGame(string code, PlayerIdentity identity);
-        Task<bool> PlayersReady(string code);
-        Task<GameStatusDto> GetStatus(string code, PlayerIdentity identity);
+        Task<ReadyDto> ReadyForGame(string code, PlayerIdentity identity);
+        Task<ReadyDto> PlayersReady(string code);
+        Task<GameStatusDto> GetStatus(string code, PlayerIdentity identity, int lastActionId);
+        Task<StartStatusDto> StartStatus(string code, PlayerIdentity identity);
     }
 }

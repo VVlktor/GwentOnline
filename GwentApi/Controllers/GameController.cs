@@ -19,21 +19,34 @@ namespace GwentApi.Controllers
         [HttpGet("ReadyForGame/{code}/{player}")]
         public async Task<IActionResult> ReadyForGame(string code, PlayerIdentity player)
         {
-            bool result = await _gameService.ReadyForGame(code, player);//Todo: zmienic na dto
+            ReadyDto result = await _gameService.ReadyForGame(code, player);
             return Ok(result);
         }
 
         [HttpGet("PlayersReady/{code}")]
         public async Task<IActionResult> PlayersReady(string code)
         {
-            bool result = await _gameService.PlayersReady(code);
+            ReadyDto result = await _gameService.PlayersReady(code);
             return Ok(result);
         }
 
-        [HttpGet("GameStatus/{code}/{player}")]
-        public async Task<IActionResult> GameStatus(string code, PlayerIdentity player)//moze dodac int lastMoveId?
+        [HttpGet("StartStatus/{code}/{player}")]
+        public async Task<IActionResult> StartStatus(string code, PlayerIdentity player)
         {
-            GameStatusDto gameStatus = await _gameService.GetStatus(code, player);
+            StartStatusDto status = await _gameService.StartStatus(code, player);
+            return Ok(status);
+        }
+
+        [HttpGet("GameStatus/{code}/{player}/{lasstActionId}")]
+        public async Task<IActionResult> GameStatus(string code, PlayerIdentity player, int lastActionId)
+        {
+            GameStatusDto gameStatus = await _gameService.GetStatus(code, player, lastActionId);
+            return Ok(gameStatus);
+        }
+
+        [HttpGet("GameAction/{code}/{player}")]
+        public async Task<IActionResult> GameAction(string code, PlayerIdentity player, [FromBody]GwentAction action)//nie gwentaction tylko jeszcze inny obiekt, zmienic.
+        {
             return Ok();
         }
     }

@@ -1,6 +1,7 @@
 ﻿@page "/GwentBoard"
 @inject PlayerService playerService
 @inject NavigationManager navigationManager
+@inject IGameService gameService
 
 <div class="background-board">
     <div class="gwent-board">
@@ -31,7 +32,7 @@
                             <!-- pogoda -->
                             <div class="slot">
                                 <div class="weather-lane">
-                                    @foreach(var card in RandomCards)
+                                    @foreach(var card in CardsOnBoard)
                                     {
                                         <div class="card-slot"></div>
                                     }
@@ -68,7 +69,7 @@
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot"></div>
                                 <div class="lane">
-                                    @foreach(var card in RandomCards)
+                                    @foreach(var card in CardsOnBoard)
                                     {
                                         <div class="card-slot">
                                             <div class="card">
@@ -85,7 +86,7 @@
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot"></div>
                                 <div class="lane">
-                                    @foreach (var card in RandomCards)
+                                    @foreach (var card in CardsOnBoard)
                                     {
                                         <div class="card-slot">
                                             <div class="card">
@@ -102,7 +103,7 @@
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot"></div>
                                 <div class="lane">
-                                    @foreach (var card in RandomCards)
+                                    @foreach (var card in CardsOnBoard)
                                     {
                                         <div class="card-slot">
                                             <div class="card">
@@ -122,7 +123,7 @@
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot"></div>
                                 <div class="lane">
-                                    @foreach (var card in RandomCards)
+                                    @foreach (var card in CardsOnBoard)
                                     {
                                         <div class="card-slot">
                                             <div class="card">
@@ -139,7 +140,7 @@
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot"></div>
                                 <div class="lane">
-                                    @foreach (var card in RandomCards)
+                                    @foreach (var card in CardsOnBoard)
                                     {
                                         <div class="card-slot">
                                             <div class="card">
@@ -156,7 +157,7 @@
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot"></div>
                                 <div class="lane">
-                                    @foreach (var card in RandomCards)
+                                    @foreach (var card in CardsOnBoard)
                                     {
                                         <div class="card-slot">
                                             <div class="card">
@@ -174,7 +175,7 @@
                             <!-- deck gracza -->
                             <div class="lane-wrapper">
                                 <div class="lane border-warning">
-                                    @foreach(var card in RandomCards)
+                                    @foreach(var card in CardsOnBoard)
                                     {
                                         <div class="card-slot">
                                             <div class="card">
@@ -238,16 +239,32 @@
 
 
 @code {
-    private List<int> RandomCards = new() { 1,2,3 };
+    private List<GwentBoardCard> CardsOnBoard = new();
+    private List<GwentCard> CardsInHand = new();
+
+    private GwentCard PlayerLeaderCard = new();
+    private GwentCard EnemyLeaderCard = new();
+
+    private int EnemyCartsCount = 0;//do zagrania
+    private int EnemyDeckCount = 0;//pozostale/nieuzywane w talii
+    private int EnemyUsedCards = 0;//zuzyte
+
+    private int PlayerDeckCount = 0;
+    private List<GwentCard> PlayerUsedCards = new();
+
+    private PlayerIdentity Turn;
+    private int PlayerHp = 2;
+    private int EnemyHp = 2;
 
     protected override void OnInitialized()
     {
-        if (!playerService.IsDataValid())
-            navigationManager.NavigateTo("/");
+        // if (!playerService.IsDataValid())
+        //     navigationManager.NavigateTo("/");
     }
 
     protected override async Task OnInitializedAsync()
     {
+        //StartStatusDto startStatus = await gameService.GetStartStatus();
         
     }
 }

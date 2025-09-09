@@ -53,4 +53,14 @@
         Madromede = 131072,
         AvengerKambi = 262144
     }
+
+    public enum GwentActionType
+    {
+        None = 0,
+        CardPlayed = 1,
+        CardsKilled=2,
+        AbilityUsed=3,
+        NewRound=4,
+
+    }
 }
