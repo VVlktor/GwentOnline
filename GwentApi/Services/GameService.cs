@@ -77,7 +77,7 @@ namespace GwentApi.Services
                 Turn=game.Turn,
                 Actions=actions
             };
-            return status;
+            return status;//metoda porzucona na rzecz huba z signalR
         }
 
         public async Task<StartStatusDto> StartStatus(string code, PlayerIdentity identity)
@@ -90,10 +90,11 @@ namespace GwentApi.Services
             StartStatusDto status = new()
             {
                 PlayerCards = playerSide.CardsInHand,
-                EnemyCardsCount=enemySide.CardsInHand.Count(),
+                EnemyDeckCount=enemySide.CardsInHand.Count(),
                 Turn = game.Turn,
                 PlayerLeaderCard = playerSide.LeaderCard,
                 EnemyLeaderCard = enemySide.LeaderCard,
+                PlayerDeckCount = playerSide.Deck.Count()
             };
 
             return status;

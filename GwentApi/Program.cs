@@ -1,4 +1,5 @@
 
+using GwentApi.Hubs;
 using GwentApi.Repository;
 using GwentApi.Repository.Interfaces;
 using GwentApi.Services;
@@ -12,13 +13,11 @@ namespace GwentApi
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
             builder.Services.AddControllers();
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
             builder.Services.AddOpenApi();
 
-            var MyAllowSpecificOrigins = "somePermissions";
+            var MyAllowSpecificOrigins = "gwentWasmPermission";
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy(name: MyAllowSpecificOrigins,
@@ -27,6 +26,7 @@ namespace GwentApi
                                       policy.WithOrigins("http://localhost:5140").AllowAnyMethod().AllowAnyHeader();
                                   });
             });
+            builder.Services.AddSignalR();
 
             builder.Services.AddTransient<ILobbyService, LobbyService>();
             builder.Services.AddTransient<IGameService, GameService>();
@@ -47,6 +47,8 @@ namespace GwentApi
             app.UseAuthorization();
 
             app.UseCors(MyAllowSpecificOrigins);
+
+            app.MapHub<GwentHub>("/gwenthub");
 
             app.MapControllers();
 

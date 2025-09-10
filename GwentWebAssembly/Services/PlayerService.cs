@@ -1,5 +1,4 @@
 ﻿using GwentWebAssembly.Data;
-using GwentWebAssembly.Services.Interfaces;
 
 namespace GwentWebAssembly.Services
 {
@@ -14,15 +13,10 @@ namespace GwentWebAssembly.Services
             LobbyCode = lobbyCode;
         }
 
-        public bool IsDataValid()
-        {
-            if(string.IsNullOrEmpty(LobbyCode)) return false;
-            return true;
-        }
+        public bool IsDataValid() => !string.IsNullOrEmpty(LobbyCode);
 
-        public PlayerIdentity WhichPlayer()
-        {
-            return _identity;
-        }
+        public PlayerIdentity GetIdentity() => _identity;
+
+        public PlayerIdentity EnemyIdentity() => _identity == PlayerIdentity.PlayerOne ? PlayerIdentity.PlayerTwo : PlayerIdentity.PlayerOne;
     }
 }

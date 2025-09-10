@@ -18,7 +18,7 @@ namespace GwentWebAssembly.Services
 
         public async Task<StartStatusDto> GetStartStatus()
         {
-            var response = await _httpClient.GetAsync($"http://localhost:5277/Game/StartStatus/{_playerService.LobbyCode}/{_playerService.WhichPlayer()}");
+            var response = await _httpClient.GetAsync($"http://localhost:5277/Game/StartStatus/{_playerService.LobbyCode}/{_playerService.GetIdentity()}");
             string stringResponse = await response.Content.ReadAsStringAsync();
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, IncludeFields = true };
             var result = JsonSerializer.Deserialize<StartStatusDto>(stringResponse, options);

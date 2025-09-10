@@ -21,7 +21,7 @@ namespace GwentWebAssembly.Services
         {
             string json = JsonSerializer.Serialize(playerInfo);
             var data = new StringContent(json, Encoding.UTF8, "application/json");
-            HttpResponseMessage response = await _httpClient.PostAsync($"http://localhost:5277/Lobby/VerifyAndSetDeck/{_playerService.LobbyCode}/{_playerService.WhichPlayer()}", data);
+            HttpResponseMessage response = await _httpClient.PostAsync($"http://localhost:5277/Lobby/VerifyAndSetDeck/{_playerService.LobbyCode}/{_playerService.GetIdentity()}", data);
             string stringResponse = await response.Content.ReadAsStringAsync();
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             ResponseData responeData = JsonSerializer.Deserialize<ResponseData>(stringResponse, options);
@@ -38,7 +38,7 @@ namespace GwentWebAssembly.Services
 
         public async Task<PlayerInfo> GetPlayerInfo()
         {
-            var response = await _httpClient.GetAsync($"http://localhost:5277/lobby/GetPlayerInfo/{_playerService.LobbyCode}/{_playerService.WhichPlayer()}");
+            var response = await _httpClient.GetAsync($"http://localhost:5277/lobby/GetPlayerInfo/{_playerService.LobbyCode}/{_playerService.GetIdentity()}");
             string responseString = await response.Content.ReadAsStringAsync();
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, IncludeFields = true };
             PlayerInfo responeData = JsonSerializer.Deserialize<PlayerInfo>(responseString, options);
@@ -49,7 +49,7 @@ namespace GwentWebAssembly.Services
         {
             string json = JsonSerializer.Serialize(id);
             var data = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync($"http://localhost:5277/Lobby/SwapCard/{_playerService.LobbyCode}/{_playerService.WhichPlayer()}", data);
+            var response = await _httpClient.PostAsync($"http://localhost:5277/Lobby/SwapCard/{_playerService.LobbyCode}/{_playerService.GetIdentity()}", data);
             string stringResponse = await response.Content.ReadAsStringAsync();
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, IncludeFields = true };
             PlayerInfo playerInfo = JsonSerializer.Deserialize<PlayerInfo>(stringResponse, options);
@@ -58,7 +58,7 @@ namespace GwentWebAssembly.Services
 
         public async Task<bool> SetReady()
         {
-            var response = await _httpClient.GetAsync($"http://localhost:5277/Game/ReadyForGame/{_playerService.LobbyCode}/{_playerService.WhichPlayer()}");
+            var response = await _httpClient.GetAsync($"http://localhost:5277/Game/ReadyForGame/{_playerService.LobbyCode}/{_playerService.GetIdentity()}");
             if (!response.IsSuccessStatusCode) return false;
             string stringResponse = await response.Content.ReadAsStringAsync();
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, IncludeFields = true };

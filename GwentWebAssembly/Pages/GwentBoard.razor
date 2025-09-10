@@ -12,27 +12,29 @@
                     <div class="col-12 col-md-3 col-lg-3">
                         <div class="side">
                             <!-- Panel przeciwnika -->
-                            <div class="player-info">
+                            <div class="player-info @(Turn == playerService.EnemyIdentity() ? "border-warning" : "")">
                                 <div class="player-top">
                                     <div class="commander-slot">
                                         <img src="" alt="">
                                     </div>
-                                    <div class="faction-label">Królestwa Północy</div>
+                                    <div class="faction-label">@EnemyLeaderCard.Faction</div>
                                 </div>
                                 <div class="stats-row mt-3">
-                                    <div class="stat">Karty: 10</div>
+                                    <div class="stat">Karty: @EnemyCartsCount</div>
                                     <div>
-                                        <span class="hp-dot"></span>
-                                        <span class="hp-dot"></span>
+                                        @for(int i =0; i<EnemyHp; i++)
+                                        {
+                                            <span class="hp-dot"></span>
+                                        }
                                     </div>
-                                    <div class="stat">Pkt: 25</div>
+                                    <div class="stat">Pkt: @EnemyPoints</div>
                                 </div>
                             </div>
 
                             <!-- pogoda -->
                             <div class="slot">
                                 <div class="weather-lane">
-                                    @foreach(var card in CardsOnBoard)
+                                    @foreach(var card in CardsOnBoard.Where(x=>x.Placement==TroopPlacement.Weather))
                                     {
                                         <div class="card-slot"></div>
                                     }
@@ -40,21 +42,22 @@
                             </div>
 
                             <!-- panel gracza -->
-                            <div class="player-info border-warning">
-                                <!-- border warning czyja tura - do zmieniania dynamicznie -->
+                            <div class="player-info @(Turn == playerService.GetIdentity() ? "border-warning" : "")">
                                 <div class="stats-row mb-3">
-                                    <div class="stat">Karty: 8</div>
+                                    <div class="stat">Karty: @CardsInHand.Count()</div>
                                     <div>
-                                        <span class="hp-dot"></span>
-                                        <span class="hp-dot"></span>
+                                        @for (int i = 0; i < PlayerHp; i++)
+                                        {
+                                            <span class="hp-dot"></span>
+                                        }
                                     </div>
-                                    <div class="stat">Pkt: 30</div>
+                                    <div class="stat">Pkt: @PlayerPoints</div>
                                 </div>
                                 <div class="player-bottom">
                                     <div class="commander-slot">
                                         <img src="" alt="">
                                     </div>
-                                    <div class="faction-label">Nilfgaard</div>
+                                    <div class="faction-label">@PlayerLeaderCard.Faction</div>
                                 </div>
                             </div>
                         </div>
@@ -69,13 +72,13 @@
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot"></div>
                                 <div class="lane">
-                                    @foreach(var card in CardsOnBoard)
+                                    @foreach(var card in CardsOnBoard.Where(x=>x.Placement==TroopPlacement.Siege && x.Owner == playerService.EnemyIdentity()))
                                     {
                                         <div class="card-slot">
                                             <div class="card">
                                                 <img src="" alt="Karta wroga">
-                                                <div class="pow">5</div>
-                                                <div class="name">Balista</div>
+                                                <div class="pow">@card.CurrentStrength</div>
+                                                <div class="name">@card.Name</div>
                                             </div>
                                         </div>   
                                     }
@@ -86,13 +89,13 @@
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot"></div>
                                 <div class="lane">
-                                    @foreach (var card in CardsOnBoard)
+                                    @foreach (var card in CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.EnemyIdentity()))
                                     {
                                         <div class="card-slot">
                                             <div class="card">
                                                 <img src="" alt="Karta wroga">
-                                                <div class="pow">5</div>
-                                                <div class="name">Balista</div>
+                                                <div class="pow">@card.CurrentStrength</div>
+                                                <div class="name">@card.Name</div>
                                             </div>
                                         </div>
                                     }
@@ -103,13 +106,13 @@
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot"></div>
                                 <div class="lane">
-                                    @foreach (var card in CardsOnBoard)
+                                    @foreach (var card in CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.EnemyIdentity()))
                                     {
                                         <div class="card-slot">
                                             <div class="card">
                                                 <img src="" alt="Karta wroga">
-                                                <div class="pow">5</div>
-                                                <div class="name">Balista</div>
+                                                <div class="pow">@card.CurrentStrength</div>
+                                                <div class="name">@card.Name</div>
                                             </div>
                                         </div>
                                     }
@@ -123,13 +126,13 @@
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot"></div>
                                 <div class="lane">
-                                    @foreach (var card in CardsOnBoard)
+                                    @foreach (var card in CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.GetIdentity()))
                                     {
                                         <div class="card-slot">
                                             <div class="card">
                                                 <img src="" alt="Karta">
-                                                <div class="pow">5</div>
-                                                <div class="name">Balista</div>
+                                                <div class="pow">@card.CurrentStrength</div>
+                                                <div class="name">@card.Name</div>
                                             </div>
                                         </div>
                                     }
@@ -140,13 +143,13 @@
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot"></div>
                                 <div class="lane">
-                                    @foreach (var card in CardsOnBoard)
+                                    @foreach (var card in CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.GetIdentity()))
                                     {
                                         <div class="card-slot">
                                             <div class="card">
                                                 <img src="" alt="">
-                                                <div class="pow">5</div>
-                                                <div class="name">Balista</div>
+                                                <div class="pow">@card.CurrentStrength</div>
+                                                <div class="name">@card.Name</div>
                                             </div>
                                         </div>
                                     }
@@ -157,13 +160,13 @@
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot"></div>
                                 <div class="lane">
-                                    @foreach (var card in CardsOnBoard)
+                                    @foreach (var card in CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.GetIdentity()))
                                     {
                                         <div class="card-slot">
                                             <div class="card">
                                                 <img src="" alt="Karta">
-                                                <div class="pow">5</div>
-                                                <div class="name">Balista</div>
+                                                <div class="pow">@card.CurrentStrength</div>
+                                                <div class="name">@card.Name</div>
                                             </div>
                                         </div>
                                     }
@@ -175,13 +178,13 @@
                             <!-- deck gracza -->
                             <div class="lane-wrapper">
                                 <div class="lane border-warning">
-                                    @foreach(var card in CardsOnBoard)
+                                    @foreach(var card in CardsInHand)
                                     {
                                         <div class="card-slot">
                                             <div class="card">
                                                 <img src="" alt="">
-                                                <div class="pow">3</div>
-                                                <div class="name">Trebusz</div>
+                                                <div class="pow">@card.Strength</div><!-- jesli karty nie mające hp, np pogoda lub manekin to nie wyswietlac sily -->
+                                                <div class="name">@card.Name</div>
                                             </div>
                                         </div>
                                     }
@@ -199,7 +202,7 @@
                                 <div class="card-holder">
                                     <img src="" alt="Odrzucone karty wroga">
                                 </div>
-                                <div class="count">x0</div>
+                                <div class="count">x @EnemyUsedCards</div>
                             </div>
 
                             <div class="deck-slot">
@@ -207,7 +210,7 @@
                                 <div class="card-holder">
                                     <img src="" alt="Taila wroga">
                                 </div>
-                                <div class="count">x25</div>
+                                <div class="count">x @EnemyDeckCount</div>
                             </div>
 
                             <div class="deck-slot">
@@ -215,7 +218,7 @@
                                 <div class="card-holder">
                                     <img src="" alt="Twoje odrzucone karty">
                                 </div>
-                                <div class="count">x0</div>
+                                <div class="count">x @PlayerUsedCards.Count()</div>
                             </div>
 
                             <div class="deck-slot">
@@ -223,7 +226,7 @@
                                 <div class="card-holder">
                                     <img src="" alt="Twoja talia">
                                 </div>
-                                <div class="count">x27</div>
+                                <div class="count">x @PlayerDeckCount</div>
                             </div>
                         </div>
                     </div>
@@ -252,19 +255,29 @@
     private int PlayerDeckCount = 0;
     private List<GwentCard> PlayerUsedCards = new();
 
-    private PlayerIdentity Turn;
+    private PlayerIdentity Turn = PlayerIdentity.PlayerOne;
     private int PlayerHp = 2;
     private int EnemyHp = 2;
 
+    private int EnemyPoints = 0;
+    private int PlayerPoints = 0;
+
     protected override void OnInitialized()
     {
-        // if (!playerService.IsDataValid())
-        //     navigationManager.NavigateTo("/");
+        if (!playerService.IsDataValid())
+            navigationManager.NavigateTo("/");
     }
 
     protected override async Task OnInitializedAsync()
     {
-        //StartStatusDto startStatus = await gameService.GetStartStatus();
-        
+        StartStatusDto startStatus = await gameService.GetStartStatus();
+        Turn = startStatus.Turn;
+        PlayerDeckCount = startStatus.PlayerDeckCount;
+        PlayerLeaderCard = startStatus.PlayerLeaderCard;
+        EnemyLeaderCard = startStatus.EnemyLeaderCard;
+        CardsInHand = startStatus.PlayerCards;
+        EnemyCartsCount = startStatus.EnemyCartsCount;
+        EnemyDeckCount = startStatus.EnemyDeckCount;
+        StateHasChanged();
     }
 }
