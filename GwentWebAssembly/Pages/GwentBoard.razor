@@ -54,7 +54,7 @@
                                     <div class="stat">Pkt: @PlayerPoints</div>
                                 </div>
                                 <div class="player-bottom">
-                                    <div class="commander-slot">
+                                    <div class="commander-slot" @onclick="async () => await GwentActionLeaderClicked()">
                                         <img src="" alt="">
                                     </div>
                                     <div class="faction-label">@PlayerLeaderCard.Faction</div>
@@ -71,11 +71,11 @@
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot"></div>
-                                <div class="lane">
+                                <div class="lane" @onclick="async () => await GwentActionLaneClicked(GwentLane.EnemySiege)">
                                     @foreach(var card in CardsOnBoard.Where(x=>x.Placement==TroopPlacement.Siege && x.Owner == playerService.EnemyIdentity()))
                                     {
                                         <div class="card-slot">
-                                            <div class="card">
+                                            <div class="card" @onclick="async () => await GwentActionCardClicked(card)">
                                                 <img src="" alt="Karta wroga">
                                                 <div class="pow">@card.CurrentStrength</div>
                                                 <div class="name">@card.Name</div>
@@ -88,11 +88,11 @@
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot"></div>
-                                <div class="lane">
+                                <div class="lane" @onclick="async () => await GwentActionLaneClicked(GwentLane.EnemyRange)">
                                     @foreach (var card in CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.EnemyIdentity()))
                                     {
                                         <div class="card-slot">
-                                            <div class="card">
+                                            <div class="card" @onclick="async () => await GwentActionCardClicked(card)">
                                                 <img src="" alt="Karta wroga">
                                                 <div class="pow">@card.CurrentStrength</div>
                                                 <div class="name">@card.Name</div>
@@ -105,11 +105,11 @@
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot"></div>
-                                <div class="lane">
+                                <div class="lane" @onclick="async () => await GwentActionLaneClicked(GwentLane.EnemyMelee)">
                                     @foreach (var card in CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.EnemyIdentity()))
                                     {
                                         <div class="card-slot">
-                                            <div class="card">
+                                            <div class="card" @onclick="async () => await GwentActionCardClicked(card)">
                                                 <img src="" alt="Karta wroga">
                                                 <div class="pow">@card.CurrentStrength</div>
                                                 <div class="name">@card.Name</div>
@@ -125,11 +125,11 @@
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot"></div>
-                                <div class="lane">
+                                <div class="lane" @onclick="async () => await GwentActionLaneClicked(GwentLane.Melee)">
                                     @foreach (var card in CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.GetIdentity()))
                                     {
                                         <div class="card-slot">
-                                            <div class="card">
+                                            <div class="card" @onclick="async () => await GwentActionCardClicked(card)">
                                                 <img src="" alt="Karta">
                                                 <div class="pow">@card.CurrentStrength</div>
                                                 <div class="name">@card.Name</div>
@@ -142,11 +142,11 @@
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot"></div>
-                                <div class="lane">
+                                <div class="lane" @onclick="async () => await GwentActionLaneClicked(GwentLane.Range)">
                                     @foreach (var card in CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.GetIdentity()))
                                     {
                                         <div class="card-slot">
-                                            <div class="card">
+                                            <div class="card" @onclick="async () => await GwentActionCardClicked(card)">
                                                 <img src="" alt="">
                                                 <div class="pow">@card.CurrentStrength</div>
                                                 <div class="name">@card.Name</div>
@@ -159,11 +159,11 @@
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot"></div>
-                                <div class="lane">
+                                <div class="lane" @onclick="async () => await GwentActionLaneClicked(GwentLane.Siege)">
                                     @foreach (var card in CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.GetIdentity()))
                                     {
                                         <div class="card-slot">
-                                            <div class="card">
+                                            <div class="card" @onclick="async () => await GwentActionCardClicked(card)">
                                                 <img src="" alt="Karta">
                                                 <div class="pow">@card.CurrentStrength</div>
                                                 <div class="name">@card.Name</div>
@@ -180,7 +180,7 @@
                                 <div class="lane border-warning">
                                     @foreach(var card in CardsInHand)
                                     {
-                                        <div class="card-slot">
+                                        <div class="card-slot" @onclick="()=>CardSelected(card)">
                                             <div class="card">
                                                 <img src="" alt="">
                                                 <div class="pow">@card.Strength</div><!-- jesli karty nie mające hp, np pogoda lub manekin to nie wyswietlac sily -->
@@ -262,6 +262,13 @@
     private int EnemyPoints = 0;
     private int PlayerPoints = 0;
 
+    private GwentCard SelectedCard { get; set; } = new();
+
+    private void CardSelected(GwentCard card)
+    {
+        SelectedCard = card;
+    }
+
     protected override void OnInitialized()
     {
         if (!playerService.IsDataValid())
@@ -279,5 +286,20 @@
         EnemyCartsCount = startStatus.EnemyCartsCount;
         EnemyDeckCount = startStatus.EnemyDeckCount;
         StateHasChanged();
+    }
+
+    private async Task GwentActionLaneClicked(GwentLane lane)
+    {
+        await gameService.LaneClicked(lane, SelectedCard);
+    }
+
+    private async Task GwentActionLeaderClicked()
+    {
+        await gameService.LeaderClicked();
+    }
+
+    private async Task GwentActionCardClicked(GwentBoardCard card)
+    {
+        await gameService.CardClicked(card);
     }
 }

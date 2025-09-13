@@ -1,4 +1,4 @@
-﻿namespace GwentApi.Classes
+﻿namespace GwentWebAssembly.Data
 {
     public class GwentAction
     {

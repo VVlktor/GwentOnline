@@ -63,21 +63,21 @@ namespace GwentApi.Services
             return new() { Ready = game.PlayersReady() };
         }
 
-        public async Task<GameStatusDto> GetStatus(string code, PlayerIdentity identity, int lastActionId)//TODO: dostosować GameStatusDto
+        public async Task<GameStatusDto> GetStatus(string code, PlayerIdentity identity)//TODO: WAZNE VERY IMPORTANT ACTIONS SIE SPIERDOLIŁY (znaczy ja je spierdoliłem) - NAPRAWIC
         {
             Game game = await _gameRepository.GetGameByCode(code);
 
             PlayerSide playerSide = identity == PlayerIdentity.PlayerOne ? game.PlayerOne : game.PlayerTwo;
 
-            List<GwentAction> actions = game.Actions.Where(x => x.Id > lastActionId).ToList();
+            GwentAction action = game.Actions.Last();
 
             GameStatusDto status = new() {
                 CardsInHand= playerSide.CardsInHand,
                 CardsOnBoard=game.CardsOnBoard,
                 Turn=game.Turn,
-                Actions=actions
+                Action=action
             };
-            return status;//metoda porzucona na rzecz huba z signalR
+            return status;
         }
 
         public async Task<StartStatusDto> StartStatus(string code, PlayerIdentity identity)
@@ -98,6 +98,11 @@ namespace GwentApi.Services
             };
 
             return status;
+        }
+
+        public Task<bool> LaneClicked(LaneClickedDto laneClickedDto)
+        {
+            throw new NotImplementedException();//tutaj jestem
         }
     }
 }

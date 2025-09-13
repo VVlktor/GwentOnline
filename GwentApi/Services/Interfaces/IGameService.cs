@@ -7,7 +7,8 @@ namespace GwentApi.Services.Interfaces
     {
         Task<ReadyDto> ReadyForGame(string code, PlayerIdentity identity);
         Task<ReadyDto> PlayersReady(string code);
-        Task<GameStatusDto> GetStatus(string code, PlayerIdentity identity, int lastActionId);
+        Task<GameStatusDto> GetStatus(string code, PlayerIdentity identity);
         Task<StartStatusDto> StartStatus(string code, PlayerIdentity identity);
+        Task<bool> LaneClicked(LaneClickedDto laneClickedDto);
     }
 }

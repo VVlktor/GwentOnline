@@ -38,15 +38,15 @@ namespace GwentApi.Controllers
         }
 
         [HttpGet("GameStatus/{code}/{player}/{lasstActionId}")]
-        public async Task<IActionResult> GameStatus(string code, PlayerIdentity player, int lastActionId)
+        public async Task<IActionResult> GameStatus(string code, PlayerIdentity player)//useless chyba...?
         {
-            GameStatusDto gameStatus = await _gameService.GetStatus(code, player, lastActionId);
+            GameStatusDto gameStatus = await _gameService.GetStatus(code, player);
             return Ok(gameStatus);
         }
 
         [HttpGet("GameAction/{code}/{player}")]
         public async Task<IActionResult> GameAction(string code, PlayerIdentity player, [FromBody]GwentAction action)//nie gwentaction tylko jeszcze inny obiekt, zmienic.
-        {
+        {//pewnie useless as well. Poki co jednak zostawie
             return Ok();
         }
     }

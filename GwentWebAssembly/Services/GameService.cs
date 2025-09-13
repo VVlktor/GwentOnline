@@ -1,4 +1,5 @@
-﻿using GwentWebAssembly.Data.Dtos;
+﻿using GwentWebAssembly.Data;
+using GwentWebAssembly.Data.Dtos;
 using GwentWebAssembly.Services.Interfaces;
 using System.Net.Http;
 using System.Text.Json;
@@ -9,11 +10,13 @@ namespace GwentWebAssembly.Services
     {
         private HttpClient _httpClient;
         private PlayerService _playerService;
+        private IGwentHubService _gwentHubService;
 
-        public GameService(HttpClient httpClient, PlayerService playerService)
+        public GameService(HttpClient httpClient, PlayerService playerService, IGwentHubService gwentHubService)
         {
             _httpClient = httpClient;
             _playerService = playerService;
+            _gwentHubService = gwentHubService;
         }
 
         public async Task<StartStatusDto> GetStartStatus()
@@ -25,5 +28,19 @@ namespace GwentWebAssembly.Services
             return result;
         }
 
+        public Task CardClicked(GwentBoardCard card)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task LaneClicked(GwentLane lane, GwentCard card)
+        {
+            await _gwentHubService.SendLaneClicked(_playerService.GetIdentity(), _playerService.LobbyCode, lane, card);
+        }
+
+        public Task LeaderClicked()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

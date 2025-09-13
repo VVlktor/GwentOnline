@@ -6,6 +6,15 @@
         PlayerTwo=1
     }
 
+    public enum GwentActionType
+    {
+        None = 0,
+        CardPlayed = 1,
+        CardsKilled = 2,
+        AbilityUsed = 3,
+        NewRound = 4,
+    }
+
     public enum CardFaction
     {
         Neutral = 0,
@@ -52,5 +61,24 @@
         Berserker = 65536,
         Madromede = 131072,
         AvengerKambi = 262144
+    }
+
+    public enum ClickableGwentAction
+    {
+        LaneClicked = 1,
+        EnemyLaneClicked = 2,
+        CardClicked =3,
+        WeatherLaneClicked=4,
+        LeaderClicked=5,
+    }
+
+    public enum GwentLane
+    {
+        Melee = 1,
+        Range = 2,
+        Siege = 3,
+        EnemyMelee = 4,
+        EnemyRange=5,
+        EnemySiege = 6,
     }
 }
