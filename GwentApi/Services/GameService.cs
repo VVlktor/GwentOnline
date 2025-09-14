@@ -69,7 +69,7 @@ namespace GwentApi.Services
 
             PlayerSide playerSide = identity == PlayerIdentity.PlayerOne ? game.PlayerOne : game.PlayerTwo;
 
-            GwentAction action = game.Actions.Last();
+            GwentAction action = game.Actions.Last();//potencjalnie bedzie sie wywalac jesli nie ma zadnej akcji - pytanie czy moze nie byc zadnej akcji na tym etapie. do sprawdzenia
 
             GameStatusDto status = new() {
                 CardsInHand= playerSide.CardsInHand,
@@ -100,9 +100,53 @@ namespace GwentApi.Services
             return status;
         }
 
-        public Task<bool> LaneClicked(LaneClickedDto laneClickedDto)
+        public async Task<bool> LaneClicked(LaneClickedDto laneClickedDto)
         {
-            throw new NotImplementedException();//tutaj jestem
+            Game game = await _gameRepository.GetGameByCode(laneClickedDto.Code);
+            PlayerSide playerSide = game.GetPlayerSide(laneClickedDto.Identity);
+
+            if (game.Turn != laneClickedDto.Identity) return false;
+
+            if (playerSide.CardsInHand.Any(x => x.PrimaryId == laneClickedDto.Card.PrimaryId)) return false;
+            
+            bool isPlacementAcceptable = laneClickedDto.Card.Placement switch
+            {
+                TroopPlacement.Melee => (GwentLane.Melee == laneClickedDto.Lane),
+                TroopPlacement.Range => (GwentLane.Range == laneClickedDto.Lane),
+                TroopPlacement.Siege => (GwentLane.Siege == laneClickedDto.Lane),
+                TroopPlacement.Agile => (GwentLane.Melee == laneClickedDto.Lane || GwentLane.Range == laneClickedDto.Lane),
+                _ => false
+            };//dodac opcje szpiegów (GwentLine.EnemyMelee itp)
+
+            if(!isPlacementAcceptable) return false;
+
+            //koniec sprawdzania
+            GwentCard card = playerSide.CardsInHand.First(x => x.PrimaryId == laneClickedDto.Card.PrimaryId);
+            GwentBoardCard boardCard = new()
+            {
+                Name = card.Name,
+                PrimaryId = card.PrimaryId,
+                CardId = card.CardId,
+                Faction = card.Faction,
+                Description = card.Description,
+                Placement = card.Placement,//ale usunąć agile - zmienic na melee lub range
+                Strength = card.Strength,
+                Abilities = card.Abilities,
+                CurrentStrength = card.Strength,//zalezy od podejscia, ale bedzie trzeba to zmienic tak czy inaczej - nie wiem jeszcze kiedy bede liczyl sily jednostek (pewnie tuz przed zwroceniem w hubie)
+                Owner = laneClickedDto.Identity
+            };
+            playerSide.CardsInHand.Remove(card);
+            game.CardsOnBoard.Add(boardCard);//robione przy mega spanku, sprawdzic czy jest git
+
+            await _gameRepository.UpdateGame(game);
+
+            //tutaj jeszcze przychodzi sprawdzanie czy to spy, medyk, scorch itp itd. Cholibka rozległy ten projekt. Fun
+            return true;
+        }
+
+        public Task UpdateBoardState()
+        {
+            throw new NotImplementedException();//podliczanie punktow jednostek
         }
     }
 }

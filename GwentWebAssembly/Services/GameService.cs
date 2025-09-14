@@ -35,12 +35,19 @@ namespace GwentWebAssembly.Services
 
         public async Task LaneClicked(GwentLane lane, GwentCard card)
         {
+            if (card is null) return;
+
             await _gwentHubService.SendLaneClicked(_playerService.GetIdentity(), _playerService.LobbyCode, lane, card);
         }
 
         public Task LeaderClicked()
         {
             throw new NotImplementedException();
+        }
+
+        public async Task JoinBoardAsync()
+        {
+            await _gwentHubService.JoinBoardAsync(_playerService.LobbyCode);
         }
     }
 }

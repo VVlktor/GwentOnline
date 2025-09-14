@@ -37,6 +37,8 @@
                 PlayerTwo = playerSide;
         }
 
+        public PlayerSide GetPlayerSide(PlayerIdentity identity) => identity == PlayerIdentity.PlayerOne ? PlayerOne : PlayerTwo;
+        
         public void AddAction(GwentActionType actionType, PlayerIdentity issuer, Abilities ability, List<GwentBoardCard> affectedCards, GwentCard? playedCard = null)
         {
             int index = Actions.Count;

@@ -2,6 +2,7 @@
 @inject PlayerService playerService
 @inject NavigationManager navigationManager
 @inject IGameService gameService
+@inject IStatusService statusService
 
 <div class="background-board">
     <div class="gwent-board">
@@ -269,14 +270,14 @@
         SelectedCard = card;
     }
 
-    protected override void OnInitialized()
-    {
-        if (!playerService.IsDataValid())
-            navigationManager.NavigateTo("/");
-    }
-
     protected override async Task OnInitializedAsync()
     {
+        if (!playerService.IsDataValid())
+        {
+            navigationManager.NavigateTo("/");
+            return;
+        }
+
         StartStatusDto startStatus = await gameService.GetStartStatus();
         Turn = startStatus.Turn;
         PlayerDeckCount = startStatus.PlayerDeckCount;
@@ -286,6 +287,7 @@
         EnemyCartsCount = startStatus.EnemyCartsCount;
         EnemyDeckCount = startStatus.EnemyDeckCount;
         StateHasChanged();
+        await gameService.JoinBoardAsync();
     }
 
     private async Task GwentActionLaneClicked(GwentLane lane)

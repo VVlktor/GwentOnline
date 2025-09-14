@@ -10,5 +10,6 @@ namespace GwentApi.Services.Interfaces
         Task<GameStatusDto> GetStatus(string code, PlayerIdentity identity);
         Task<StartStatusDto> StartStatus(string code, PlayerIdentity identity);
         Task<bool> LaneClicked(LaneClickedDto laneClickedDto);
+        Task UpdateBoardState();
     }
 }

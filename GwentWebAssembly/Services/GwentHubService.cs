@@ -20,10 +20,15 @@ namespace GwentWebAssembly.Services
 
             _connection.On<GameStatusDto>("LaneMove", async gameStatusDto =>
             {
-                //_statusService.JakasAkcjaUpdate + TriggerAnimacji
+                //_statusService.JakasAkcjaUpdate + TriggerAnimacji - sprawdzone, zwraca dane
             });
         }
 
+        public async Task JoinBoardAsync(string code)
+        {
+            await _connection.StartAsync();
+            await _connection.SendAsync("JoinBoard", code);
+        }
 
         public async Task SendLaneClicked(PlayerIdentity identity, string code, GwentLane lane, GwentCard card)
         {
