@@ -27,6 +27,8 @@
                 IsReady.playerTwo = true;
         }
 
+        public int GetNextActionId() => Actions.Last().Id+1;
+
         public bool PlayersReady() => IsReady.playerTwo && IsReady.playerOne;
 
         public void SetPlayerSide(PlayerSide playerSide, PlayerIdentity identity)
@@ -39,7 +41,7 @@
 
         public PlayerSide GetPlayerSide(PlayerIdentity identity) => identity == PlayerIdentity.PlayerOne ? PlayerOne : PlayerTwo;
         
-        public void AddAction(GwentActionType actionType, PlayerIdentity issuer, Abilities ability, List<GwentBoardCard> affectedCards, GwentCard? playedCard = null)
+        public void AddAction(GwentActionType actionType, PlayerIdentity issuer, Abilities ability, List<GwentBoardCard> affectedCards, GwentBoardCard? playedCard = null)
         {
             int index = Actions.Count;
             GwentAction action = new()

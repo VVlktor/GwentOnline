@@ -30,7 +30,7 @@ namespace GwentApi.Hubs
             bool hasMoveBeenMade = await _gameService.LaneClicked(laneClickedDto);
             if (hasMoveBeenMade)
             {
-                await _gameService.UpdateBoardState();
+                await _gameService.UpdateBoardState(laneClickedDto.Code);
                 GameStatusDto playerGameStatus = await _gameService.GetStatus(laneClickedDto.Code, laneClickedDto.Identity);
                 PlayerIdentity enemyIdentity = laneClickedDto.Identity.GetEnemy();
                 GameStatusDto enemyGameStatus = await _gameService.GetStatus(laneClickedDto.Code, enemyIdentity);
