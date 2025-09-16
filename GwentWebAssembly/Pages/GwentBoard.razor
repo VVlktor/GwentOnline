@@ -159,7 +159,7 @@
 
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
-                                <div class="lane-extra-slot"></div>
+                                <div class="lane-extra-slot" @onclick="async()=>await GwentActionHornClicked(GwentLane.Siege)"></div>
                                 <div class="lane" @onclick="async () => await GwentActionLaneClicked(GwentLane.Siege)">
                                     @foreach (var card in CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.GetIdentity()))
                                     {

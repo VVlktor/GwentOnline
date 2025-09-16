@@ -27,10 +27,13 @@ namespace GwentApi.Hubs
 
         public async Task LaneClicked(LaneClickedDto laneClickedDto)
         {
-            bool hasMoveBeenMade = await _gameService.LaneClicked(laneClickedDto);
-            if (hasMoveBeenMade)
+            GwentBoardCard boardCard = await _gameService.LaneClicked(laneClickedDto);
+            if (boardCard is not null)
             {
                 await _gameService.UpdateBoardState(laneClickedDto.Code);
+                await _gameService.AddGwentAction(laneClickedDto, boardCard);
+
+
                 GameStatusDto playerGameStatus = await _gameService.GetStatus(laneClickedDto.Code, laneClickedDto.Identity);
                 PlayerIdentity enemyIdentity = laneClickedDto.Identity.GetEnemy();
                 GameStatusDto enemyGameStatus = await _gameService.GetStatus(laneClickedDto.Code, enemyIdentity);

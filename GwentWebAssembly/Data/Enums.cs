@@ -63,7 +63,7 @@
         AvengerKambi = 262144
     }
 
-    public enum ClickableGwentAction
+    public enum ClickableGwentAction//obsolete
     {
         LaneClicked = 1,
         EnemyLaneClicked = 2,

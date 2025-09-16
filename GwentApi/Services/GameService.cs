@@ -100,15 +100,20 @@ namespace GwentApi.Services
             return status;
         }
 
-        public async Task<bool> LaneClicked(LaneClickedDto laneClickedDto)
+        public async Task<GwentBoardCard> LaneClicked(LaneClickedDto laneClickedDto)
         {
             Game game = await _gameRepository.GetGameByCode(laneClickedDto.Code);
+
             PlayerSide playerSide = game.GetPlayerSide(laneClickedDto.Identity);
 
-            if (game.Turn != laneClickedDto.Identity) return false;
+            if (game.Turn != laneClickedDto.Identity) return null;
 
-            if (playerSide.CardsInHand.Any(x => x.PrimaryId == laneClickedDto.Card.PrimaryId)) return false;
-            
+            if (playerSide.CardsInHand.Any(x => x.PrimaryId == laneClickedDto.Card.PrimaryId)) return null;
+
+            int[] badCards = [195, 7, 6, ];
+
+            if (badCards.Contains(laneClickedDto.Card.CardId)) return null;
+
             bool isPlacementAcceptable = laneClickedDto.Card.Placement switch
             {
                 TroopPlacement.Melee => (GwentLane.Melee == laneClickedDto.Lane),
@@ -118,10 +123,14 @@ namespace GwentApi.Services
                 _ => false
             };//dodac opcje szpiegów (GwentLine.EnemyMelee itp)
 
-            if(!isPlacementAcceptable) return false;
+            if(!isPlacementAcceptable) return null;
 
             //koniec sprawdzania
             GwentCard card = playerSide.CardsInHand.First(x => x.PrimaryId == laneClickedDto.Card.PrimaryId);
+
+            if (card.Placement == TroopPlacement.Agile)
+                card.Placement=laneClickedDto.Lane==GwentLane.Melee?TroopPlacement.Melee:TroopPlacement.Range;
+
             GwentBoardCard boardCard = new()
             {
                 Name = card.Name,
@@ -129,7 +138,7 @@ namespace GwentApi.Services
                 CardId = card.CardId,
                 Faction = card.Faction,
                 Description = card.Description,
-                Placement = card.Placement,//ale usunąć agile - zmienic na melee lub range
+                Placement = card.Placement,
                 Strength = card.Strength,
                 Abilities = card.Abilities,
                 CurrentStrength = card.Strength,//zalezy od podejscia, ale bedzie trzeba to zmienic tak czy inaczej - nie wiem jeszcze kiedy bede liczyl sily jednostek (pewnie tuz przed zwroceniem w hubie)
@@ -138,23 +147,30 @@ namespace GwentApi.Services
             playerSide.CardsInHand.Remove(card);
             game.CardsOnBoard.Add(boardCard);//robione przy mega spanku, sprawdzic czy jest git
 
-            List<GwentBoardCard> affectedCards = new();
-           //tutaj potrzebuje listy affected card, wrocic jak zaimplementuje UpdateBoardState
-
-            GwentAction gwentAction = new()
-            {
-                Id=game.GetNextActionId(),
-                ActionType=GwentActionType.CardPlayed,
-                Issuer=laneClickedDto.Identity,
-                CardPlayed=boardCard,
-                CardsAffected=new(),
-                AbilitiyUsed=boardCard.Abilities
-            };
-
+           
             await _gameRepository.UpdateGame(game);
 
             //tutaj jeszcze przychodzi sprawdzanie czy to spy, medyk, scorch itp itd. Cholibka rozległy ten projekt. Fun
-            return true;
+            return boardCard;
+        }
+
+        public async Task AddGwentAction(LaneClickedDto laneClickedDto, GwentBoardCard playedCard)
+        {
+            Game game = await _gameRepository.GetGameByCode(laneClickedDto.Code);
+
+            GwentAction gwentAction = new()
+            {
+                Id = game.GetNextActionId(),
+                ActionType = GwentActionType.CardPlayed,
+                Issuer = laneClickedDto.Identity,
+                CardPlayed = playedCard,
+                CardsOnBoard = game.CardsOnBoard,
+                AbilitiyUsed = playedCard.Abilities
+            };
+
+            game.Actions.Add(gwentAction);
+
+            await _gameRepository.UpdateGame(game);
         }
 
         public async Task UpdateBoardState(string code)
