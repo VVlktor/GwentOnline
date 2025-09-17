@@ -19,6 +19,11 @@ namespace GwentWebAssembly.Services
             _gwentHubService = gwentHubService;
         }
 
+        public async Task JoinBoardAsync()
+        {
+            await _gwentHubService.JoinBoardAsync(_playerService.LobbyCode);
+        }
+
         public async Task<StartStatusDto> GetStartStatus()
         {
             var response = await _httpClient.GetAsync($"http://localhost:5277/Game/StartStatus/{_playerService.LobbyCode}/{_playerService.GetIdentity()}");
@@ -28,16 +33,18 @@ namespace GwentWebAssembly.Services
             return result;
         }
 
-        public Task CardClicked(GwentBoardCard card)
+        public async Task CardClicked(GwentBoardCard clickedCard, GwentCard card)
         {
-            throw new NotImplementedException();
+            //tylko decoy
+            if (card.CardId != 2) return;
+
         }
 
-        public async Task LaneClicked(GwentLane lane, GwentCard card)
+        public async Task LaneClicked(GwentLane lane, GwentCard card)//obsolete!!!!
         {
             if (card is null) return;
 
-            await _gwentHubService.SendLaneClicked(_playerService.GetIdentity(), _playerService.LobbyCode, lane, card);
+            //await _gwentHubService.SendLaneClicked(_playerService.GetIdentity(), _playerService.LobbyCode, lane, card);
         }
 
         public Task LeaderClicked()
@@ -45,9 +52,15 @@ namespace GwentWebAssembly.Services
             throw new NotImplementedException();
         }
 
-        public async Task JoinBoardAsync()
+        public async Task PlayerLaneClicked(GwentLane lane, GwentCard card)
         {
-            await _gwentHubService.JoinBoardAsync(_playerService.LobbyCode);
+            //obsluzy muster, hero, zwykle, bond
+            if (card.Abilities.HasFlag(Abilities.Medic) ||
+               card.Abilities.HasFlag(Abilities.Spy) ||
+               card.Placement == TroopPlacement.Weather ||
+               card.Placement == TroopPlacement.Special) return;
+
+            await _gwentHubService.SendLaneClicked(_playerService.GetIdentity(), _playerService.LobbyCode, lane, card);
         }
     }
 }

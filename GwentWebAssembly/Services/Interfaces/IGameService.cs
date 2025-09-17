@@ -7,9 +7,9 @@ namespace GwentWebAssembly.Services.Interfaces
     public interface IGameService
     {
         Task<StartStatusDto> GetStartStatus();
-        Task LaneClicked(GwentLane lane, GwentCard card);
+        Task PlayerLaneClicked(GwentLane lane, GwentCard card);
         Task LeaderClicked();
-        Task CardClicked(GwentBoardCard card);
+        Task CardClicked(GwentBoardCard clickedCard, GwentCard card);
         Task JoinBoardAsync();
     }
 }

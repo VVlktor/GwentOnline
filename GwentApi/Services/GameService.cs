@@ -104,15 +104,20 @@ namespace GwentApi.Services
         {
             Game game = await _gameRepository.GetGameByCode(laneClickedDto.Code);
 
-            PlayerSide playerSide = game.GetPlayerSide(laneClickedDto.Identity);
-
             if (game.Turn != laneClickedDto.Identity) return null;
 
-            if (playerSide.CardsInHand.Any(x => x.PrimaryId == laneClickedDto.Card.PrimaryId)) return null;
+            PlayerSide playerSide = game.GetPlayerSide(laneClickedDto.Identity);
 
-            int[] badCards = [195, 7, 6, ];
+            if (!playerSide.CardsInHand.Any(x => x.PrimaryId == laneClickedDto.Card.PrimaryId)) return null;
 
-            if (badCards.Contains(laneClickedDto.Card.CardId)) return null;
+            if (laneClickedDto.Card.Abilities.HasFlag(Abilities.Medic) ||
+               laneClickedDto.Card.Abilities.HasFlag(Abilities.Spy) ||
+               laneClickedDto.Card.Placement == TroopPlacement.Weather ||
+               laneClickedDto.Card.Placement == TroopPlacement.Special) return null;
+
+            //int[] badCards = [195, 7, 6, ];
+
+            //if (badCards.Contains(laneClickedDto.Card.CardId)) return null;
 
             bool isPlacementAcceptable = laneClickedDto.Card.Placement switch
             {
@@ -121,7 +126,7 @@ namespace GwentApi.Services
                 TroopPlacement.Siege => (GwentLane.Siege == laneClickedDto.Lane),
                 TroopPlacement.Agile => (GwentLane.Melee == laneClickedDto.Lane || GwentLane.Range == laneClickedDto.Lane),
                 _ => false
-            };//dodac opcje szpiegów (GwentLine.EnemyMelee itp)
+            };
 
             if(!isPlacementAcceptable) return null;
 
@@ -141,36 +146,39 @@ namespace GwentApi.Services
                 Placement = card.Placement,
                 Strength = card.Strength,
                 Abilities = card.Abilities,
-                CurrentStrength = card.Strength,//zalezy od podejscia, ale bedzie trzeba to zmienic tak czy inaczej - nie wiem jeszcze kiedy bede liczyl sily jednostek (pewnie tuz przed zwroceniem w hubie)
+                CurrentStrength = card.Strength,//solved?: zalezy od podejscia, ale bedzie trzeba to zmienic tak czy inaczej - nie wiem jeszcze kiedy bede liczyl sily jednostek (pewnie tuz przed zwroceniem w hubie)
                 Owner = laneClickedDto.Identity
             };
+
             playerSide.CardsInHand.Remove(card);
             game.CardsOnBoard.Add(boardCard);//robione przy mega spanku, sprawdzic czy jest git
 
+            
            
             await _gameRepository.UpdateGame(game);
 
-            //tutaj jeszcze przychodzi sprawdzanie czy to spy, medyk, scorch itp itd. Cholibka rozległy ten projekt. Fun
             return boardCard;
         }
 
-        public async Task AddGwentAction(LaneClickedDto laneClickedDto, GwentBoardCard playedCard)
+        public async Task<GwentAction> AddGwentAction(LaneClickedDto laneClickedDto, List<GwentBoardCard> playedCards)
         {
             Game game = await _gameRepository.GetGameByCode(laneClickedDto.Code);
 
             GwentAction gwentAction = new()
             {
                 Id = game.GetNextActionId(),
-                ActionType = GwentActionType.CardPlayed,
+                ActionType = GwentActionType.NormalCardPlayed,//do zmiany
                 Issuer = laneClickedDto.Identity,
-                CardPlayed = playedCard,
+                CardsPlayed = playedCards,//tutaj siła dalej jest nie zaktualizowana, trzeba najpierw UpdateBoardState a dopiero potem na nowo wartosci currentstrength
                 CardsOnBoard = game.CardsOnBoard,
-                AbilitiyUsed = playedCard.Abilities
+                AbilitiyUsed = playedCards[0].Abilities
             };
 
             game.Actions.Add(gwentAction);
 
             await _gameRepository.UpdateGame(game);
+
+            return gwentAction;
         }
 
         public async Task UpdateBoardState(string code)

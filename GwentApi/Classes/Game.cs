@@ -50,8 +50,8 @@
                 ActionType=actionType,
                 Issuer=issuer,
                 AbilitiyUsed=ability,
-                CardsAffected=affectedCards,
-                CardPlayed=playedCard,
+                //CardsAffected=affectedCards,
+                //CardPlayed=playedCard,
             };
             Actions.Add(action);
         }

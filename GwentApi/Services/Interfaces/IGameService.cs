@@ -11,6 +11,6 @@ namespace GwentApi.Services.Interfaces
         Task<StartStatusDto> StartStatus(string code, PlayerIdentity identity);
         Task<GwentBoardCard> LaneClicked(LaneClickedDto laneClickedDto);
         Task UpdateBoardState(string code);
-        Task AddGwentAction(LaneClickedDto laneClickedDto, GwentBoardCard playedCard);
+        Task<GwentAction> AddGwentAction(LaneClickedDto laneClickedDto, List<GwentBoardCard> playedCards);
     }
 }

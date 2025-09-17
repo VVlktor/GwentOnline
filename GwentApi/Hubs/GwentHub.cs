@@ -27,20 +27,22 @@ namespace GwentApi.Hubs
 
         public async Task LaneClicked(LaneClickedDto laneClickedDto)
         {
-            GwentBoardCard boardCard = await _gameService.LaneClicked(laneClickedDto);
-            if (boardCard is not null)
-            {
-                await _gameService.UpdateBoardState(laneClickedDto.Code);
-                await _gameService.AddGwentAction(laneClickedDto, boardCard);
+            //GwentBoardCard boardCard = await _gameService.LaneClicked(laneClickedDto);
+            //if (boardCard is not null)
+            //{
+            //    await _gameService.UpdateBoardState(laneClickedDto.Code);
+            //    await _gameService.AddGwentAction(laneClickedDto, boardCard);
 
 
-                GameStatusDto playerGameStatus = await _gameService.GetStatus(laneClickedDto.Code, laneClickedDto.Identity);
-                PlayerIdentity enemyIdentity = laneClickedDto.Identity.GetEnemy();
-                GameStatusDto enemyGameStatus = await _gameService.GetStatus(laneClickedDto.Code, enemyIdentity);
+            //    GameStatusDto playerGameStatus = await _gameService.GetStatus(laneClickedDto.Code, laneClickedDto.Identity);
+            //    PlayerIdentity enemyIdentity = laneClickedDto.Identity.GetEnemy();
+            //    GameStatusDto enemyGameStatus = await _gameService.GetStatus(laneClickedDto.Code, enemyIdentity);
 
-                await Clients.Caller.SendAsync("LaneMove", playerGameStatus);
-                await Clients.OthersInGroup(laneClickedDto.Code).SendAsync("LaneMove", enemyGameStatus);
-            }
+            //    await Clients.Caller.SendAsync("LaneMove", playerGameStatus);
+            //    await Clients.OthersInGroup(laneClickedDto.Code).SendAsync("LaneMove", enemyGameStatus);
+            //}
+
+            await _gameService.LaneClicked(laneClickedDto);//ale jeszcze sprawdzac czy nie jest muster
         }
     }
 }

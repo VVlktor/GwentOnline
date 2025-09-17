@@ -23,7 +23,7 @@ namespace GwentApi.Controllers
         [HttpGet("Cards")]
         public IActionResult GetCards()
         {
-            return Ok(_cardsService.Cards);
+            return Ok(_cardsService.Cards.Where(x=>x.Placement==TroopPlacement.Special));
         }
 
         [HttpGet("CreateLobby")]
