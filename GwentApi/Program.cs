@@ -31,8 +31,10 @@ namespace GwentApi
             builder.Services.AddTransient<ILobbyService, LobbyService>();
             builder.Services.AddTransient<IGameService, GameService>();
             builder.Services.AddTransient<IDeckService, DeckService>();
+            builder.Services.AddTransient<ICardService, CardService>();
+            builder.Services.AddTransient<IStatusService, StatusService>();
 
-            builder.Services.AddSingleton<CardsService>();
+            builder.Services.AddSingleton<CardsProvider>();
             builder.Services.AddSingleton<ILobbyRepository, LobbyRepository>();//potencjalnie do zmiany na transient w przyszlosci
             builder.Services.AddSingleton<IGameRepository, GameRepository>();
 

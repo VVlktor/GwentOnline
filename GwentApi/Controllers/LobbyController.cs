@@ -11,9 +11,9 @@ namespace GwentApi.Controllers
     {
         private ILobbyService _lobbyService;
         private IDeckService _deckService;
-        private CardsService _cardsService;
+        private CardsProvider _cardsService;
 
-        public LobbyController(ILobbyService lobbyService, IDeckService deckService, CardsService cardsService)
+        public LobbyController(ILobbyService lobbyService, IDeckService deckService, CardsProvider cardsService)
         {
             _lobbyService = lobbyService;
             _deckService = deckService;

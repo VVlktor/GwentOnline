@@ -6,5 +6,6 @@ namespace GwentWebAssembly.Services.Interfaces
     {
         Task SendLaneClicked(PlayerIdentity identity, string code, GwentLane lane, GwentCard card);
         Task JoinBoardAsync(string code);
+        Task SendHornClicked(PlayerIdentity identity, string code, TroopPlacement placement, GwentCard card);
     }
 }

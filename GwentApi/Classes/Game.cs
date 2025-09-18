@@ -27,7 +27,7 @@
                 IsReady.playerTwo = true;
         }
 
-        public int GetNextActionId() => Actions.Last().Id+1;
+        public int GetNextActionId() => Actions.Count==0 ? 1 : Actions.Last().Id+1;
 
         public bool PlayersReady() => IsReady.playerTwo && IsReady.playerOne;
 

@@ -3,9 +3,9 @@ using System.Text.Json;
 
 namespace GwentApi.Services
 {
-    public class CardsService
+    public class CardsProvider
     {
-        public CardsService() {
+        public CardsProvider() {
             string json = File.ReadAllText("jsons/cards.json");
             Cards = JsonSerializer.Deserialize<List<GwentCard>>(json)!;
         }

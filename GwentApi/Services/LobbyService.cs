@@ -7,9 +7,9 @@ namespace GwentApi.Services
     public class LobbyService : ILobbyService
     {
         private readonly ILobbyRepository _lobbyRepository;
-        private readonly CardsService _cardsService;
+        private readonly CardsProvider _cardsService;
 
-        public LobbyService(ILobbyRepository lobbyRepository, CardsService cardsService)
+        public LobbyService(ILobbyRepository lobbyRepository, CardsProvider cardsService)
         {
             _lobbyRepository = lobbyRepository;
             _cardsService = cardsService;

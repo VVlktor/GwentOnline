@@ -11,5 +11,6 @@ namespace GwentWebAssembly.Services.Interfaces
         Task LeaderClicked();
         Task CardClicked(GwentBoardCard clickedCard, GwentCard card);
         Task JoinBoardAsync();
+        Task HornClicked(TroopPlacement placement, GwentCard card);
     }
 }

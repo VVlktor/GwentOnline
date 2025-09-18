@@ -22,6 +22,11 @@ namespace GwentWebAssembly.Services
             {
                 //_statusService.JakasAkcjaUpdate + TriggerAnimacji - sprawdzone, zwraca dane
             });
+
+            _connection.On<GameStatusDto>("HornClicked", async gameStatusDto =>
+            {
+                await _statusService.TestStatusMethod(gameStatusDto);
+            });
         }
 
         public async Task JoinBoardAsync(string code)
@@ -40,6 +45,19 @@ namespace GwentWebAssembly.Services
                 Card=card
             };
             await _connection.SendAsync("LaneClicked", laneClickedDto);
+        }
+
+        public async Task SendHornClicked(PlayerIdentity identity, string code, TroopPlacement placement, GwentCard card)
+        {
+            HornClickedDto hornClickedDto = new()
+            {
+                Placement=placement,
+                Identity=identity,
+                Code=code,
+                Card=card
+            };
+
+            await _connection.SendAsync("HornClicked", hornClickedDto);
         }
     }
 }

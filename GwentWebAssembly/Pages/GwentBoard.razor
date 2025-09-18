@@ -18,7 +18,7 @@
                                     <div class="commander-slot">
                                         <img src="" alt="">
                                     </div>
-                                    <div class="faction-label">@EnemyLeaderCard.Faction</div>
+                                    <div class="faction-label" @onclick="ShowStatus">@EnemyLeaderCard.Faction</div>
                                 </div>
                                 <div class="stats-row mt-3">
                                     <div class="stat">Karty: @EnemyCartsCount</div>
@@ -125,7 +125,7 @@
                             <!-- rowsy gracza -->
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
-                                <div class="lane-extra-slot"></div>
+                                <div class="lane-extra-slot" @onclick="async () => await GwentActionHornClicked(TroopPlacement.Melee)"></div>
                                 <div class="lane" @onclick="async () => await GwentActionLaneClicked(GwentLane.Melee)">
                                     @foreach (var card in CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.GetIdentity()))
                                     {
@@ -142,7 +142,7 @@
 
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
-                                <div class="lane-extra-slot"></div>
+                                <div class="lane-extra-slot" @onclick="async () => await GwentActionHornClicked(TroopPlacement.Range)"></div>
                                 <div class="lane" @onclick="async () => await GwentActionLaneClicked(GwentLane.Range)">
                                     @foreach (var card in CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.GetIdentity()))
                                     {
@@ -159,7 +159,7 @@
 
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
-                                <div class="lane-extra-slot" @onclick="async()=>await GwentActionHornClicked(GwentLane.Siege)"></div>
+                                <div class="lane-extra-slot" @onclick="async()=>await GwentActionHornClicked(TroopPlacement.Siege)"></div>
                                 <div class="lane" @onclick="async () => await GwentActionLaneClicked(GwentLane.Siege)">
                                     @foreach (var card in CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.GetIdentity()))
                                     {
@@ -238,7 +238,20 @@
     </div>
 </div>
 
-
+@foreach(var a in status.CardsInHand)
+{
+    <label>@a.Name</label>
+}
+<label>--------</label>
+@foreach (var a in status.Action.CardsPlayed)
+{
+    <label>@a.Name</label>
+}
+<label>--------</label>
+@foreach (var a in status.Action.CardsOnBoard)
+{
+    <label>@a.Name</label>
+}
 
 
 
@@ -264,6 +277,17 @@
     private int PlayerPoints = 0;
 
     private GwentCard SelectedCard { get; set; } = new();
+
+    private GameStatusDto status = new()
+    {
+        CardsInHand=new(),
+        Action = new()
+        {
+            CardsOnBoard=new(),
+            CardsPlayed=new()
+        }
+    
+    };//do wywalenia, tylko test
 
     private void CardSelected(GwentCard card)
     {
@@ -294,14 +318,9 @@
     {
         if (SelectedCard is null) return;
 
-        if (SelectedCard.Abilities.HasFlag(Abilities.Medic))
-        {
-            //wywolac medyka
-        }
-        else
-            await gameService.PlayerLaneClicked(lane, SelectedCard);
+        await gameService.PlayerLaneClicked(lane, SelectedCard);
 
-        //sprawdzam czy medic/przywolywaniekart czy zwykla
+        //LEPSZY POMYSL: wysylam normalnie, zwracam, ale jak zwroce to pokaze menu z wybieraniem karty do wskszeszenia, a w hubie w serwisie sprawdzam poprostu czy ostatnia akcja to wystawienie medyka przez tego gracza
     }
 
     private async Task GwentActionEnemyLaneClicked(GwentLane lane)
@@ -317,11 +336,17 @@
     private async Task GwentActionCardClicked(GwentBoardCard card)
     {
         //await gameService.CardClicked(card);
-        //czy zaznaczyl spya
+        //tylko decoy
     }
 
-    private async Task GwentActionHornClicked(GwentLane lane)
+    private async Task GwentActionHornClicked(TroopPlacement placement)
     {
-        //czy jest horn
+        if (SelectedCard is null) return;
+        await gameService.HornClicked(placement, SelectedCard);
+    }
+
+    private void ShowStatus()
+    {
+        status = statusService.GetStatusDto();
     }
 }

@@ -40,13 +40,6 @@ namespace GwentWebAssembly.Services
 
         }
 
-        public async Task LaneClicked(GwentLane lane, GwentCard card)//obsolete!!!!
-        {
-            if (card is null) return;
-
-            //await _gwentHubService.SendLaneClicked(_playerService.GetIdentity(), _playerService.LobbyCode, lane, card);
-        }
-
         public Task LeaderClicked()
         {
             throw new NotImplementedException();
@@ -54,13 +47,17 @@ namespace GwentWebAssembly.Services
 
         public async Task PlayerLaneClicked(GwentLane lane, GwentCard card)
         {
-            //obsluzy muster, hero, zwykle, bond
-            if (card.Abilities.HasFlag(Abilities.Medic) ||
-               card.Abilities.HasFlag(Abilities.Spy) ||
+            if (card.Abilities.HasFlag(Abilities.Spy) ||
                card.Placement == TroopPlacement.Weather ||
                card.Placement == TroopPlacement.Special) return;
 
             await _gwentHubService.SendLaneClicked(_playerService.GetIdentity(), _playerService.LobbyCode, lane, card);
+        }
+
+        public async Task HornClicked(TroopPlacement placement, GwentCard card)
+        {
+            if (card.CardId == 6)
+                await _gwentHubService.SendHornClicked(_playerService.GetIdentity(), _playerService.LobbyCode, placement, card);
         }
     }
 }
