@@ -1,5 +1,6 @@
 ﻿using GwentApi.Classes;
 using GwentApi.Classes.Dtos;
+using GwentApi.Repository.Interfaces;
 using GwentApi.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,10 +11,19 @@ namespace GwentApi.Controllers
     public class GameController : Controller
     {
         private IGameService _gameService;
+        private IGameRepository _gameRepository;//tylko na szybki test, repo nie bedzie w kontrolerze na stałe
 
-        public GameController(IGameService gameService)
+        public GameController(IGameService gameService, IGameRepository gameRepository)
         {
             _gameService = gameService;
+            _gameRepository = gameRepository;
+        }
+
+        [HttpGet("GameState/{code}")]
+        public async Task<IActionResult> GetGameState(string code)
+        {
+            Game game = await _gameRepository.GetGameByCode(code);
+            return Ok(game.CardsOnBoard);
         }
 
         [HttpGet("ReadyForGame/{code}/{player}")]

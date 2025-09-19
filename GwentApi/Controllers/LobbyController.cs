@@ -23,7 +23,14 @@ namespace GwentApi.Controllers
         [HttpGet("Cards")]
         public IActionResult GetCards()
         {
-            return Ok(_cardsService.Cards.Where(x=>x.Placement==TroopPlacement.Special));
+            var list = _cardsService.Cards.Where(c => HasMultipleFlags(c.Abilities));
+            return Ok(list.ToList());
+        }
+
+        bool HasMultipleFlags(Abilities value)
+        {
+            int v = (int)value;
+            return v != 0 && (v & (v - 1)) != 0;
         }
 
         [HttpGet("CreateLobby")]
@@ -75,7 +82,7 @@ namespace GwentApi.Controllers
         [HttpPost("ReadyForGame/{lobbyCode}/{identity}")]
         public async Task<IActionResult> ReadyForGame(string lobbyCode, PlayerIdentity identity)
         {
-            return Ok();//todo: kontynuowac
+            return Ok();//todo: kontynuowac CO TO KURWA ZNACZY KONTYNUOWAC, CO MAM TU ZROBIC?!?!?!
         }
     }
 }

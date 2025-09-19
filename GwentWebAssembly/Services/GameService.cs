@@ -45,19 +45,24 @@ namespace GwentWebAssembly.Services
             throw new NotImplementedException();
         }
 
-        public async Task PlayerLaneClicked(GwentLane lane, GwentCard card)
+        public async Task PlayerLaneClicked(TroopPlacement placement, GwentCard card)
         {
             if (card.Abilities.HasFlag(Abilities.Spy) ||
                card.Placement == TroopPlacement.Weather ||
                card.Placement == TroopPlacement.Special) return;
 
-            await _gwentHubService.SendLaneClicked(_playerService.GetIdentity(), _playerService.LobbyCode, lane, card);
+            await _gwentHubService.SendLaneClicked(_playerService.GetIdentity(), _playerService.LobbyCode, placement, card);
         }
 
         public async Task HornClicked(TroopPlacement placement, GwentCard card)
         {
             if (card.CardId == 6)
                 await _gwentHubService.SendHornClicked(_playerService.GetIdentity(), _playerService.LobbyCode, placement, card);
+        }
+
+        public async Task WeatherClicked()
+        {
+            throw new NotImplementedException();
         }
     }
 }

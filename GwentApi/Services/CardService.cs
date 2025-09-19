@@ -22,7 +22,7 @@ namespace GwentApi.Services
 
             PlayerSide playerSide = game.GetPlayerSide(hornClickedDto.Identity);
 
-            if (game.CardsOnBoard.Any(x => x.PrimaryId == 6 && x.Placement == hornClickedDto.Placement)) return null;
+            if (game.CardsOnBoard.Any(x => x.CardId == 6 && x.Placement == hornClickedDto.Placement)) return null;
             if (!playerSide.CardsInHand.Any(x => x.PrimaryId == hornClickedDto.Card.PrimaryId)) return null;
 
             GwentCard card = playerSide.CardsInHand.Where(x => x.PrimaryId == hornClickedDto.Card.PrimaryId).First();
@@ -34,7 +34,7 @@ namespace GwentApi.Services
                 CardId = card.CardId,
                 Faction = card.Faction,
                 Description = card.Description,
-                Placement = card.Placement,
+                Placement = hornClickedDto.Placement,
                 Strength = card.Strength,
                 Abilities = card.Abilities,
                 CurrentStrength = 0,
@@ -49,7 +49,7 @@ namespace GwentApi.Services
             return gwentBoardCard;
         }
 
-        public async Task<GwentBoardCard> LaneClicked(LaneClickedDto laneClickedDto)
+        public async Task<LaneClickedGwentActionResult> LaneClicked(LaneClickedDto laneClickedDto)
         {
             Game game = await _gameRepository.GetGameByCode(laneClickedDto.Code);
 
@@ -59,32 +59,35 @@ namespace GwentApi.Services
 
             if (!playerSide.CardsInHand.Any(x => x.PrimaryId == laneClickedDto.Card.PrimaryId)) return null;
 
-            if (laneClickedDto.Card.Abilities.HasFlag(Abilities.Medic) ||
-               laneClickedDto.Card.Abilities.HasFlag(Abilities.Spy) ||
-               laneClickedDto.Card.Placement == TroopPlacement.Weather ||
-               laneClickedDto.Card.Placement == TroopPlacement.Special) return null;
+            GwentCard card = playerSide.CardsInHand.First(x => x.PrimaryId == laneClickedDto.Card.PrimaryId);
+
+            if(card.Abilities.HasFlag(Abilities.Spy) ||
+                card.Placement == TroopPlacement.Weather ||
+                card.Placement == TroopPlacement.Special) return null;
 
             //int[] badCards = [195, 7, 6, ];
 
             //if (badCards.Contains(laneClickedDto.Card.CardId)) return null;
 
-            bool isPlacementAcceptable = laneClickedDto.Card.Placement switch
-            {
-                TroopPlacement.Melee => (GwentLane.Melee == laneClickedDto.Lane),
-                TroopPlacement.Range => (GwentLane.Range == laneClickedDto.Lane),
-                TroopPlacement.Siege => (GwentLane.Siege == laneClickedDto.Lane),
-                TroopPlacement.Agile => (GwentLane.Melee == laneClickedDto.Lane || GwentLane.Range == laneClickedDto.Lane),
-                _ => false
-            };
+            //bool isPlacementAcceptable = laneClickedDto.Card.Placement switch
+            //{
+            //    TroopPlacement.Melee => (GwentLane.Melee == laneClickedDto.Lane),
+            //    TroopPlacement.Range => (GwentLane.Range == laneClickedDto.Lane),
+            //    TroopPlacement.Siege => (GwentLane.Siege == laneClickedDto.Lane),
+            //    TroopPlacement.Agile => (GwentLane.Melee == laneClickedDto.Lane || GwentLane.Range == laneClickedDto.Lane),
+            //    _ => false
+            //};
 
-            if (!isPlacementAcceptable) return null;
+            //if (!isPlacementAcceptable) return null;
+
+            if (card.Placement != laneClickedDto.Placement) return null;
 
             //koniec sprawdzania
-            GwentCard card = playerSide.CardsInHand.First(x => x.PrimaryId == laneClickedDto.Card.PrimaryId);
 
             if (card.Placement == TroopPlacement.Agile)
-                card.Placement = laneClickedDto.Lane == GwentLane.Melee ? TroopPlacement.Melee : TroopPlacement.Range;
-
+                card.Placement = laneClickedDto.Placement;
+            
+            
             GwentBoardCard boardCard = new()
             {
                 Name = card.Name,
@@ -95,18 +98,45 @@ namespace GwentApi.Services
                 Placement = card.Placement,
                 Strength = card.Strength,
                 Abilities = card.Abilities,
-                CurrentStrength = card.Strength,//solved?: zalezy od podejscia, ale bedzie trzeba to zmienic tak czy inaczej - nie wiem jeszcze kiedy bede liczyl sily jednostek (pewnie tuz przed zwroceniem w hubie)
+                CurrentStrength = card.Strength,
                 Owner = laneClickedDto.Identity
             };
 
+            GwentActionType gwentActionType = GwentActionType.NormalCardPlayed;
+            if (card.Abilities.HasFlag(Abilities.Medic))
+            {
+                gwentActionType = GwentActionType.MedicCardPlayed;
+                //mediko
+            }
+            else if (card.Abilities.HasFlag(Abilities.Muster))
+            {
+                gwentActionType = GwentActionType.MusterCardPlayed;
+
+            }
+            else if (card.Abilities.HasFlag(Abilities.Scorch) ||
+                card.Abilities.HasFlag(Abilities.ScorchMelee) ||
+                card.Abilities.HasFlag(Abilities.ScorchSiege) ||
+                card.Abilities.HasFlag(Abilities.ScorchRange))
+            {
+                gwentActionType = GwentActionType.ScorchCardPlayed;//moze bedzie trzeba rozdzielic scorch jako karte od kart z abilitką scorch, sie zobaczyc
+
+            }
+            else{
+                //normalne - przemyslec jak rozwiazac sprawe np. jaskra - niby animacja ale karta zagrywana jak kazda inna
+                //edit: w gwenthub napisalem co i jak
+            }
+
             playerSide.CardsInHand.Remove(card);
-            game.CardsOnBoard.Add(boardCard);//robione przy mega spanku, sprawdzic czy jest git
-
-
+            game.CardsOnBoard.Add(boardCard);
 
             await _gameRepository.UpdateGame(game);
 
-            return boardCard;
+            return new()
+            {
+                ActionType = gwentActionType,
+                KilledCards=new(),
+                PlayedCards = new() { boardCard }
+            };
         }
     }
 }

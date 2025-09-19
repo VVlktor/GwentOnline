@@ -6,6 +6,6 @@ namespace GwentApi.Services.Interfaces
     public interface ICardService
     {
         Task<GwentBoardCard> HornClicked(HornClickedDto hornClickedDto);
-        Task<GwentBoardCard> LaneClicked(LaneClickedDto laneClickedDto);
+        Task<LaneClickedGwentActionResult> LaneClicked(LaneClickedDto laneClickedDto);
     }
 }

@@ -31,24 +31,35 @@ namespace GwentApi.Hubs
 
         public async Task LaneClicked(LaneClickedDto laneClickedDto)
         {
-            //GwentBoardCard boardCard = await _gameService.LaneClicked(laneClickedDto);
-            //if (boardCard is not null)
-            //{
-            //    await _gameService.UpdateBoardState(laneClickedDto.Code);
-            //    await _gameService.AddGwentAction(laneClickedDto, boardCard);
+            LaneClickedGwentActionResult actionResult = await _cardService.LaneClicked(laneClickedDto);
+
+            if(actionResult is null) return;
+
+            await _statusService.UpdateBoardState(laneClickedDto.Code);
+
+            //dla mnie na przyszlosc: kiedy gracz zagra medyka, to bedzie jak normalna karta,
+            //z tym ze w action bedzie HealerCardPlayed, ktora sprawi,
+            //ze bedzie mogl wybrac u sibeie karte do revive. wtedy to bedzie druga akcja.
+            //Spy: wystawi karte, animacja przenoszenia do eq, ale karta juz jest w api, wiec spy jest jak normalna karta
+            //Scorch
+            //Muster: jeszcze nie wiem. do przemyslenia
+
+            await _statusService.AddGwentAction(laneClickedDto.Identity, laneClickedDto.Code, actionResult.ActionType, actionResult.PlayedCards, actionResult.KilledCards);
+
+            string methodName = "LaneClickedNormalCard";
+
+            if (actionResult.ActionType == GwentActionType.MusterCardPlayed)
+                methodName = "LaneClickedMusterCard";
+            else if (actionResult.ActionType == GwentActionType.MedicCardPlayed)
+                methodName = "LaneClickedMedicCard";
 
 
-            //    GameStatusDto playerGameStatus = await _gameService.GetStatus(laneClickedDto.Code, laneClickedDto.Identity);
-            //    PlayerIdentity enemyIdentity = laneClickedDto.Identity.GetEnemy();
-            //    GameStatusDto enemyGameStatus = await _gameService.GetStatus(laneClickedDto.Code, enemyIdentity);
+            GameStatusDto playerGameStatus = await _gameService.GetStatus(laneClickedDto.Code, laneClickedDto.Identity);
+            PlayerIdentity enemyIdentity = laneClickedDto.Identity.GetEnemy();
+            GameStatusDto enemyGameStatus = await _gameService.GetStatus(laneClickedDto.Code, enemyIdentity);
 
-            //    await Clients.Caller.SendAsync("LaneMove", playerGameStatus);
-            //    await Clients.OthersInGroup(laneClickedDto.Code).SendAsync("LaneMove", enemyGameStatus);
-            //}
-
-
-            //generalnie tutaj rodzielic na _cardService.LaneClickedMuster, LaneClickedHealer etc.
-            await _cardService.LaneClicked(laneClickedDto);
+            await Clients.Caller.SendAsync(methodName, playerGameStatus);
+            await Clients.OthersInGroup(laneClickedDto.Code).SendAsync(methodName, enemyGameStatus);
         }
 
         public async Task HornClicked(HornClickedDto hornClickedDto)
@@ -61,7 +72,7 @@ namespace GwentApi.Hubs
 
             //await SprawdzicCzyZmienicTure()
 
-            await _statusService.AddGwentAction(hornClickedDto.Identity, hornClickedDto.Code, GwentActionType.HornCardPlayed, new() { gwentBoardCard });
+            await _statusService.AddGwentAction(hornClickedDto.Identity, hornClickedDto.Code, GwentActionType.CommandersHornCardPlayed, new() { gwentBoardCard }, new());
 
             GameStatusDto playerGameStatus = await _gameService.GetStatus(hornClickedDto.Code, hornClickedDto.Identity);
             PlayerIdentity enemyIdentity = hornClickedDto.Identity.GetEnemy();
@@ -77,6 +88,11 @@ namespace GwentApi.Hubs
         }
 
         public async Task CardClicked()//tylko decoy
+        {
+
+        }
+
+        public async Task WeatherClicked()
         {
 
         }

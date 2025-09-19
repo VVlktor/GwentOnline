@@ -126,7 +126,7 @@
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot" @onclick="async () => await GwentActionHornClicked(TroopPlacement.Melee)"></div>
-                                <div class="lane" @onclick="async () => await GwentActionLaneClicked(GwentLane.Melee)">
+                                <div class="lane" @onclick="async () => await GwentActionLaneClicked(TroopPlacement.Melee)">
                                     @foreach (var card in CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.GetIdentity()))
                                     {
                                         <div class="card-slot">
@@ -143,7 +143,7 @@
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot" @onclick="async () => await GwentActionHornClicked(TroopPlacement.Range)"></div>
-                                <div class="lane" @onclick="async () => await GwentActionLaneClicked(GwentLane.Range)">
+                                <div class="lane" @onclick="async () => await GwentActionLaneClicked(TroopPlacement.Range)">
                                     @foreach (var card in CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.GetIdentity()))
                                     {
                                         <div class="card-slot">
@@ -160,7 +160,7 @@
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot" @onclick="async()=>await GwentActionHornClicked(TroopPlacement.Siege)"></div>
-                                <div class="lane" @onclick="async () => await GwentActionLaneClicked(GwentLane.Siege)">
+                                <div class="lane" @onclick="async () => await GwentActionLaneClicked(TroopPlacement.Siege)">
                                     @foreach (var card in CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.GetIdentity()))
                                     {
                                         <div class="card-slot">
@@ -247,10 +247,11 @@
 {
     <label>@a.Name</label>
 }
-<label>--------</label>
+<label>--------</label><br />
 @foreach (var a in status.Action.CardsOnBoard)
 {
-    <label>@a.Name</label>
+    <label>@a.Name - @a.CurrentStrength</label>
+    <br/>
 }
 
 
@@ -314,11 +315,11 @@
         await gameService.JoinBoardAsync();
     }
 
-    private async Task GwentActionLaneClicked(GwentLane lane)
+    private async Task GwentActionLaneClicked(TroopPlacement placement)
     {
         if (SelectedCard is null) return;
 
-        await gameService.PlayerLaneClicked(lane, SelectedCard);
+        await gameService.PlayerLaneClicked(placement, SelectedCard);
 
         //LEPSZY POMYSL: wysylam normalnie, zwracam, ale jak zwroce to pokaze menu z wybieraniem karty do wskszeszenia, a w hubie w serwisie sprawdzam poprostu czy ostatnia akcja to wystawienie medyka przez tego gracza
     }

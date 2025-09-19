@@ -13,7 +13,7 @@ namespace GwentApi.Services
             _gameRepository = gameRepository;
         }
 
-        public async Task<GwentAction> AddGwentAction(PlayerIdentity identity, string code, GwentActionType actionType, List<GwentBoardCard> playedCards)
+        public async Task<GwentAction> AddGwentAction(PlayerIdentity identity, string code, GwentActionType actionType, List<GwentBoardCard> playedCards, List<GwentBoardCard> killedCards)
         {
             Game game = await _gameRepository.GetGameByCode(code);
 
@@ -24,6 +24,7 @@ namespace GwentApi.Services
                 Issuer = identity,
                 CardsPlayed = playedCards,
                 CardsOnBoard = game.CardsOnBoard,
+                CardsKilled = killedCards,
                 AbilitiyUsed = playedCards[0].Abilities//potencjalnie ability do wywalenia
             };
 
@@ -37,8 +38,6 @@ namespace GwentApi.Services
         public async Task UpdateBoardState(string code)
         {
             Game game = await _gameRepository.GetGameByCode(code);
-
-            var startState = game.CardsOnBoard.Select(x => (x.PrimaryId, x.CurrentStrength));
 
             //tutaj jeszcze sprawdzic czy w pogodowych jesst scorch (efekt przypisany do karty bede sprawdzal w LaneClicked)
             //trzeba przemyslec podejscie czy tu czy w LaneWeatherClicked. Jeszcze nie wiem
@@ -84,9 +83,15 @@ namespace GwentApi.Services
             ApplyHorn(playerTwoCards, TroopPlacement.Siege);
 
             await _gameRepository.UpdateGame(game);
+            if (!game.CardsOnBoard.Any(x => x.CardId == 6)) return;
+
+            //string blad = "";
+            //foreach (var x in game.CardsOnBoard)
+            //    blad+=$"{x.Name} - {x.CurrentStrength}\n";
+            //throw new Exception($"{blad}");
         }
 
-        private void ApplyWeather(List<GwentBoardCard> cards, Abilities ability, TroopPlacement placement)
+        private void ApplyWeather(IEnumerable<GwentBoardCard> cards, Abilities ability, TroopPlacement placement)
         {
             if (cards.Any(x => (x.Abilities.HasFlag(ability))))
                 foreach (var card in cards.Where(x => x.Placement == placement && !x.Abilities.HasFlag(Abilities.Hero)))
@@ -100,7 +105,7 @@ namespace GwentApi.Services
                     card.CurrentStrength *= 2;
             else
             {
-                int hornCount = cards.Count(x => x.Abilities.HasFlag(Abilities.Horn));
+                int hornCount = cards.Count(x => x.Placement==placement && x.Abilities.HasFlag(Abilities.Horn));
                 if (hornCount > 1)
                 {
                     foreach (var card in cards.Where(x => x.Placement == placement && !x.Abilities.HasFlag(Abilities.Hero)))
