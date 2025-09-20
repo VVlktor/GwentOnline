@@ -72,6 +72,7 @@ namespace GwentApi.Hubs
 
             //await SprawdzicCzyZmienicTure()
 
+            //z SpawdzicCzyZmienicTure zabrac kogo jest next tura i dorzucic do AddGwentAction
             await _statusService.AddGwentAction(hornClickedDto.Identity, hornClickedDto.Code, GwentActionType.CommandersHornCardPlayed, new() { gwentBoardCard }, new());
 
             GameStatusDto playerGameStatus = await _gameService.GetStatus(hornClickedDto.Code, hornClickedDto.Identity);

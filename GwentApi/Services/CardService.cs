@@ -53,7 +53,7 @@ namespace GwentApi.Services
         {
             Game game = await _gameRepository.GetGameByCode(laneClickedDto.Code);
 
-            if (game.Turn != laneClickedDto.Identity) return null;
+            //if (game.Turn != laneClickedDto.Identity) return null;
 
             PlayerSide playerSide = game.GetPlayerSide(laneClickedDto.Identity);
 

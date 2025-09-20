@@ -4,7 +4,7 @@ namespace GwentWebAssembly.Services.Interfaces
 {
     public interface IStatusService
     {
-        Task TestStatusMethod(GameStatusDto gameStatusDto);
-        GameStatusDto GetStatusDto();
+        event Func<GameStatusDto, Task>? OnAnimationRequested;
+        void Enqueue(GameStatusDto state);
     }
 }
