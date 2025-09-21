@@ -1,42 +1,37 @@
-﻿window.runCardAnimation = function (targetId) {
-    return new Promise((resolve) => {
-        const card = document.getElementById("card-animation");
-        const start = document.getElementById("enemy-deck-count");
-        const target = document.getElementById(targetId);
+﻿window.runCardAnimation = function (startId, targetId) {
+    const start = document.getElementById(startId); //"player-cards-in-hand" lub "enemy-deck-count"
+    const target = document.getElementById(targetId);
 
-        if (!card || !start || !target) {
-            resolve();
-            return;
-        }
+    if (!start || !target) return;
 
-        const startRect = start.getBoundingClientRect();
-        const targetRect = target.getBoundingClientRect();
+    const cardWrapper = document.createElement("div");
+    cardWrapper.style.width = "84px";
+    cardWrapper.style.height = "110px";
+    cardWrapper.style.position = "fixed";
+    cardWrapper.style.zIndex = 1000;
+    cardWrapper.style.transition = "top 1s ease-in-out, left 1s ease-in-out";
 
-        // Reset
-        card.style.transition = "none";
-        card.style.display = "block";
-        card.style.left = (startRect.left + startRect.width / 2 - card.offsetWidth / 2) + "px";
-        card.style.top = (startRect.top + startRect.height / 2 - card.offsetHeight / 2) + "px";
+    const cardInner = document.createElement("div");
+    cardInner.style.width = "100%";
+    cardInner.style.height = "100%";
+    cardInner.style.borderRadius = "8px";
+    cardInner.style.background = "linear-gradient(145deg, #222, #111)";
+    cardWrapper.appendChild(cardInner);
 
-        // Force reflow
-        void card.offsetWidth;
+    document.getElementById("gwent-board").appendChild(cardWrapper);
 
-        // Start animacji
-        card.style.transition = "top 1s ease-in-out, left 1s ease-in-out";
-        card.style.left = (targetRect.left + targetRect.width / 2 - card.offsetWidth / 2) + "px";
-        card.style.top = (targetRect.top + targetRect.height / 2 - card.offsetHeight / 2) + "px";
+    const startRect = start.getBoundingClientRect();
+    cardWrapper.style.left = (startRect.left + startRect.width / 2 - 42) + "px";
+    cardWrapper.style.top = (startRect.top + startRect.height / 2 - 58) + "px";
 
-        // Obsłuż tylko JEDEN raz
-        const handler = () => {
-            card.style.display = "none";
-            card.style.transition = "none";
-            card.style.left = "0px";
-            card.style.top = "0px";
+    void cardWrapper.offsetWidth;
 
-            card.removeEventListener("transitionend", handler);
-            resolve(); // sygnał końca
-        };
+    const targetRect = target.getBoundingClientRect();
+    cardWrapper.style.left = (targetRect.left + targetRect.width / 2 - 42) + "px";
+    cardWrapper.style.top = (targetRect.top + targetRect.height / 2 - 58) + "px";
 
-        card.addEventListener("transitionend", handler, { once: true });
-    });
+    cardWrapper.addEventListener("transitionend", function handler() {
+        cardWrapper.removeEventListener("transitionend", handler);
+        document.getElementById("gwent-board").removeChild(cardWrapper);
+    }, { once: true });
 };

@@ -20,6 +20,7 @@
     box-shadow: 0 10px 40px rgba(0,0,0,.5), inset 0 0 0 4px #0006;
     background: linear-gradient(135deg, #6b4a33 0%, #4a3526 100%);
     overflow: hidden;
+    position:relative;
 }
 
 .board-frame {
@@ -85,7 +86,7 @@
 
 .card-slot {
     width: 84px;
-    height: 116px;
+    height: 110px;
     border-radius: 10px;
     flex: 0 0 auto;
     background: linear-gradient(145deg, #222, #111);
@@ -155,7 +156,7 @@
     z-index: 1;
 }
 
-#card-animation {
+.card-animation {
     position: fixed;
     width: 84px;
     height: 116px;

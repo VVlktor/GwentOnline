@@ -21,17 +21,17 @@ namespace GwentWebAssembly.Services
             _connection.On<GameStatusDto>("LaneMove", async gameStatusDto =>
             {
                 //_statusService.JakasAkcjaUpdate + TriggerAnimacji - sprawdzone, zwraca dane
-                _statusService.Enqueue(gameStatusDto);
+                await _statusService.Enqueue(gameStatusDto);
             });//potencjalnie obsolete
 
             _connection.On<GameStatusDto>("HornClicked", async gameStatusDto =>
             {
-                _statusService.Enqueue(gameStatusDto);
+                await _statusService.Enqueue(gameStatusDto);
             });
 
             _connection.On<GameStatusDto>("LaneClickedNormalCard", async gameStatusDto =>
             {
-               _statusService.Enqueue(gameStatusDto);
+               await _statusService.Enqueue(gameStatusDto);
             });
             
         }
