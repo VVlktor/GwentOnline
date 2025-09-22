@@ -3,7 +3,6 @@
 @inject NavigationManager navigationManager
 @inject IGameService gameService
 @inject IStatusService statusService
-@inject IJSRuntime JS
 
 <div class="background-board">
     <div id="gwent-board" class="gwent-board">
@@ -14,29 +13,29 @@
                     <div class="col-12 col-md-3 col-lg-3">
                         <div class="side">
                             <!-- Panel przeciwnika -->
-                            <div class="player-info @(Turn == playerService.EnemyIdentity() ? "border-warning" : "")">
+                            <div class="player-info @(statusService.Turn == playerService.EnemyIdentity() ? "border-warning" : "")">
                                 <div class="player-top">
                                     <div class="commander-slot">
                                         <img src="" alt="">
                                     </div>
-                                    <div class="faction-label">@EnemyLeaderCard.Faction</div>
+                                    <div class="faction-label"><!--@EnemyLeaderCard.Faction--></div>
                                 </div>
                                 <div class="stats-row mt-3">
-                                    <div class="stat">Karty: @EnemyCartsCount</div>
+                                    <div class="stat">Karty: <!--@EnemyCartsCount--></div>
                                     <div>
-                                        @for(int i =0; i<EnemyHp; i++)
+                                        @for(int i =0; i<2; i++)//EnemyHp; i++)
                                         {
                                             <span class="hp-dot"></span>
                                         }
                                     </div>
-                                    <div class="stat">Pkt: @EnemyPoints</div>
+                                    <div class="stat">Pkt: <!--@EnemyPoints--></div>
                                 </div>
                             </div>
 
                             <!-- pogoda -->
                             <div class="slot">
                                 <div id="weather-lane" class="weather-lane">
-                                    @foreach(var card in CardsOnBoard.Where(x=>x.Placement==TroopPlacement.Weather))
+                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Weather))
                                     {
                                         <div class="card-slot"></div>
                                     }
@@ -44,22 +43,22 @@
                             </div>
 
                             <!-- panel gracza -->
-                            <div class="player-info @(Turn == playerService.GetIdentity() ? "border-warning" : "")">
+                            <div class="player-info @(statusService.Turn == playerService.GetIdentity() ? "border-warning" : "")">
                                 <div class="stats-row mb-3">
-                                    <div class="stat">Karty: @CardsInHand.Count()</div>
+                                    <div class="stat">Karty: @statusService.CardsInHand.Count()</div>
                                     <div>
-                                        @for (int i = 0; i < PlayerHp; i++)
+                                        @for (int i = 0; i <2; i++) //PlayerHp; i++)
                                         {
                                             <span class="hp-dot"></span>
                                         }
                                     </div>
-                                    <div class="stat">Pkt: @PlayerPoints</div>
+                                    <div class="stat">Pkt: <!--@PlayerPoints--></div>
                                 </div>
                                 <div class="player-bottom">
-                                    <div class="commander-slot" @onclick="async () => await GwentActionLeaderClicked()">
+                                    <div class="commander-slot" @onclick="async () => await gameService.LeaderClicked()">
                                         <img src="" alt="">
                                     </div>
-                                    <div class="faction-label">@PlayerLeaderCard.Faction</div>
+                                    <div class="faction-label"><!--@PlayerLeaderCard.Faction--></div>
                                 </div>
                             </div>
                         </div>
@@ -73,8 +72,8 @@
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot"></div>
-                                <div class="lane" @onclick="async () => await GwentActionEnemyLaneClicked(TroopPlacement.Siege)">
-                                    @foreach(var card in CardsOnBoard.Where(x=>x.Placement==TroopPlacement.Siege && x.Owner == playerService.EnemyIdentity()))
+                                <div class="lane" @onclick="async () => await gameService.EnemyLaneClicked(TroopPlacement.Siege)">
+                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.EnemyIdentity()))
                                     {
                                         <div class="card-slot">
                                             <div class="card">
@@ -90,8 +89,8 @@
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot"></div>
-                                <div class="lane" @onclick="async () => await GwentActionEnemyLaneClicked(TroopPlacement.Range)">
-                                    @foreach (var card in CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.EnemyIdentity()))
+                                <div class="lane" @onclick="async () => await gameService.EnemyLaneClicked(TroopPlacement.Range)">
+                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.EnemyIdentity()))
                                     {
                                         <div class="card-slot">
                                             <div class="card">
@@ -107,8 +106,8 @@
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot"></div>
-                                <div id="playerLaneSiegeLane" class="lane" @onclick="async () => await GwentActionEnemyLaneClicked(TroopPlacement.Melee)">
-                                    @foreach (var card in CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.EnemyIdentity()))
+                                <div id="playerLaneSiegeLane" class="lane" @onclick="async () => await gameService.EnemyLaneClicked(TroopPlacement.Melee)">
+                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.EnemyIdentity()))
                                     {
                                         <div class="card-slot">
                                             <div class="card">
@@ -126,12 +125,12 @@
                             <!-- rowsy gracza -->
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
-                                <div class="lane-extra-slot" @onclick="async () => await GwentActionHornClicked(TroopPlacement.Melee)"></div>
-                                <div id="playerLaneMelee" class="lane" @onclick="async () => await GwentActionLaneClicked(TroopPlacement.Melee)">
-                                    @foreach (var card in CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.GetIdentity()))
+                                <div class="lane-extra-slot" @onclick="async () => await gameService.HornClicked(TroopPlacement.Melee)"></div>
+                                <div id="playerLaneMelee" class="lane" @onclick="async () => await gameService.PlayerLaneClicked(TroopPlacement.Melee)">
+                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.GetIdentity()))
                                     {
                                         <div class="card-slot">
-                                            <div class="card" @onclick="async () => await GwentActionCardClicked(card)">
+                                            <div class="card" @onclick="async () => await gameService.CardClicked(card)">
                                                 <img src="" alt="Karta">
                                                 <div class="pow">@card.CurrentStrength</div>
                                                 <div class="name">@card.Name</div>
@@ -143,12 +142,12 @@
 
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
-                                <div class="lane-extra-slot" @onclick="async () => await GwentActionHornClicked(TroopPlacement.Range)"></div>
-                                <div id="playerLaneRange" class="lane" @onclick="async () => await GwentActionLaneClicked(TroopPlacement.Range)">
-                                    @foreach (var card in CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.GetIdentity()))
+                                <div class="lane-extra-slot" @onclick="async () => await gameService.HornClicked(TroopPlacement.Range)"></div>
+                                <div id="playerLaneRange" class="lane" @onclick="async () => await gameService.PlayerLaneClicked(TroopPlacement.Range)">
+                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.GetIdentity()))
                                     {
                                         <div class="card-slot">
-                                            <div class="card" @onclick="async () => await GwentActionCardClicked(card)">
+                                            <div class="card" @onclick="async () => await gameService.CardClicked(card)">
                                                 <img src="" alt="">
                                                 <div class="pow">@card.CurrentStrength</div>
                                                 <div class="name">@card.Name</div>
@@ -160,12 +159,12 @@
 
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
-                                <div class="lane-extra-slot" @onclick="async()=>await GwentActionHornClicked(TroopPlacement.Siege)"></div>
-                                <div id="playerLaneSiege" class="lane" @onclick="async () => await GwentActionLaneClicked(TroopPlacement.Siege)">
-                                    @foreach (var card in CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.GetIdentity()))
+                                <div class="lane-extra-slot" @onclick="async () => await gameService.HornClicked(TroopPlacement.Siege)"></div>
+                                <div id="playerLaneSiege" class="lane" @onclick="async () => await gameService.PlayerLaneClicked(TroopPlacement.Siege)">
+                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.GetIdentity()))
                                     {
                                         <div class="card-slot">
-                                            <div class="card" @onclick="async () => await GwentActionCardClicked(card)">
+                                            <div class="card" @onclick="async () => await gameService.CardClicked(card)">
                                                 <img src="" alt="Karta">
                                                 <div class="pow">@card.CurrentStrength</div>
                                                 <div class="name">@card.Name</div>
@@ -181,9 +180,9 @@
                             <div class="lane-wrapper">
                                 <div id="player-cards-in-hand" class="lane border-warning">
                                     
-                                    @foreach(var card in CardsInHand)
+                                    @foreach (var card in statusService.CardsInHand)
                                     {
-                                        <div id="@($"card-in-hand-{card.PrimaryId}")" class="card-slot" @onclick="()=>CardSelected(card)">
+                                        <div id="@($"card-in-hand-{card.PrimaryId}")" class="card-slot" @onclick="()=>statusService.CardSelected(card)">
                                             <div class="card">
                                                 <img src="" alt="">
                                                 <div class="pow">@card.Strength</div><!-- jesli karty nie mające hp, np pogoda lub manekin to nie wyswietlac sily -->
@@ -205,7 +204,7 @@
                                 <div class="card-holder">
                                     <img src="" alt="Odrzucone karty wroga">
                                 </div>
-                                <div class="count">x @EnemyUsedCards</div>
+                                <div class="count">x <!--@EnemyUsedCards--></div>
                             </div>
 
                             <div id="enemy-deck-count" class="deck-slot">
@@ -213,7 +212,7 @@
                                 <div class="card-holder">
                                     <img src="" alt="Taila wroga">
                                 </div>
-                                <div class="count">x @EnemyDeckCount</div>
+                                <div class="count">x <!--@EnemyDeckCount--></div>
                             </div>
 
                             <div class="deck-slot">
@@ -221,7 +220,7 @@
                                 <div class="card-holder">
                                     <img src="" alt="Twoje odrzucone karty">
                                 </div>
-                                <div class="count">x @PlayerUsedCards.Count()</div>
+                                <div class="count">x <!--@PlayerUsedCards.Count()--></div>
                             </div>
 
                             <div class="deck-slot">
@@ -229,7 +228,7 @@
                                 <div class="card-holder">
                                     <img src="" alt="Twoja talia">
                                 </div>
-                                <div class="count">x @PlayerDeckCount</div>
+                                <div class="count">x <!--@PlayerDeckCount--></div>
                             </div>
                         </div>
                     </div>
@@ -240,64 +239,9 @@
     </div>
 </div>
 
-@foreach(var a in status.CardsInHand)
-{
-    <label>@a.Name</label>
-}
-<label>--------</label>
-@foreach (var a in status.Action.CardsPlayed)
-{
-    <label>@a.Name</label>
-}
-<label>--------</label><br />
-@foreach (var a in status.Action.CardsOnBoard)
-{
-    <label>@a.Name - @a.CurrentStrength</label>
-    <br/>
-}
-
 
 
 @code {
-
-    private List<GwentBoardCard> CardsOnBoard = new();
-    private List<GwentCard> CardsInHand = new();
-
-    private GwentCard PlayerLeaderCard = new();
-    private GwentCard EnemyLeaderCard = new();
-
-    private int EnemyCartsCount = 0;//do zagrania
-    private int EnemyDeckCount = 0;//pozostale/nieuzywane w talii
-    private int EnemyUsedCards = 0;//zuzyte
-
-    private int PlayerDeckCount = 0;
-    private List<GwentCard> PlayerUsedCards = new();
-
-    private PlayerIdentity Turn = PlayerIdentity.PlayerOne;
-    private int PlayerHp = 2;
-    private int EnemyHp = 2;
-
-    private int EnemyPoints = 0;
-    private int PlayerPoints = 0;
-
-    private GwentCard SelectedCard { get; set; } = new();
-
-    private GameStatusDto status = new()
-    {
-        CardsInHand=new(),
-        Action = new()
-        {
-            CardsOnBoard=new(),
-            CardsPlayed=new()
-        }
-
-    };//do wywalenia, tylko test
-
-    private void CardSelected(GwentCard card)
-    {
-        SelectedCard = card;
-    }
-
     protected override async Task OnInitializedAsync()
     {
         if (!playerService.IsDataValid())
@@ -306,54 +250,15 @@
             return;
         }
 
-        StartStatusDto startStatus = await gameService.GetStartStatus();
-        Turn = startStatus.Turn;
-        PlayerDeckCount = startStatus.PlayerDeckCount;
-        PlayerLeaderCard = startStatus.PlayerLeaderCard;
-        EnemyLeaderCard = startStatus.EnemyLeaderCard;
-        CardsInHand = startStatus.PlayerCards;
-        EnemyCartsCount = startStatus.EnemyCartsCount;
-        EnemyDeckCount = startStatus.EnemyDeckCount;
-        StateHasChanged();
+        await gameService.GetStartStatus();
         await gameService.JoinBoardAsync();
-        statusService.OnAnimationRequested += RunAnimation;
+
+        statusService.OnStateChanged += RefreshState;
+
     }
 
-    public async Task RunAnimation(GameStatusDto gameStatusDto)
+    public async Task RefreshState()
     {
-        CardsOnBoard = gameStatusDto.CardsOnBoard;
-        CardsInHand = gameStatusDto.CardsInHand;//tak, to wszystko bedzie wyrzucone poza kod razor page. Ale obecnie niech sobie siedzi
         StateHasChanged();
-    }
-
-    private async Task GwentActionLaneClicked(TroopPlacement placement)
-    {
-        if (SelectedCard is null) return;
-
-        await gameService.PlayerLaneClicked(placement, SelectedCard);
-
-        //LEPSZY POMYSL: wysylam normalnie, zwracam, ale jak zwroce to pokaze menu z wybieraniem karty do wskszeszenia, a w hubie w serwisie sprawdzam poprostu czy ostatnia akcja to wystawienie medyka przez tego gracza
-    }
-
-    private async Task GwentActionEnemyLaneClicked(TroopPlacement placement)
-    {
-        //czy spy
-    }
-
-    private async Task GwentActionLeaderClicked()
-    {
-        await gameService.LeaderClicked();
-    }
-
-    private async Task GwentActionCardClicked(GwentBoardCard card)
-    {
-        //await gameService.CardClicked(card);
-        //tylko decoy
-    }
-
-    private async Task GwentActionHornClicked(TroopPlacement placement)
-    {
-        if (SelectedCard is null) return;
-        await gameService.HornClicked(placement, SelectedCard);
     }
 }

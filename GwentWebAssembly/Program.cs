@@ -20,6 +20,7 @@ namespace GwentWebAssembly
             builder.Services.AddTransient<IDeckService, DeckService>();
             builder.Services.AddTransient<IGameService, GameService>();
             builder.Services.AddTransient<IGwentHubService, GwentHubService>();
+            builder.Services.AddTransient<IAnimationService, AnimationService>();
 
             builder.Services.AddScoped<IStatusService, StatusService>();
 
