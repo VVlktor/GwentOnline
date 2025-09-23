@@ -18,12 +18,6 @@ namespace GwentWebAssembly.Services
             .WithUrl("http://localhost:5277/gwenthub")
             .Build();
 
-            _connection.On<GameStatusDto>("LaneMove", async gameStatusDto =>
-            {
-                //_statusService.JakasAkcjaUpdate + TriggerAnimacji - sprawdzone, zwraca dane
-                await _statusService.ReceivedStatus(gameStatusDto);
-            });//potencjalnie obsolete
-
             _connection.On<GameStatusDto>("HornClicked", async gameStatusDto =>
             {
                 await _statusService.ReceivedStatus(gameStatusDto);

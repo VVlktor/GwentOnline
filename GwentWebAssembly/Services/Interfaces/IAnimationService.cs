@@ -1,9 +1,12 @@
-﻿using GwentWebAssembly.Data.Dtos;
+﻿using GwentWebAssembly.Data;
+using GwentWebAssembly.Data.Dtos;
 
 namespace GwentWebAssembly.Services.Interfaces
 {
     public interface IAnimationService
     {
-        Task ProcessAnimationQueueAsync(GameStatusDto gameStatusDto);
+        Task ProcessReceivedAnimation(GameStatusDto gameStatusDto);
+        Task OverlayAnimation(string text);
+        Task OverlayAnimation(PlayerIdentity turn);
     }
 }

@@ -3,11 +3,14 @@
     public class GameStatusDto
     {
         public List<GwentCard> CardsInHand { get; set; }
-        public List<GwentBoardCard> CardsOnBoard {  get; set; }
+        public List<GwentBoardCard> CardsOnBoard { get; set; }
+        public List<GwentCard> UsedCards { get; set; }
         public PlayerIdentity Turn { get; set; }
-        public PlayerIdentity NextTurn { get; set; }
         public GwentAction Action { get; set; }
         public int EnemyCardsCount { get; set; }
-        public int PlayerCardsCount {  get; set; }
+        public int EnemyUsedCardsCount { get; set; }
+        public int EnemyDeckCount { get; set; }
+        public int PlayerDeckCount { get; set; } // karty ktore nie zostaly jeszcze dodane do hand
+        //bedzie trzeba dodac leaderow
     }
 }

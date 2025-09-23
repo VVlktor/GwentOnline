@@ -7,7 +7,7 @@
     const cardWrapper = document.createElement("div");
     cardWrapper.style.width = "84px";
     cardWrapper.style.height = "110px";
-    cardWrapper.style.position = "fixed";
+    cardWrapper.style.position = "fixed";//przeniesc to do app.css
     cardWrapper.style.zIndex = 1000;
     cardWrapper.style.transition = "top 1s ease-in-out, left 1s ease-in-out";
 
@@ -34,4 +34,24 @@
         cardWrapper.removeEventListener("transitionend", handler);
         document.getElementById("gwent-board").removeChild(cardWrapper);
     }, { once: true });
+};
+
+window.showOverlay = function (message) {
+    const overlay = document.createElement("div");
+    overlay.className = "main-black-gwent-overlay";
+    overlay.textContent = message;
+
+    document.body.appendChild(overlay);
+
+    requestAnimationFrame(() => {
+        overlay.style.opacity = "1";
+    });
+
+    setTimeout(() => {
+        overlay.style.opacity = "0";
+    }, 1500);
+
+    setTimeout(() => {
+        overlay.remove();
+    }, 2000);
 };

@@ -120,7 +120,7 @@
 .card .pow {
     background: #111;
     align-self: flex-start;
-    margin: 6px;
+    margin: 3px 6px 3px 6px;
     padding: .15rem .4rem;
     border-radius: 6px;
     font-weight: 800;
@@ -144,9 +144,9 @@
 
 .card .name {
     text-align: center;
-    font-size: .78rem;
+    font-size: .75rem;
     padding: .2rem .3rem;
-    margin: 4px;
+    margin: 2px;
     background: #0009;
     border-top: 1px solid #000;
     border-radius: 6px;
@@ -312,3 +312,9 @@
     font-size: 1rem;
     font-weight: bold;
 }
+
+
+
+
+
+

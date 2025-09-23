@@ -14,22 +14,22 @@ namespace GwentWebAssembly.Services
         public List<GwentBoardCard> CardsOnBoard { get; set; } = new();
         public List<GwentCard> CardsInHand { get; set; } = new();
 
-        private GwentCard PlayerLeaderCard = new();
-        private GwentCard EnemyLeaderCard = new();
+        public GwentCard PlayerLeaderCard { get; set; } = new();
+        public GwentCard EnemyLeaderCard { get; set; } = new();
 
-        private int EnemyCartsCount = 0;//do zagrania
-        private int EnemyDeckCount = 0;//pozostale/nieuzywane w talii
-        private int EnemyUsedCards = 0;//zuzyte
+        public int EnemyCardsCount { get; set; } = 10;//do zagrania
+        public int EnemyDeckCount { get; set; } = 0;//pozostale/nieuzywane w talii
+        public int EnemyUsedCardsCount { get; set; } = 0;//zuzyte
 
-        private int PlayerDeckCount = 0;
-        private List<GwentCard> PlayerUsedCards = new();
+        public int PlayerDeckCount { get; set; } = 0;
+        public List<GwentCard> PlayerUsedCards { get; set; } = new();
 
         public PlayerIdentity Turn { get; set; } = PlayerIdentity.PlayerOne;
-        private int PlayerHp = 2;
-        private int EnemyHp = 2;
+        public int PlayerHp { get; set; } = 2;
+        public int EnemyHp { get; set; } = 2;
 
-        private int EnemyPoints = 0;
-        private int PlayerPoints = 0;
+        public int EnemyPoints { get; set; } = 0;
+        public int PlayerPoints { get; set; } = 0;
 
         private GwentCard SelectedCard { get; set; } = new();
 
@@ -49,23 +49,34 @@ namespace GwentWebAssembly.Services
             PlayerLeaderCard = startStatus.PlayerLeaderCard;
             EnemyLeaderCard = startStatus.EnemyLeaderCard;
             CardsInHand = startStatus.PlayerCards;
-            EnemyCartsCount = startStatus.EnemyCartsCount;
             EnemyDeckCount = startStatus.EnemyDeckCount;
 
             if (OnStateChanged is not null)
                 await OnStateChanged.Invoke();
-            //statusService.OnAnimationRequested += RunAnimation;
-            //powiadomic ze statehaschanged (chyba ze sie obejdzie)
+
+            await _animationService.OverlayAnimation(Turn);
         }
 
-        public async Task ReceivedStatus(GameStatusDto state)
+        public async Task ReceivedStatus(GameStatusDto gameStatusDto)
         {
-            await _animationService.ProcessAnimationQueueAsync(state);
-            CardsOnBoard = state.CardsOnBoard;
-            CardsInHand = state.CardsInHand;
-            //pozmieniac inne properites z GameStatusDto
+            await _animationService.ProcessReceivedAnimation(gameStatusDto);
+
+            bool isSameTurn = Turn == gameStatusDto.Turn;
+
+            CardsOnBoard = gameStatusDto.CardsOnBoard;
+            CardsInHand = gameStatusDto.CardsInHand;
+            Turn = gameStatusDto.Turn;
+            EnemyCardsCount = gameStatusDto.EnemyCardsCount;
+            PlayerUsedCards = gameStatusDto.UsedCards;
+            EnemyUsedCardsCount = gameStatusDto.EnemyUsedCardsCount;
+            PlayerDeckCount = gameStatusDto.PlayerDeckCount;
+            EnemyDeckCount = gameStatusDto.EnemyDeckCount;
+
             if (OnStateChanged is not null)
                 await OnStateChanged.Invoke();
+
+            if(!isSameTurn)
+                await _animationService.OverlayAnimation(Turn);
         }
 
         //public async Task GwentActionHornClicked(TroopPlacement placement)

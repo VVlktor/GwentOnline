@@ -18,17 +18,17 @@
                                     <div class="commander-slot">
                                         <img src="" alt="">
                                     </div>
-                                    <div class="faction-label"><!--@EnemyLeaderCard.Faction--></div>
+                                    <div id="enemy-faction-label" class="faction-label">@statusService.EnemyLeaderCard.Faction</div>
                                 </div>
                                 <div class="stats-row mt-3">
-                                    <div class="stat">Karty: <!--@EnemyCartsCount--></div>
+                                    <div class="stat">Karty: @statusService.EnemyCardsCount</div>
                                     <div>
-                                        @for(int i =0; i<2; i++)//EnemyHp; i++)
+                                        @for (int i = 0; i < statusService.EnemyHp; i++)
                                         {
                                             <span class="hp-dot"></span>
                                         }
                                     </div>
-                                    <div class="stat">Pkt: <!--@EnemyPoints--></div>
+                                    <div class="stat">Pkt: @statusService.EnemyPoints</div>
                                 </div>
                             </div>
 
@@ -47,18 +47,18 @@
                                 <div class="stats-row mb-3">
                                     <div class="stat">Karty: @statusService.CardsInHand.Count()</div>
                                     <div>
-                                        @for (int i = 0; i <2; i++) //PlayerHp; i++)
+                                        @for (int i = 0; i < statusService.PlayerHp; i++)
                                         {
                                             <span class="hp-dot"></span>
                                         }
                                     </div>
-                                    <div class="stat">Pkt: <!--@PlayerPoints--></div>
+                                    <div class="stat">Pkt: @statusService.PlayerPoints</div>
                                 </div>
                                 <div class="player-bottom">
                                     <div class="commander-slot" @onclick="async () => await gameService.LeaderClicked()">
                                         <img src="" alt="">
                                     </div>
-                                    <div class="faction-label"><!--@PlayerLeaderCard.Faction--></div>
+                                    <div class="faction-label">@statusService.PlayerLeaderCard.Faction</div>
                                 </div>
                             </div>
                         </div>
@@ -72,7 +72,7 @@
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot"></div>
-                                <div class="lane" @onclick="async () => await gameService.EnemyLaneClicked(TroopPlacement.Siege)">
+                                <div id="enemyLaneSiege" class="lane" @onclick="async () => await gameService.EnemyLaneClicked(TroopPlacement.Siege)">
                                     @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.EnemyIdentity()))
                                     {
                                         <div class="card-slot">
@@ -89,7 +89,7 @@
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot"></div>
-                                <div class="lane" @onclick="async () => await gameService.EnemyLaneClicked(TroopPlacement.Range)">
+                                <div id="enemyLaneRange" class="lane" @onclick="async () => await gameService.EnemyLaneClicked(TroopPlacement.Range)">
                                     @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.EnemyIdentity()))
                                     {
                                         <div class="card-slot">
@@ -106,7 +106,7 @@
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
                                 <div class="lane-extra-slot"></div>
-                                <div id="playerLaneSiegeLane" class="lane" @onclick="async () => await gameService.EnemyLaneClicked(TroopPlacement.Melee)">
+                                <div id="enemyLaneMelee" class="lane" @onclick="async () => await gameService.EnemyLaneClicked(TroopPlacement.Melee)">
                                     @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.EnemyIdentity()))
                                     {
                                         <div class="card-slot">
@@ -164,6 +164,7 @@
                                     @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.GetIdentity()))
                                     {
                                         <div class="card-slot">
+                                            <!-- nie wyswietlac np. commanders horn w tym row-->
                                             <div class="card" @onclick="async () => await gameService.CardClicked(card)">
                                                 <img src="" alt="Karta">
                                                 <div class="pow">@card.CurrentStrength</div>
@@ -204,7 +205,7 @@
                                 <div class="card-holder">
                                     <img src="" alt="Odrzucone karty wroga">
                                 </div>
-                                <div class="count">x <!--@EnemyUsedCards--></div>
+                                <div class="count">x @statusService.EnemyUsedCardsCount</div>
                             </div>
 
                             <div id="enemy-deck-count" class="deck-slot">
@@ -212,7 +213,7 @@
                                 <div class="card-holder">
                                     <img src="" alt="Taila wroga">
                                 </div>
-                                <div class="count">x <!--@EnemyDeckCount--></div>
+                                <div class="count">x @statusService.EnemyDeckCount</div>
                             </div>
 
                             <div class="deck-slot">
@@ -220,7 +221,7 @@
                                 <div class="card-holder">
                                     <img src="" alt="Twoje odrzucone karty">
                                 </div>
-                                <div class="count">x <!--@PlayerUsedCards.Count()--></div>
+                                <div class="count">x @statusService.PlayerUsedCards.Count()</div>
                             </div>
 
                             <div class="deck-slot">
@@ -228,7 +229,7 @@
                                 <div class="card-holder">
                                     <img src="" alt="Twoja talia">
                                 </div>
-                                <div class="count">x <!--@PlayerDeckCount--></div>
+                                <div class="count">x @statusService.PlayerDeckCount</div>
                             </div>
                         </div>
                     </div>

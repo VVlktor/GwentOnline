@@ -69,13 +69,20 @@ namespace GwentApi.Services
 
             PlayerSide playerSide = identity == PlayerIdentity.PlayerOne ? game.PlayerOne : game.PlayerTwo;
 
+            PlayerSide enemySide = identity == PlayerIdentity.PlayerOne ? game.PlayerTwo : game.PlayerOne;
+
             GwentAction action = game.Actions.Last();//potencjalnie bedzie sie wywalac jesli nie ma zadnej akcji - pytanie czy moze nie byc zadnej akcji na tym etapie. do sprawdzenia
 
             GameStatusDto status = new() {
                 CardsInHand= playerSide.CardsInHand,
                 CardsOnBoard=game.CardsOnBoard,
+                UsedCards=playerSide.UsedCards,
                 Turn=game.Turn,
                 Action=action,
+                EnemyCardsCount=enemySide.CardsInHand.Count,
+                EnemyUsedCardsCount=enemySide.UsedCards.Count,
+                PlayerDeckCount=playerSide.Deck.Count,
+                EnemyDeckCount=enemySide.Deck.Count
             };
 
             return status;
@@ -91,11 +98,11 @@ namespace GwentApi.Services
             StartStatusDto status = new()
             {
                 PlayerCards = playerSide.CardsInHand,
-                EnemyDeckCount=enemySide.CardsInHand.Count(),
+                EnemyDeckCount=enemySide.Deck.Count,
                 Turn = game.Turn,
                 PlayerLeaderCard = playerSide.LeaderCard,
                 EnemyLeaderCard = enemySide.LeaderCard,
-                PlayerDeckCount = playerSide.Deck.Count()
+                PlayerDeckCount = playerSide.Deck.Count
             };
 
             return status;

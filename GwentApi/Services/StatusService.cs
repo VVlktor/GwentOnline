@@ -1,4 +1,5 @@
 ﻿using GwentApi.Classes;
+using GwentApi.Extensions;
 using GwentApi.Repository.Interfaces;
 using GwentApi.Services.Interfaces;
 
@@ -82,6 +83,8 @@ namespace GwentApi.Services
             ApplyHorn(playerTwoCards, TroopPlacement.Range);
             ApplyHorn(playerTwoCards, TroopPlacement.Siege);
 
+            game.Turn = game.Turn.GetEnemy();
+
             await _gameRepository.UpdateGame(game);
             if (!game.CardsOnBoard.Any(x => x.CardId == 6)) return;
 
@@ -113,7 +116,7 @@ namespace GwentApi.Services
                 }
                 else if (hornCount == 1)
                 {
-                    foreach (var card in cards.Where(x => x.Placement == placement && !x.Abilities.HasFlag(Abilities.Hero) && x.Abilities.HasFlag(Abilities.Horn)))
+                    foreach (var card in cards.Where(x => x.Placement == placement && !x.Abilities.HasFlag(Abilities.Hero) && !x.Abilities.HasFlag(Abilities.Horn)))
                         card.CurrentStrength *= 2;
                 }
             }
