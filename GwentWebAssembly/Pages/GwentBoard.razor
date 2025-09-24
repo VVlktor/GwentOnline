@@ -71,9 +71,18 @@
                             <!-- rowsy wroga -->
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
-                                <div class="lane-extra-slot"></div>
+                                <div id="enemyHornLaneSiege" class="lane-extra-slot">
+                                    @if(statusService.CardsOnBoard.Any(x=>x.Owner==playerService.EnemyIdentity() && x.Placement == TroopPlacement.Siege && x.CardId == 6))
+                                    {
+                                        <div class="card-slot">
+                                            <div class="card">
+                                                <img src="" alt="Karta wroga">
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
                                 <div id="enemyLaneSiege" class="lane" @onclick="async () => await gameService.EnemyLaneClicked(TroopPlacement.Siege)">
-                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.EnemyIdentity()))
+                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.EnemyIdentity() && x.CardId != 6))
                                     {
                                         <div class="card-slot">
                                             <div class="card">
@@ -88,9 +97,18 @@
 
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
-                                <div class="lane-extra-slot"></div>
+                                <div id="enemyHornLaneRange" class="lane-extra-slot">
+                                    @if (statusService.CardsOnBoard.Any(x => x.Owner == playerService.EnemyIdentity() && x.Placement == TroopPlacement.Range && x.CardId == 6))
+                                    {
+                                        <div class="card-slot">
+                                            <div class="card">
+                                                <img src="" alt="Karta wroga">
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
                                 <div id="enemyLaneRange" class="lane" @onclick="async () => await gameService.EnemyLaneClicked(TroopPlacement.Range)">
-                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.EnemyIdentity()))
+                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.EnemyIdentity() && x.CardId != 6))
                                     {
                                         <div class="card-slot">
                                             <div class="card">
@@ -105,9 +123,18 @@
 
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
-                                <div class="lane-extra-slot"></div>
+                                <div id="enemyHornLaneMelee" class="lane-extra-slot">
+                                    @if (statusService.CardsOnBoard.Any(x => x.Owner == playerService.EnemyIdentity() && x.Placement == TroopPlacement.Melee && x.CardId == 6))
+                                    {
+                                        <div class="card-slot">
+                                            <div class="card">
+                                                <img src="" alt="Karta wroga">
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
                                 <div id="enemyLaneMelee" class="lane" @onclick="async () => await gameService.EnemyLaneClicked(TroopPlacement.Melee)">
-                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.EnemyIdentity()))
+                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.EnemyIdentity() && x.CardId != 6))
                                     {
                                         <div class="card-slot">
                                             <div class="card">
@@ -125,9 +152,18 @@
                             <!-- rowsy gracza -->
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
-                                <div class="lane-extra-slot" @onclick="async () => await gameService.HornClicked(TroopPlacement.Melee)"></div>
+                                <div id="playerHornLaneMelee" class="lane-extra-slot" @onclick="async () => await gameService.HornClicked(TroopPlacement.Melee)">
+                                    @if (statusService.CardsOnBoard.Any(x => x.Owner == playerService.GetIdentity() && x.Placement == TroopPlacement.Melee && x.CardId == 6))
+                                    {
+                                        <div class="card-slot">
+                                            <div class="card">
+                                                <img src="" alt="Karta wroga">
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
                                 <div id="playerLaneMelee" class="lane" @onclick="async () => await gameService.PlayerLaneClicked(TroopPlacement.Melee)">
-                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.GetIdentity()))
+                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.GetIdentity() && x.CardId != 6))
                                     {
                                         <div class="card-slot">
                                             <div class="card" @onclick="async () => await gameService.CardClicked(card)">
@@ -142,9 +178,18 @@
 
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
-                                <div class="lane-extra-slot" @onclick="async () => await gameService.HornClicked(TroopPlacement.Range)"></div>
+                                <div id="playerHornLaneRange" class="lane-extra-slot" @onclick="async () => await gameService.HornClicked(TroopPlacement.Range)">
+                                    @if (statusService.CardsOnBoard.Any(x => x.Owner == playerService.GetIdentity() && x.Placement == TroopPlacement.Range && x.CardId == 6))
+                                    {
+                                        <div class="card-slot">
+                                            <div class="card">
+                                                <img src="" alt="Karta wroga">
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
                                 <div id="playerLaneRange" class="lane" @onclick="async () => await gameService.PlayerLaneClicked(TroopPlacement.Range)">
-                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.GetIdentity()))
+                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.GetIdentity() && x.CardId != 6))
                                     {
                                         <div class="card-slot">
                                             <div class="card" @onclick="async () => await gameService.CardClicked(card)">
@@ -159,9 +204,18 @@
 
                             <div class="lane-wrapper">
                                 <div class="lane-score">0</div>
-                                <div class="lane-extra-slot" @onclick="async () => await gameService.HornClicked(TroopPlacement.Siege)"></div>
+                                <div id="playerHornLaneSiege" class="lane-extra-slot" @onclick="async () => await gameService.HornClicked(TroopPlacement.Siege)">
+                                    @if (statusService.CardsOnBoard.Any(x => x.Owner == playerService.GetIdentity() && x.Placement == TroopPlacement.Siege && x.CardId == 6))
+                                    {
+                                        <div class="card-slot">
+                                            <div class="card">
+                                                <img src="" alt="Karta wroga">
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
                                 <div id="playerLaneSiege" class="lane" @onclick="async () => await gameService.PlayerLaneClicked(TroopPlacement.Siege)">
-                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.GetIdentity()))
+                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.GetIdentity() && x.CardId != 6))
                                     {
                                         <div class="card-slot">
                                             <!-- nie wyswietlac np. commanders horn w tym row-->

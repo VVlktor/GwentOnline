@@ -9,10 +9,16 @@
     public enum GwentActionType
     {
         None = 0,
-        CardPlayed = 1,
-        CardsKilled = 2,
-        AbilityUsed = 3,
-        NewRound = 4,
+        NormalCardPlayed = 1,
+        MedicCardPlayed = 2,
+        SpyCardPlayed = 3,
+        DecoyCardPlayed = 4,
+        CommandersHornCardPlayed = 5,
+        HornCardPlayed = 6,
+        MusterCardPlayed = 7,
+        WeatherCardPlayer = 8,
+        LeaderCardPlayed = 9,
+        ScorchCardPlayed = 10
     }
 
     public enum CardFaction

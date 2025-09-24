@@ -13,7 +13,21 @@ namespace GwentApi.Services
         public List<GwentCard> Cards { get; set; }
 
         public GwentCard GetCardByPrimaryId(int id) {
-            return Cards.First(x => x.PrimaryId==id);
+            GwentCard card = Cards.First(x => x.PrimaryId == id);
+
+            GwentCard newCard = new GwentCard()
+            {
+                Abilities = card.Abilities,
+                CardId = card.CardId,
+                Description = card.Description,
+                Faction = card.Faction,
+                Name = card.Name,
+                Placement = card.Placement,
+                PrimaryId = card.PrimaryId,
+                Strength = card.Strength
+            };
+
+            return newCard;
         }
     }
 }

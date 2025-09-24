@@ -35,27 +35,50 @@ namespace GwentWebAssembly.Services
 
         public async Task ProcessReceivedAnimation(GameStatusDto gameStatusDto)
         {
-            //tutaj bedzie rozdzielenie na rozne animacje, np. spy lub healer
             if (gameStatusDto.Action.CardsPlayed.Count == 0) return;
 
-            if(gameStatusDto.Action.Issuer != _playerService.GetIdentity())
+            if(gameStatusDto.Action.ActionType == GwentActionType.NormalCardPlayed)
             {
-                await EnemyPlayedCard(gameStatusDto);
+                await PlayNormalCardAnimation(gameStatusDto);
                 return;
             }
 
+            if (gameStatusDto.Action.ActionType == GwentActionType.CommandersHornCardPlayed)
+            {
+                await PlayCommandersHornAnimation(gameStatusDto);
+                return;
+            }
+
+        }
+
+        private async Task PlayCommandersHornAnimation(GameStatusDto gameStatusDto)
+        {
             GwentBoardCard boardCard = gameStatusDto.Action.CardsPlayed[0];
-            string startName = $"card-in-hand-{boardCard.PrimaryId}";
-            string endName = $"playerLane{boardCard.Placement.ToString()}";
-            await _jsRuntime.InvokeVoidAsync("runCardAnimation", startName, endName);
+            string startName = "", endName = "";
+            if (gameStatusDto.Action.Issuer == _playerService.GetIdentity())
+            {
+                startName = $"card-in-hand-{boardCard.PrimaryId}";
+                endName = $"playerHornLane{boardCard.Placement.ToString()}";
+            }
+            else
+            {
+                startName = "enemy-faction-label";
+                endName = $"enemyHornLane{boardCard.Placement.ToString()}";
+            }
+            await _jsRuntime.InvokeVoidAsync("runCardAnimation", startName, endName);//potencjalnie w przyszlosci dodac efekt animacji-podswietlenia przy hornie
             await Task.Delay(1000);
         }
 
-        private async Task EnemyPlayedCard(GameStatusDto gameStatusDto)
+        private async Task PlayNormalCardAnimation(GameStatusDto gameStatusDto)
         {
             GwentBoardCard boardCard = gameStatusDto.Action.CardsPlayed[0];
-            string endName = $"enemyLane{boardCard.Placement.ToString()}";
-            await _jsRuntime.InvokeVoidAsync("runCardAnimation", "enemy-faction-label", endName);
+            string startName = "enemy-faction-label", endName = $"enemyLane{boardCard.Placement.ToString()}";
+            if (gameStatusDto.Action.Issuer == _playerService.GetIdentity())
+            {
+                startName = $"card-in-hand-{boardCard.PrimaryId}";
+                endName = $"playerLane{boardCard.Placement.ToString()}";
+            }
+            await _jsRuntime.InvokeVoidAsync("runCardAnimation", startName, endName);
             await Task.Delay(1000);
         }
     }
