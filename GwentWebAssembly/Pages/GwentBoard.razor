@@ -82,9 +82,9 @@
                                     }
                                 </div>
                                 <div id="enemyLaneSiege" class="lane" @onclick="async () => await gameService.EnemyLaneClicked(TroopPlacement.Siege)">
-                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.EnemyIdentity() && x.CardId != 6))
+                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.EnemyIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
                                     {
-                                        <div class="card-slot">
+                                        <div id="@($"card-on-board-{card.PrimaryId}")" class="card-slot">
                                             <div class="card">
                                                 <img src="" alt="Karta wroga">
                                                 <div class="pow">@card.CurrentStrength</div>
@@ -108,9 +108,9 @@
                                     }
                                 </div>
                                 <div id="enemyLaneRange" class="lane" @onclick="async () => await gameService.EnemyLaneClicked(TroopPlacement.Range)">
-                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.EnemyIdentity() && x.CardId != 6))
+                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.EnemyIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
                                     {
-                                        <div class="card-slot">
+                                        <div id="@($"card-on-board-{card.PrimaryId}")" class="card-slot">
                                             <div class="card">
                                                 <img src="" alt="Karta wroga">
                                                 <div class="pow">@card.CurrentStrength</div>
@@ -134,9 +134,9 @@
                                     }
                                 </div>
                                 <div id="enemyLaneMelee" class="lane" @onclick="async () => await gameService.EnemyLaneClicked(TroopPlacement.Melee)">
-                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.EnemyIdentity() && x.CardId != 6))
+                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.EnemyIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
                                     {
-                                        <div class="card-slot">
+                                        <div id="@($"card-on-board-{card.PrimaryId}")" class="card-slot">
                                             <div class="card">
                                                 <img src="" alt="Karta wroga">
                                                 <div class="pow">@card.CurrentStrength</div>
@@ -163,9 +163,9 @@
                                     }
                                 </div>
                                 <div id="playerLaneMelee" class="lane" @onclick="async () => await gameService.PlayerLaneClicked(TroopPlacement.Melee)">
-                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.GetIdentity() && x.CardId != 6))
+                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.GetIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
                                     {
-                                        <div class="card-slot">
+                                        <div id="@($"card-on-board-{card.PrimaryId}")" class="card-slot">
                                             <div class="card" @onclick="async () => await gameService.CardClicked(card)">
                                                 <img src="" alt="Karta">
                                                 <div class="pow">@card.CurrentStrength</div>
@@ -189,9 +189,9 @@
                                     }
                                 </div>
                                 <div id="playerLaneRange" class="lane" @onclick="async () => await gameService.PlayerLaneClicked(TroopPlacement.Range)">
-                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.GetIdentity() && x.CardId != 6))
+                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.GetIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
                                     {
-                                        <div class="card-slot">
+                                        <div id="@($"card-on-board-{card.PrimaryId}")" class="card-slot">
                                             <div class="card" @onclick="async () => await gameService.CardClicked(card)">
                                                 <img src="" alt="">
                                                 <div class="pow">@card.CurrentStrength</div>
@@ -215,10 +215,9 @@
                                     }
                                 </div>
                                 <div id="playerLaneSiege" class="lane" @onclick="async () => await gameService.PlayerLaneClicked(TroopPlacement.Siege)">
-                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.GetIdentity() && x.CardId != 6))
+                                    @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.GetIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
                                     {
-                                        <div class="card-slot">
-                                            <!-- nie wyswietlac np. commanders horn w tym row-->
+                                        <div id="@($"card-on-board-{card.PrimaryId}")" class="card-slot">
                                             <div class="card" @onclick="async () => await gameService.CardClicked(card)">
                                                 <img src="" alt="Karta">
                                                 <div class="pow">@card.CurrentStrength</div>
@@ -235,7 +234,7 @@
                             <div class="lane-wrapper">
                                 <div id="player-cards-in-hand" class="lane border-warning">
                                     
-                                    @foreach (var card in statusService.CardsInHand)
+                                    @foreach (var card in statusService.CardsInHand.OrderBy(x=>x.Strength))
                                     {
                                         <div id="@($"card-in-hand-{card.PrimaryId}")" class="card-slot" @onclick="()=>statusService.CardSelected(card)">
                                             <div class="card">

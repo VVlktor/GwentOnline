@@ -27,7 +27,12 @@ namespace GwentWebAssembly.Services
             {
                await _statusService.ReceivedStatus(gameStatusDto);
             });
-            
+            //LaneClickedMusterCard, medic etc.
+
+            _connection.On<GameStatusDto>("CardClicked", async gameStatusDto =>
+            {
+                await _statusService.ReceivedStatus(gameStatusDto);
+            });
         }
 
         public async Task JoinBoardAsync(string code)
@@ -59,6 +64,19 @@ namespace GwentWebAssembly.Services
             };
 
             await _connection.SendAsync("HornClicked", hornClickedDto);
+        }
+
+        public async Task SendCardClicked(PlayerIdentity identity, string code, GwentBoardCard clickedCard, GwentCard selectedCard)
+        {
+            CardClickedDto cardClickedDto = new()
+            {
+                ClickedCard=clickedCard,
+                SelectedCard=selectedCard,
+                Identity=identity,
+                Code= code
+            };
+
+            await _connection.SendAsync("CardClicked", cardClickedDto);
         }
     }
 }

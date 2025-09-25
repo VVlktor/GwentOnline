@@ -138,5 +138,66 @@ namespace GwentApi.Services
                 PlayedCards = new() { boardCard }
             };
         }
+
+        public async Task<CardClickedGwentActionResult> CardClicked(CardClickedDto cardClickedDto)
+        {
+            Game game = await _gameRepository.GetGameByCode(cardClickedDto.Code);
+
+            PlayerSide playerSide = game.GetPlayerSide(cardClickedDto.Identity);
+
+            if (!playerSide.CardsInHand.Any(x => x.PrimaryId == cardClickedDto.SelectedCard.PrimaryId)) return null;
+
+            GwentCard card = playerSide.CardsInHand.First(x => x.PrimaryId == cardClickedDto.SelectedCard.PrimaryId);
+
+            if (card.CardId != 2) return null;
+
+            if (!game.CardsOnBoard.Any(x => x.PrimaryId == cardClickedDto.ClickedCard.PrimaryId && cardClickedDto.ClickedCard.Owner == cardClickedDto.Identity)) return null;
+
+            GwentBoardCard clickedCard = game.CardsOnBoard.First(x => x.PrimaryId == cardClickedDto.ClickedCard.PrimaryId);
+
+            if (clickedCard.Abilities.HasFlag(Abilities.Hero)) return null;
+            if(clickedCard.CardId==2) return null;
+
+            GwentBoardCard decoyCard = new()
+            {
+                Name = card.Name,
+                PrimaryId = card.PrimaryId,
+                CardId = card.CardId,
+                Faction = card.Faction,
+                Description = card.Description,
+                Placement = clickedCard.Placement,
+                Strength = card.Strength,
+                Abilities = card.Abilities,
+                CurrentStrength = 0,
+                Owner = cardClickedDto.Identity
+            };
+
+            playerSide.CardsInHand.Remove(card);
+            game.CardsOnBoard.Remove(clickedCard);
+
+            GwentCard cardToHand = new()
+            {
+                Name = clickedCard.Name,
+                PrimaryId = clickedCard.PrimaryId,
+                CardId = clickedCard.CardId,
+                Faction = clickedCard.Faction,
+                Description = clickedCard.Description,
+                Placement = clickedCard.Placement,
+                Strength = clickedCard.Strength,
+                Abilities = clickedCard.Abilities
+            };
+
+            playerSide.CardsInHand.Add(cardToHand);
+            game.CardsOnBoard.Add(decoyCard);
+
+            await _gameRepository.UpdateGame(game);
+
+            return new()
+            {
+                ActionType = GwentActionType.DecoyCardPlayed,
+                SwappedCard = clickedCard,
+                PlayedCard =  decoyCard 
+            };
+        }
     }
 }

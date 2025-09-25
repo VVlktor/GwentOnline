@@ -2,8 +2,6 @@
 using GwentWebAssembly.Data.Dtos;
 using GwentWebAssembly.Services.Interfaces;
 using Microsoft.JSInterop;
-using System.Security.Cryptography.X509Certificates;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace GwentWebAssembly.Services
 {
@@ -27,7 +25,7 @@ namespace GwentWebAssembly.Services
         public async Task OverlayAnimation(PlayerIdentity turn)
         {
             string stringTurn = "Ruch przeciwnika!";
-            if(_playerService.GetIdentity() == turn)
+            if (_playerService.GetIdentity() == turn)
                 stringTurn = "Twój ruch!";
             await _jsRuntime.InvokeVoidAsync("showOverlay", stringTurn);
             await Task.Delay(2000);
@@ -37,18 +35,43 @@ namespace GwentWebAssembly.Services
         {
             if (gameStatusDto.Action.CardsPlayed.Count == 0) return;
 
-            if(gameStatusDto.Action.ActionType == GwentActionType.NormalCardPlayed)
+            switch (gameStatusDto.Action.ActionType)
             {
-                await PlayNormalCardAnimation(gameStatusDto);
-                return;
+                case GwentActionType.NormalCardPlayed:
+                    await PlayNormalCardAnimation(gameStatusDto);
+                    break;
+                case GwentActionType.CommandersHornCardPlayed:
+                    await PlayCommandersHornAnimation(gameStatusDto);
+                    break;
+                case GwentActionType.DecoyCardPlayed:
+                    await PlayDecoyAnimation(gameStatusDto);
+                    break;
             }
+        }
 
-            if (gameStatusDto.Action.ActionType == GwentActionType.CommandersHornCardPlayed)
-            {
-                await PlayCommandersHornAnimation(gameStatusDto);
-                return;
-            }
+        private async Task PlayDecoyAnimation(GameStatusDto gameStatusDto)//chyba bedzie trzeba dac to wszystko na publiczne i wywolac czesc przed podmianą statusu i część po podmianie statusu
+        {
+            GwentBoardCard decoyCard = gameStatusDto.Action.CardsPlayed[0];
+            GwentBoardCard swappedCard = gameStatusDto.Action.CardsKilled[0];
 
+            string startName = "", endName = $"card-on-board-{swappedCard.PrimaryId}";
+
+            if (gameStatusDto.Action.Issuer == _playerService.GetIdentity())
+                startName = $"card-in-hand-{decoyCard.PrimaryId}";
+            else
+                startName = "enemy-faction-label";
+
+            await _jsRuntime.InvokeVoidAsync("runCardAnimation", startName, endName);
+            await Task.Delay(1000);
+
+            startName = endName;
+            if (gameStatusDto.Action.Issuer == _playerService.GetIdentity())
+                endName = "player-cards-in-hand";
+            else
+                endName = "enemy-faction-label";
+
+            await _jsRuntime.InvokeVoidAsync("runCardAnimation", startName, endName);
+            await Task.Delay(1000);
         }
 
         private async Task PlayCommandersHornAnimation(GameStatusDto gameStatusDto)

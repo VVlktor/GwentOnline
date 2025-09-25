@@ -42,6 +42,7 @@ namespace GwentWebAssembly.Services
             GwentCard card = _statusService.GetSelectedCard();
             if (card.CardId != 2) return;
 
+            await _gwentHubService.SendCardClicked(_playerService.GetIdentity(), _playerService.LobbyCode, clickedCard, card);
         }
 
         public async Task LeaderClicked()

@@ -88,9 +88,26 @@ namespace GwentApi.Hubs
 
         }
 
-        public async Task CardClicked()//tylko decoy
+        public async Task CardClicked(CardClickedDto cardClickedDto)//tylko decoy
         {
+            if (cardClickedDto.SelectedCard.CardId != 2) return;
 
+            CardClickedGwentActionResult actionResult = await _cardService.CardClicked(cardClickedDto);
+
+            if (actionResult is null) return;
+
+            await _statusService.UpdateBoardState(cardClickedDto.Code);
+
+            //sprawdzic czy zmienic ture
+
+            await _statusService.AddGwentAction(cardClickedDto.Identity, cardClickedDto.Code, actionResult.ActionType, new() { actionResult.PlayedCard }, new() { actionResult.SwappedCard });
+
+            GameStatusDto playerGameStatus = await _gameService.GetStatus(cardClickedDto.Code, cardClickedDto.Identity);
+            PlayerIdentity enemyIdentity = cardClickedDto.Identity.GetEnemy();
+            GameStatusDto enemyGameStatus = await _gameService.GetStatus(cardClickedDto.Code, enemyIdentity);
+
+            await Clients.Caller.SendAsync("CardClicked", playerGameStatus);
+            await Clients.OthersInGroup(cardClickedDto.Code).SendAsync("CardClicked", enemyGameStatus);
         }
 
         public async Task WeatherClicked()
