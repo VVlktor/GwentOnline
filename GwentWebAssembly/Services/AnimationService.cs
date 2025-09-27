@@ -46,7 +46,22 @@ namespace GwentWebAssembly.Services
                 case GwentActionType.DecoyCardPlayed:
                     await PlayDecoyAnimation(gameStatusDto);
                     break;
+                case GwentActionType.WeatherCardPlayed:
+                    await PlayWeatherCardAnimation(gameStatusDto);
+                    break;
             }
+        }
+
+        private async Task PlayWeatherCardAnimation(GameStatusDto gameStatusDto)
+        {
+            GwentBoardCard boardCard = gameStatusDto.Action.CardsPlayed[0];
+            string startName = "enemy-faction-label", endName = "weather-lane";
+
+            if (gameStatusDto.Action.Issuer == _playerService.GetIdentity())
+                startName = $"card-in-hand-{boardCard.PrimaryId}";
+
+            await _jsRuntime.InvokeVoidAsync("runCardAnimation", startName, endName);
+            await Task.Delay(1000);
         }
 
         private async Task PlayDecoyAnimation(GameStatusDto gameStatusDto)//chyba bedzie trzeba dac to wszystko na publiczne i wywolac czesc przed podmianą statusu i część po podmianie statusu
@@ -71,7 +86,6 @@ namespace GwentWebAssembly.Services
                 endName = "enemy-faction-label";
 
             await _jsRuntime.InvokeVoidAsync("runCardAnimation", startName, endName);
-            await Task.Delay(1000);
         }
 
         private async Task PlayCommandersHornAnimation(GameStatusDto gameStatusDto)

@@ -28,13 +28,13 @@
                                             <span class="hp-dot"></span>
                                         }
                                     </div>
-                                    <div class="stat">Pkt: @statusService.EnemyPoints</div>
+                                    <div class="stat">Pkt: @statusService.CardsOnBoard.Sum(x => x.Owner == playerService.EnemyIdentity() ? x.CurrentStrength : 0)</div>
                                 </div>
                             </div>
 
                             <!-- pogoda -->
                             <div class="slot">
-                                <div id="weather-lane" class="weather-lane">
+                                <div @onclick="async()=>await gameService.WeatherClicked()" id="weather-lane" class="weather-lane">
                                     @foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Weather))
                                     {
                                         <div class="card-slot"></div>
@@ -52,7 +52,7 @@
                                             <span class="hp-dot"></span>
                                         }
                                     </div>
-                                    <div class="stat">Pkt: @statusService.PlayerPoints</div>
+                                    <div class="stat">Pkt: @statusService.CardsOnBoard.Sum(x => x.Owner == playerService.GetIdentity() ? x.CurrentStrength : 0)</div>
                                 </div>
                                 <div class="player-bottom">
                                     <div class="commander-slot" @onclick="async () => await gameService.LeaderClicked()">
@@ -70,7 +70,7 @@
 
                             <!-- rowsy wroga -->
                             <div class="lane-wrapper">
-                                <div class="lane-score">0</div>
+                                <div class="lane-score">@statusService.CardsOnBoard.Sum(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.EnemyIdentity() ? x.CurrentStrength : 0)</div>
                                 <div id="enemyHornLaneSiege" class="lane-extra-slot">
                                     @if(statusService.CardsOnBoard.Any(x=>x.Owner==playerService.EnemyIdentity() && x.Placement == TroopPlacement.Siege && x.CardId == 6))
                                     {
@@ -96,7 +96,7 @@
                             </div>
 
                             <div class="lane-wrapper">
-                                <div class="lane-score">0</div>
+                                <div class="lane-score">@statusService.CardsOnBoard.Sum(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.EnemyIdentity() ? x.CurrentStrength : 0)</div>
                                 <div id="enemyHornLaneRange" class="lane-extra-slot">
                                     @if (statusService.CardsOnBoard.Any(x => x.Owner == playerService.EnemyIdentity() && x.Placement == TroopPlacement.Range && x.CardId == 6))
                                     {
@@ -122,7 +122,7 @@
                             </div>
 
                             <div class="lane-wrapper">
-                                <div class="lane-score">0</div>
+                                <div class="lane-score">@statusService.CardsOnBoard.Sum(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.EnemyIdentity() ? x.CurrentStrength : 0)</div>
                                 <div id="enemyHornLaneMelee" class="lane-extra-slot">
                                     @if (statusService.CardsOnBoard.Any(x => x.Owner == playerService.EnemyIdentity() && x.Placement == TroopPlacement.Melee && x.CardId == 6))
                                     {
@@ -151,7 +151,7 @@
 
                             <!-- rowsy gracza -->
                             <div class="lane-wrapper">
-                                <div class="lane-score">0</div>
+                                <div class="lane-score">@statusService.CardsOnBoard.Sum(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.GetIdentity() ? x.CurrentStrength : 0)</div>
                                 <div id="playerHornLaneMelee" class="lane-extra-slot" @onclick="async () => await gameService.HornClicked(TroopPlacement.Melee)">
                                     @if (statusService.CardsOnBoard.Any(x => x.Owner == playerService.GetIdentity() && x.Placement == TroopPlacement.Melee && x.CardId == 6))
                                     {
@@ -177,7 +177,7 @@
                             </div>
 
                             <div class="lane-wrapper">
-                                <div class="lane-score">0</div>
+                                <div class="lane-score">@statusService.CardsOnBoard.Sum(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.GetIdentity() ? x.CurrentStrength : 0)</div>
                                 <div id="playerHornLaneRange" class="lane-extra-slot" @onclick="async () => await gameService.HornClicked(TroopPlacement.Range)">
                                     @if (statusService.CardsOnBoard.Any(x => x.Owner == playerService.GetIdentity() && x.Placement == TroopPlacement.Range && x.CardId == 6))
                                     {
@@ -203,7 +203,7 @@
                             </div>
 
                             <div class="lane-wrapper">
-                                <div class="lane-score">0</div>
+                                <div class="lane-score">@statusService.CardsOnBoard.Sum(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.GetIdentity() ? x.CurrentStrength : 0)</div>
                                 <div id="playerHornLaneSiege" class="lane-extra-slot" @onclick="async () => await gameService.HornClicked(TroopPlacement.Siege)">
                                     @if (statusService.CardsOnBoard.Any(x => x.Owner == playerService.GetIdentity() && x.Placement == TroopPlacement.Siege && x.CardId == 6))
                                     {

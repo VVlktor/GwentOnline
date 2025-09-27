@@ -1,21 +1,14 @@
 ﻿window.runCardAnimation = function (startId, targetId) {
-    const start = document.getElementById(startId); //"player-cards-in-hand" lub "enemy-deck-count"
+    const start = document.getElementById(startId);
     const target = document.getElementById(targetId);
 
     if (!start || !target) return;
 
     const cardWrapper = document.createElement("div");
-    cardWrapper.style.width = "84px";
-    cardWrapper.style.height = "110px";
-    cardWrapper.style.position = "fixed";//przeniesc to do app.css
-    cardWrapper.style.zIndex = 1000;
-    cardWrapper.style.transition = "top 1s ease-in-out, left 1s ease-in-out";
+    cardWrapper.classList.add("card-animation-wrapper");
 
     const cardInner = document.createElement("div");
-    cardInner.style.width = "100%";
-    cardInner.style.height = "100%";
-    cardInner.style.borderRadius = "8px";
-    cardInner.style.background = "linear-gradient(145deg, #222, #111)";
+    cardInner.classList.add("card-animation-inner");
     cardWrapper.appendChild(cardInner);
 
     document.getElementById("gwent-board").appendChild(cardWrapper);

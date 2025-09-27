@@ -33,6 +33,11 @@ namespace GwentWebAssembly.Services
             {
                 await _statusService.ReceivedStatus(gameStatusDto);
             });
+
+            _connection.On<GameStatusDto>("WeatherClicked", async gameStatusDto =>
+            {
+                await _statusService.ReceivedStatus(gameStatusDto);
+            });
         }
 
         public async Task JoinBoardAsync(string code)
@@ -77,6 +82,18 @@ namespace GwentWebAssembly.Services
             };
 
             await _connection.SendAsync("CardClicked", cardClickedDto);
+        }
+
+        public async Task SendWeatherClicked(PlayerIdentity identity, string code, GwentCard selectedCard)
+        {
+            WeatherClickedDto weatherClickedDto = new()
+            {
+                Identity=identity,
+                Code=code,
+                Card=selectedCard
+            };
+
+            await _connection.SendAsync("WeatherClicked", weatherClickedDto);
         }
     }
 }

@@ -16,7 +16,7 @@
         CommandersHornCardPlayed = 5,
         HornCardPlayed = 6,
         MusterCardPlayed = 7,
-        WeatherCardPlayer = 8,
+        WeatherCardPlayed = 8,
         LeaderCardPlayed = 9,
         ScorchCardPlayed = 10
     }

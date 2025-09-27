@@ -72,7 +72,9 @@ namespace GwentWebAssembly.Services
 
         public async Task WeatherClicked()
         {
-            throw new NotImplementedException();
+            GwentCard card = _statusService.GetSelectedCard();
+            if (card is null) return;
+            await _gwentHubService.SendWeatherClicked(_playerService.GetIdentity(), _playerService.LobbyCode, card);
         }
 
 

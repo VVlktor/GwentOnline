@@ -110,9 +110,24 @@ namespace GwentApi.Hubs
             await Clients.OthersInGroup(cardClickedDto.Code).SendAsync("CardClicked", enemyGameStatus);
         }
 
-        public async Task WeatherClicked()
+        public async Task WeatherClicked(WeatherClickedDto weatherClickedDto)
         {
+            WeatherClickedGwentActionResult actionResult = await _cardService.WeatherClicked(weatherClickedDto);
 
+            if (actionResult is null) return;
+
+            await _statusService.UpdateBoardState(weatherClickedDto.Code);
+
+            //sprawdzic czy zmienic ture
+
+            await _statusService.AddGwentAction(weatherClickedDto.Identity, weatherClickedDto.Code, actionResult.ActionType, new() { actionResult.PlayedCard }, actionResult.RemovedCards);
+
+            GameStatusDto playerGameStatus = await _gameService.GetStatus(weatherClickedDto.Code, weatherClickedDto.Identity);
+            PlayerIdentity enemyIdentity = weatherClickedDto.Identity.GetEnemy();
+            GameStatusDto enemyGameStatus = await _gameService.GetStatus(weatherClickedDto.Code, enemyIdentity);
+
+            await Clients.Caller.SendAsync("WeatherClicked", playerGameStatus);
+            await Clients.OthersInGroup(weatherClickedDto.Code).SendAsync("WeatherClicked", enemyGameStatus);
         }
     }
 }

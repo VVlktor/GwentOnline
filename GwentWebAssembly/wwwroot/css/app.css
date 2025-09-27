@@ -114,6 +114,20 @@ code {
 }
 
 
+.card-animation-inner {
+    width:100%;
+    height: 100%;
+    border-radius: 8px;
+    background: linear-gradient(145deg, #222, #111);
+}
+
+.card-animation-wrapper {
+    width: 84px;
+    height: 110px;
+    position: fixed;
+    z-index: 1000;
+    transition: top 1s ease-in-out, left 1s ease-in-out;
+}
 
 
 

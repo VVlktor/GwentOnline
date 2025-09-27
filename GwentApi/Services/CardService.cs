@@ -143,6 +143,8 @@ namespace GwentApi.Services
         {
             Game game = await _gameRepository.GetGameByCode(cardClickedDto.Code);
 
+            //if (game.Turn != laneClickedDto.Identity) return null;
+
             PlayerSide playerSide = game.GetPlayerSide(cardClickedDto.Identity);
 
             if (!playerSide.CardsInHand.Any(x => x.PrimaryId == cardClickedDto.SelectedCard.PrimaryId)) return null;
@@ -198,6 +200,73 @@ namespace GwentApi.Services
                 SwappedCard = clickedCard,
                 PlayedCard =  decoyCard 
             };
+        }
+
+        public async Task<WeatherClickedGwentActionResult> WeatherClicked(WeatherClickedDto weatherClickedDto)
+        {
+            Game game = await _gameRepository.GetGameByCode(weatherClickedDto.Code);
+
+            //if (game.Turn != laneClickedDto.Identity) return null;
+
+            PlayerSide playerSide = game.GetPlayerSide(weatherClickedDto.Identity);
+
+            if (!playerSide.CardsInHand.Any(x => x.PrimaryId == weatherClickedDto.Card.PrimaryId)) return null;
+
+            GwentCard card = playerSide.CardsInHand.First(x => x.PrimaryId == weatherClickedDto.Card.PrimaryId);
+
+            if (card.Placement != TroopPlacement.Weather) return null;
+            if (game.CardsOnBoard.Any(x => x.CardId == card.CardId)) return null;
+
+            GwentBoardCard boardCard = new()
+            {
+                Name = card.Name,
+                PrimaryId = card.PrimaryId,
+                CardId = card.CardId,
+                Faction = card.Faction,
+                Description = card.Description,
+                Placement = card.Placement,
+                Strength = 0,
+                Abilities = card.Abilities,
+                CurrentStrength = 0,
+                Owner = weatherClickedDto.Identity
+            };
+
+            if (card.CardId == 5)//id karty Clear Weather
+            {
+                List<GwentBoardCard> weatherCards = game.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Weather).ToList();
+                foreach (var weatherCard in weatherCards)
+                {
+                    game.CardsOnBoard.Remove(weatherCard);
+                    //na razie nie daje playerSide.UsedCards.Add(weatherCard); (i dla przeciwnika jeli jego), bo nie mozna wskrzeszac pogodowych. Zalezy czy bedzie gdzies counter zuzytych kart
+                }
+
+                playerSide.CardsInHand.Remove(card);
+
+                await _gameRepository.UpdateGame(game);
+
+                WeatherClickedGwentActionResult clearWeatherActionResult = new()
+                {
+                    ActionType = GwentActionType.WeatherCardPlayer,
+                    RemovedCards = weatherCards,
+                    PlayedCard = boardCard
+                };
+
+                return clearWeatherActionResult;
+            }
+
+            playerSide.CardsInHand.Remove(card);
+            game.CardsOnBoard.Add(boardCard);
+
+            await _gameRepository.UpdateGame(game);
+
+            WeatherClickedGwentActionResult weatherActionResult = new()
+            {
+                ActionType = GwentActionType.WeatherCardPlayer,
+                RemovedCards = new(),
+                PlayedCard = boardCard
+            };
+
+            return weatherActionResult;
         }
     }
 }
