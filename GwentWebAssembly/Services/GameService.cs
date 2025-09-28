@@ -80,7 +80,9 @@ namespace GwentWebAssembly.Services
 
         public async Task EnemyLaneClicked(TroopPlacement placement)
         {
-            throw new NotImplementedException();
+            GwentCard card = _statusService.GetSelectedCard();
+            if (card is null) return;
+            await _gwentHubService.SendEnemyLaneClicked(_playerService.GetIdentity(), _playerService.LobbyCode, placement, card);
         }
     }
 }

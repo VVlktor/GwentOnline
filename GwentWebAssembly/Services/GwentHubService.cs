@@ -95,5 +95,18 @@ namespace GwentWebAssembly.Services
 
             await _connection.SendAsync("WeatherClicked", weatherClickedDto);
         }
+
+        public async Task SendEnemyLaneClicked(PlayerIdentity identity, string code, TroopPlacement placement, GwentCard card)
+        {
+            EnemyLaneClickedDto enemyLaneClickedDto = new()
+            {
+                Placement=placement,
+                Identity=identity,
+                Code=code,
+                Card=card
+            };
+
+            await _connection.SendAsync("EnemyLaneClicked", enemyLaneClickedDto);
+        }
     }
 }

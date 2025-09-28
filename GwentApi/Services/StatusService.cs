@@ -98,7 +98,8 @@ namespace GwentApi.Services
         {
             if (cards.Any(x => (x.Abilities.HasFlag(ability))))
                 foreach (var card in cards.Where(x => x.Placement == placement && !x.Abilities.HasFlag(Abilities.Hero)))
-                    card.CurrentStrength = 1;
+                    if(card.Strength!=0)
+                        card.CurrentStrength = 1;
         }
 
         private void ApplyHorn(IEnumerable<GwentBoardCard> cards, TroopPlacement placement)

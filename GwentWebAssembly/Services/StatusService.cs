@@ -79,31 +79,10 @@ namespace GwentWebAssembly.Services
                 await _animationService.OverlayAnimation(Turn);
         }
 
-        //public async Task GwentActionHornClicked(TroopPlacement placement)
-        //{
-        //    if (SelectedCard is null) return;
-        //    await _gameService.HornClicked(placement, SelectedCard);
-        //}
-
         public void CardSelected(GwentCard card)
         {
             SelectedCard = card;
         }
-
-        //public async Task GwentActionLeaderClicked()
-        //{
-        //    //await _gameService.LeaderClicked();
-        //}
-
-        //public async Task GwentActionLaneClicked(TroopPlacement placement)
-        //{
-        //    if (SelectedCard is null) return;
-
-        //    await _gameService.PlayerLaneClicked(placement, SelectedCard);
-
-        //    //LEPSZY POMYSL - nie wiem, stare, moze nie lepszy, ciezko stwierdzic z tyloma komentarzami: wysylam normalnie, zwracam, ale jak zwroce to pokaze menu z wybieraniem karty do wskszeszenia, a w hubie w serwisie sprawdzam poprostu czy ostatnia akcja to wystawienie medyka przez tego gracza
-        //}
-        //teraz trzeba tu przeniesc całą logike z GwentBoard.razor
     }
 
 }

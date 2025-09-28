@@ -129,5 +129,16 @@ namespace GwentApi.Hubs
             await Clients.Caller.SendAsync("WeatherClicked", playerGameStatus);
             await Clients.OthersInGroup(weatherClickedDto.Code).SendAsync("WeatherClicked", enemyGameStatus);
         }
+
+        public async Task EnemyLaneClicked(EnemyLaneClickedDto enemyLaneClickedDto)
+        {
+            EnemyLaneClickedGwentActionResult actionResult = await _cardService.EnemyLaneClicked(enemyLaneClickedDto);
+
+            if (actionResult is null) return;
+
+            await _statusService.UpdateBoardState(enemyLaneClickedDto.Code);
+
+            //sprawdzic czy zmienic ture
+        }
     }
 }

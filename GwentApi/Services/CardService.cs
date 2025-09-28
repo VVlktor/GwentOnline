@@ -1,5 +1,6 @@
 ﻿using GwentApi.Classes;
 using GwentApi.Classes.Dtos;
+using GwentApi.Extensions;
 using GwentApi.Repository.Interfaces;
 using GwentApi.Services.Interfaces;
 
@@ -206,7 +207,7 @@ namespace GwentApi.Services
         {
             Game game = await _gameRepository.GetGameByCode(weatherClickedDto.Code);
 
-            //if (game.Turn != laneClickedDto.Identity) return null;
+            //if (game.Turn != weatherClickedDto.Identity) return null;
 
             PlayerSide playerSide = game.GetPlayerSide(weatherClickedDto.Identity);
 
@@ -267,6 +268,55 @@ namespace GwentApi.Services
             };
 
             return weatherActionResult;
+        }
+
+        public async Task<EnemyLaneClickedGwentActionResult> EnemyLaneClicked(EnemyLaneClickedDto enemyLaneClickedDto)
+        {
+            Game game = await _gameRepository.GetGameByCode(enemyLaneClickedDto.Code);
+
+            //if (game.Turn != enemyLaneClickedDto.Identity) return null;
+
+            PlayerSide playerSide = game.GetPlayerSide(enemyLaneClickedDto.Identity);
+
+            if(!playerSide.CardsInHand.Any(x => x.PrimaryId == enemyLaneClickedDto.Card.PrimaryId)) return null;
+
+            GwentCard card = playerSide.CardsInHand.First(x => x.PrimaryId == enemyLaneClickedDto.Card.PrimaryId);
+
+            if (!card.Abilities.HasFlag(Abilities.Spy)) return null;
+
+            GwentBoardCard boardCard = new()
+            {
+                Name = card.Name,
+                PrimaryId = card.PrimaryId,
+                CardId = card.CardId,
+                Faction = card.Faction,
+                Description = card.Description,
+                Placement = enemyLaneClickedDto.Placement,
+                Strength = card.Strength,
+                Abilities = card.Abilities,
+                CurrentStrength = card.Strength,
+                Owner = enemyLaneClickedDto.Identity.GetEnemy()
+            };
+
+            playerSide.CardsInHand.Remove(card);
+            game.CardsOnBoard.Add(boardCard);
+
+            List<GwentCard> drawnCards = new();
+            switch (playerSide.Deck.Count)
+            {
+                case >= 2:
+                    drawnCards = [playerSide.Deck[0], playerSide.Deck[1]];
+                    playerSide.Deck.RemoveRange(0, 2);
+                    break;
+
+                case 1:
+                    drawnCards = [playerSide.Deck[0]];
+                    playerSide.Deck.RemoveAt(0);
+                    break;
+            }
+            //przemyslec jak dodac drawncards do statusdto
+
+            throw new NotImplementedException();
         }
     }
 }
