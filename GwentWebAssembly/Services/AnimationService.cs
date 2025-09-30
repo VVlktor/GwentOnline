@@ -49,7 +49,37 @@ namespace GwentWebAssembly.Services
                 case GwentActionType.WeatherCardPlayed:
                     await PlayWeatherCardAnimation(gameStatusDto);
                     break;
+                case GwentActionType.SpyCardPlayed:
+                    await PlaySpyCardAnimation(gameStatusDto);
+                    break;
             }
+        }
+
+        private async Task PlaySpyCardAnimation(GameStatusDto gameStatusDto)
+        {
+            GwentBoardCard boardCard = gameStatusDto.Action.CardsPlayed[0];
+
+            string startName = $"card-in-hand-{boardCard.PrimaryId}";
+            string endName = $"enemyLane{boardCard.Placement.ToString()}";
+            bool isPlayer = gameStatusDto.Action.Issuer != _playerService.GetIdentity();
+            if (isPlayer){
+                startName = "enemy-faction-label";
+                endName = $"playerLane{boardCard.Placement.ToString()}";
+            }
+
+            await _jsRuntime.InvokeVoidAsync("runCardAnimation", startName, endName);
+            await Task.Delay(1000);
+
+            startName = "player-deck-count";
+            endName = "player-cards-in-hand";
+            if (isPlayer)
+            {
+                startName = "enemy-deck-count";
+                endName = "enemy-faction-label";
+            }
+
+            if (gameStatusDto.PlayerDeckCount != 0)
+                await _jsRuntime.InvokeVoidAsync("runCardAnimation", startName, endName);//potencjalnie bedzie trzeba dodac jendak jakie karty zostaly dodane do eq gracza, ale wsm nie teraz, moze sie obejdzie
         }
 
         private async Task PlayWeatherCardAnimation(GameStatusDto gameStatusDto)

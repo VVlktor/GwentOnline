@@ -38,6 +38,11 @@ namespace GwentWebAssembly.Services
             {
                 await _statusService.ReceivedStatus(gameStatusDto);
             });
+
+            _connection.On<GameStatusDto>("EnemyLaneClicked", async gameStatusDto =>
+            {
+                await _statusService.ReceivedStatus(gameStatusDto);
+            });//skoro to wszystko jest to samo, moze wsadzic to do jednego syfu i fajrant?
         }
 
         public async Task JoinBoardAsync(string code)

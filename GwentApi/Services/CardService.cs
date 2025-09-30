@@ -314,9 +314,18 @@ namespace GwentApi.Services
                     playerSide.Deck.RemoveAt(0);
                     break;
             }
-            //przemyslec jak dodac drawncards do statusdto
+            
+            playerSide.CardsInHand.AddRange(drawnCards);
 
-            throw new NotImplementedException();
+            await _gameRepository.UpdateGame(game);
+
+            EnemyLaneClickedGwentActionResult actionResult = new()
+            {
+                ActionType = GwentActionType.SpyCardPlayed,
+                PlayedCard = boardCard
+            };
+
+            return actionResult;
         }
     }
 }

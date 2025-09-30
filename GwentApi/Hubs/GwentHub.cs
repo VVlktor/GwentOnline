@@ -139,6 +139,15 @@ namespace GwentApi.Hubs
             await _statusService.UpdateBoardState(enemyLaneClickedDto.Code);
 
             //sprawdzic czy zmienic ture
+
+            await _statusService.AddGwentAction(enemyLaneClickedDto.Identity, enemyLaneClickedDto.Code, actionResult.ActionType, new() { actionResult.PlayedCard }, new());
+
+            GameStatusDto playerGameStatus = await _gameService.GetStatus(enemyLaneClickedDto.Code, enemyLaneClickedDto.Identity);
+            PlayerIdentity enemyIdentity = enemyLaneClickedDto.Identity.GetEnemy();
+            GameStatusDto enemyGameStatus = await _gameService.GetStatus(enemyLaneClickedDto.Code, enemyIdentity);
+
+            await Clients.Caller.SendAsync("EnemyLaneClicked", playerGameStatus);
+            await Clients.OthersInGroup(enemyLaneClickedDto.Code).SendAsync("EnemyLaneClicked", enemyGameStatus);
         }
     }
 }
