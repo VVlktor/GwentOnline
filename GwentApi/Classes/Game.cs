@@ -19,6 +19,8 @@
         public DateTime LastMove = DateTime.Now;
         (bool playerOne, bool playerTwo) IsReady = (false, false);
 
+        public (bool PlayerOne, bool PlayerTwo) HasPassed = (false, false);
+
         public void SetReady(PlayerIdentity identity)
         {
             if (identity == PlayerIdentity.PlayerOne)

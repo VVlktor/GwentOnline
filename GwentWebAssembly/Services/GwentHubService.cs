@@ -43,6 +43,11 @@ namespace GwentWebAssembly.Services
             {
                 await _statusService.ReceivedStatus(gameStatusDto);
             });//skoro to wszystko jest to samo, moze wsadzic to do jednego syfu i fajrant?
+
+            _connection.On<GameStatusDto>("PassClicked", async gameStatusDto =>
+            {
+                await _statusService.ReceivedStatus(gameStatusDto);
+            });
         }
 
         public async Task JoinBoardAsync(string code)
@@ -112,6 +117,17 @@ namespace GwentWebAssembly.Services
             };
 
             await _connection.SendAsync("EnemyLaneClicked", enemyLaneClickedDto);
+        }
+
+        public async Task SendPassClicked(PlayerIdentity identity, string code)
+        {
+            PassClickedDto passClickedDto = new()
+            {
+                Identity=identity,
+                Code=code
+            };
+
+            await _connection.SendAsync("PassClicked", passClickedDto);
         }
     }
 }

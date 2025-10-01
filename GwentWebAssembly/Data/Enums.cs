@@ -18,7 +18,8 @@
         MusterCardPlayed = 7,
         WeatherCardPlayed = 8,
         LeaderCardPlayed = 9,
-        ScorchCardPlayed = 10
+        ScorchCardPlayed = 10,
+        Pass = 11
     }
 
     public enum CardFaction

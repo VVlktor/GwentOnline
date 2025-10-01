@@ -52,7 +52,19 @@ namespace GwentWebAssembly.Services
                 case GwentActionType.SpyCardPlayed:
                     await PlaySpyCardAnimation(gameStatusDto);
                     break;
+                case GwentActionType.Pass:
+                    await PlayPassAnimation(gameStatusDto);
+                    break;
             }
+        }
+
+        private async Task PlayPassAnimation(GameStatusDto gameStatusDto)
+        {
+            string text = "Przeciwnik spasował!";
+            if (gameStatusDto.Action.Issuer == _playerService.GetIdentity())
+                text = "Spasowałeś!";
+
+            await OverlayAnimation(text);
         }
 
         private async Task PlaySpyCardAnimation(GameStatusDto gameStatusDto)

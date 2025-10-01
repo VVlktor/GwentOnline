@@ -14,5 +14,6 @@ namespace GwentWebAssembly.Services.Interfaces
         Task HornClicked(TroopPlacement placement);
         Task EnemyLaneClicked(TroopPlacement placement);
         Task WeatherClicked();
+        Task PassClicked();
     }
 }

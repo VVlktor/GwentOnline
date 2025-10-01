@@ -54,7 +54,7 @@ namespace GwentApi.Services
         {
             Game game = await _gameRepository.GetGameByCode(laneClickedDto.Code);
 
-            //if (game.Turn != laneClickedDto.Identity) return null;
+            if (game.Turn != laneClickedDto.Identity) return null;
 
             PlayerSide playerSide = game.GetPlayerSide(laneClickedDto.Identity);
 
@@ -65,21 +65,6 @@ namespace GwentApi.Services
             if(card.Abilities.HasFlag(Abilities.Spy) ||
                 card.Placement == TroopPlacement.Weather ||
                 card.Placement == TroopPlacement.Special) return null;
-
-            //int[] badCards = [195, 7, 6, ];
-
-            //if (badCards.Contains(laneClickedDto.Card.CardId)) return null;
-
-            //bool isPlacementAcceptable = laneClickedDto.Card.Placement switch
-            //{
-            //    TroopPlacement.Melee => (GwentLane.Melee == laneClickedDto.Lane),
-            //    TroopPlacement.Range => (GwentLane.Range == laneClickedDto.Lane),
-            //    TroopPlacement.Siege => (GwentLane.Siege == laneClickedDto.Lane),
-            //    TroopPlacement.Agile => (GwentLane.Melee == laneClickedDto.Lane || GwentLane.Range == laneClickedDto.Lane),
-            //    _ => false
-            //};
-
-            //if (!isPlacementAcceptable) return null;
 
             if (card.Placement != laneClickedDto.Placement) return null;
 
@@ -144,7 +129,7 @@ namespace GwentApi.Services
         {
             Game game = await _gameRepository.GetGameByCode(cardClickedDto.Code);
 
-            //if (game.Turn != laneClickedDto.Identity) return null;
+            if (game.Turn != cardClickedDto.Identity) return null;
 
             PlayerSide playerSide = game.GetPlayerSide(cardClickedDto.Identity);
 
@@ -207,7 +192,7 @@ namespace GwentApi.Services
         {
             Game game = await _gameRepository.GetGameByCode(weatherClickedDto.Code);
 
-            //if (game.Turn != weatherClickedDto.Identity) return null;
+            if (game.Turn != weatherClickedDto.Identity) return null;
 
             PlayerSide playerSide = game.GetPlayerSide(weatherClickedDto.Identity);
 
@@ -274,7 +259,7 @@ namespace GwentApi.Services
         {
             Game game = await _gameRepository.GetGameByCode(enemyLaneClickedDto.Code);
 
-            //if (game.Turn != enemyLaneClickedDto.Identity) return null;
+            if (game.Turn != enemyLaneClickedDto.Identity) return null;
 
             PlayerSide playerSide = game.GetPlayerSide(enemyLaneClickedDto.Identity);
 
@@ -284,6 +269,8 @@ namespace GwentApi.Services
 
             if (!card.Abilities.HasFlag(Abilities.Spy)) return null;
 
+            if (card.Placement != enemyLaneClickedDto.Placement) return null;
+
             GwentBoardCard boardCard = new()
             {
                 Name = card.Name,
@@ -291,7 +278,7 @@ namespace GwentApi.Services
                 CardId = card.CardId,
                 Faction = card.Faction,
                 Description = card.Description,
-                Placement = enemyLaneClickedDto.Placement,
+                Placement = card.Placement,
                 Strength = card.Strength,
                 Abilities = card.Abilities,
                 CurrentStrength = card.Strength,
@@ -324,6 +311,28 @@ namespace GwentApi.Services
                 ActionType = GwentActionType.SpyCardPlayed,
                 PlayedCard = boardCard
             };
+
+            return actionResult;
+        }
+
+        public async Task<PassClickedGwentActionResult> PassClicked(PassClickedDto passClickedDto)
+        {
+            Game game = await _gameRepository.GetGameByCode(passClickedDto.Code);
+
+            if (game.Turn != passClickedDto.Identity) return null;
+
+            if (passClickedDto.Identity == PlayerIdentity.PlayerOne)
+                game.HasPassed = (true, game.HasPassed.PlayerTwo);
+            else
+                game.HasPassed = (game.HasPassed.PlayerOne, true);
+
+            PassClickedGwentActionResult actionResult = new()
+            {
+                ActionType = GwentActionType.Pass,
+                Passed = true
+            };
+
+            await _gameRepository.UpdateGame(game);
 
             return actionResult;
         }

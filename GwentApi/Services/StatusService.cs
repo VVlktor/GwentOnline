@@ -1,4 +1,5 @@
 ﻿using GwentApi.Classes;
+using GwentApi.Classes.Dtos;
 using GwentApi.Extensions;
 using GwentApi.Repository.Interfaces;
 using GwentApi.Services.Interfaces;
@@ -26,7 +27,7 @@ namespace GwentApi.Services
                 CardsPlayed = playedCards,
                 CardsOnBoard = game.CardsOnBoard,
                 CardsKilled = killedCards,
-                AbilitiyUsed = playedCards[0].Abilities//potencjalnie ability do wywalenia
+                //AbilitiyUsed = playedCards[0].Abilities//potencjalnie ability do wywalenia
             };
 
             game.Actions.Add(gwentAction);
@@ -83,8 +84,6 @@ namespace GwentApi.Services
             ApplyHorn(playerTwoCards, TroopPlacement.Range);
             ApplyHorn(playerTwoCards, TroopPlacement.Siege);
 
-            game.Turn = game.Turn.GetEnemy();
-
             await _gameRepository.UpdateGame(game);
             if (!game.CardsOnBoard.Any(x => x.CardId == 6)) return;
 
@@ -121,6 +120,33 @@ namespace GwentApi.Services
                         card.CurrentStrength *= 2;
                 }
             }
+        }
+
+        public async Task<TurnStatus> UpdateTurn(string code)
+        {
+            Game game = await _gameRepository.GetGameByCode(code);
+
+            if (game.HasPassed.PlayerOne && game.HasPassed.PlayerTwo)
+                return new()
+                {
+                    EndRound = true,
+                    Turn = game.Turn
+                };
+
+            PlayerIdentity lastTurn = game.Actions.Last().Issuer;
+
+            bool hasEnemyPassed = lastTurn == PlayerIdentity.PlayerOne ? game.HasPassed.PlayerTwo : game.HasPassed.PlayerOne;
+
+            if (!hasEnemyPassed)
+                game.Turn = lastTurn.GetEnemy();
+
+            await _gameRepository.UpdateGame(game);
+
+            return new()
+            {
+                EndRound = false,
+                Turn = game.Turn
+            };
         }
     }
 }

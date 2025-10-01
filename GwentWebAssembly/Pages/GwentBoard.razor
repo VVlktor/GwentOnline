@@ -42,6 +42,10 @@
                                 </div>
                             </div>
 
+                            <button @onclick="async()=>await gameService.PassClicked()" class="pass-slot">
+                                Spasuj
+                            </button>
+
                             <!-- panel gracza -->
                             <div class="player-info @(statusService.Turn == playerService.GetIdentity() ? "border-warning" : "")">
                                 <div class="stats-row mb-3">

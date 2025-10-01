@@ -316,5 +316,17 @@
 
 
 
+.pass-slot {
+    background: linear-gradient(145deg,#26201a,#17130f);
+    border: 2px solid #0008;
+    border-radius: 12px;
+    min-height: 28px;
+    padding: 8px;
+    width: 160px;
+    margin: auto;
+    gap: .5rem;
+    color: white;
+}
+
 
 

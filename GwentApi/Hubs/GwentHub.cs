@@ -46,6 +46,8 @@ namespace GwentApi.Hubs
 
             await _statusService.AddGwentAction(laneClickedDto.Identity, laneClickedDto.Code, actionResult.ActionType, actionResult.PlayedCards, actionResult.KilledCards);
 
+            TurnStatus turnStatus = await _statusService.UpdateTurn(laneClickedDto.Code);
+
             string methodName = "LaneClickedNormalCard";
 
             if (actionResult.ActionType == GwentActionType.MusterCardPlayed)
@@ -53,13 +55,7 @@ namespace GwentApi.Hubs
             else if (actionResult.ActionType == GwentActionType.MedicCardPlayed)
                 methodName = "LaneClickedMedicCard";
 
-
-            GameStatusDto playerGameStatus = await _gameService.GetStatus(laneClickedDto.Code, laneClickedDto.Identity);
-            PlayerIdentity enemyIdentity = laneClickedDto.Identity.GetEnemy();
-            GameStatusDto enemyGameStatus = await _gameService.GetStatus(laneClickedDto.Code, enemyIdentity);
-
-            await Clients.Caller.SendAsync(methodName, playerGameStatus);
-            await Clients.OthersInGroup(laneClickedDto.Code).SendAsync(methodName, enemyGameStatus);
+            await SendStatus(laneClickedDto.Identity, laneClickedDto.Code, methodName);
         }
 
         public async Task HornClicked(HornClickedDto hornClickedDto)
@@ -69,18 +65,12 @@ namespace GwentApi.Hubs
             if (gwentBoardCard is null) return;
 
             await _statusService.UpdateBoardState(hornClickedDto.Code);
-
-            //await SprawdzicCzyZmienicTure()
-
-            //z SpawdzicCzyZmienicTure zabrac kogo jest next tura i dorzucic do AddGwentAction
+  //z SpawdzicCzyZmienicTure zabrac kogo jest next tura i dorzucic do AddGwentAction
             await _statusService.AddGwentAction(hornClickedDto.Identity, hornClickedDto.Code, GwentActionType.CommandersHornCardPlayed, new() { gwentBoardCard }, new());
 
-            GameStatusDto playerGameStatus = await _gameService.GetStatus(hornClickedDto.Code, hornClickedDto.Identity);
-            PlayerIdentity enemyIdentity = hornClickedDto.Identity.GetEnemy();
-            GameStatusDto enemyGameStatus = await _gameService.GetStatus(hornClickedDto.Code, enemyIdentity);
+            TurnStatus turnStatus = await _statusService.UpdateTurn(hornClickedDto.Code);
 
-            await Clients.Caller.SendAsync("HornClicked", playerGameStatus);
-            await Clients.OthersInGroup(hornClickedDto.Code).SendAsync("HornClicked", enemyGameStatus);
+            await SendStatus(hornClickedDto.Identity, hornClickedDto.Code, "HornClicked");
         }
 
         public async Task LeaderClicked()
@@ -98,16 +88,11 @@ namespace GwentApi.Hubs
 
             await _statusService.UpdateBoardState(cardClickedDto.Code);
 
-            //sprawdzic czy zmienic ture
-
             await _statusService.AddGwentAction(cardClickedDto.Identity, cardClickedDto.Code, actionResult.ActionType, new() { actionResult.PlayedCard }, new() { actionResult.SwappedCard });
 
-            GameStatusDto playerGameStatus = await _gameService.GetStatus(cardClickedDto.Code, cardClickedDto.Identity);
-            PlayerIdentity enemyIdentity = cardClickedDto.Identity.GetEnemy();
-            GameStatusDto enemyGameStatus = await _gameService.GetStatus(cardClickedDto.Code, enemyIdentity);
+            TurnStatus turnStatus = await _statusService.UpdateTurn(cardClickedDto.Code);
 
-            await Clients.Caller.SendAsync("CardClicked", playerGameStatus);
-            await Clients.OthersInGroup(cardClickedDto.Code).SendAsync("CardClicked", enemyGameStatus);
+            await SendStatus(cardClickedDto.Identity, cardClickedDto.Code, "CardClicked");
         }
 
         public async Task WeatherClicked(WeatherClickedDto weatherClickedDto)
@@ -118,16 +103,11 @@ namespace GwentApi.Hubs
 
             await _statusService.UpdateBoardState(weatherClickedDto.Code);
 
-            //sprawdzic czy zmienic ture
-
             await _statusService.AddGwentAction(weatherClickedDto.Identity, weatherClickedDto.Code, actionResult.ActionType, new() { actionResult.PlayedCard }, actionResult.RemovedCards);
 
-            GameStatusDto playerGameStatus = await _gameService.GetStatus(weatherClickedDto.Code, weatherClickedDto.Identity);
-            PlayerIdentity enemyIdentity = weatherClickedDto.Identity.GetEnemy();
-            GameStatusDto enemyGameStatus = await _gameService.GetStatus(weatherClickedDto.Code, enemyIdentity);
+            TurnStatus turnStatus = await _statusService.UpdateTurn(weatherClickedDto.Code);
 
-            await Clients.Caller.SendAsync("WeatherClicked", playerGameStatus);
-            await Clients.OthersInGroup(weatherClickedDto.Code).SendAsync("WeatherClicked", enemyGameStatus);
+            await SendStatus(weatherClickedDto.Identity, weatherClickedDto.Code, "WeatherClicked");
         }
 
         public async Task EnemyLaneClicked(EnemyLaneClickedDto enemyLaneClickedDto)
@@ -138,16 +118,36 @@ namespace GwentApi.Hubs
 
             await _statusService.UpdateBoardState(enemyLaneClickedDto.Code);
 
-            //sprawdzic czy zmienic ture
-
             await _statusService.AddGwentAction(enemyLaneClickedDto.Identity, enemyLaneClickedDto.Code, actionResult.ActionType, new() { actionResult.PlayedCard }, new());
 
-            GameStatusDto playerGameStatus = await _gameService.GetStatus(enemyLaneClickedDto.Code, enemyLaneClickedDto.Identity);
-            PlayerIdentity enemyIdentity = enemyLaneClickedDto.Identity.GetEnemy();
-            GameStatusDto enemyGameStatus = await _gameService.GetStatus(enemyLaneClickedDto.Code, enemyIdentity);
+            TurnStatus turnStatus = await _statusService.UpdateTurn(enemyLaneClickedDto.Code);
 
-            await Clients.Caller.SendAsync("EnemyLaneClicked", playerGameStatus);
-            await Clients.OthersInGroup(enemyLaneClickedDto.Code).SendAsync("EnemyLaneClicked", enemyGameStatus);
+            await SendStatus(enemyLaneClickedDto.Identity, enemyLaneClickedDto.Code, "EnemyLaneClicked");
+        }
+
+        public async Task PassClicked(PassClickedDto passClickedDto)
+        {
+            PassClickedGwentActionResult actionResult = await _cardService.PassClicked(passClickedDto);
+
+            if (actionResult is null) return;
+
+            //await _statusService.UpdateBoardState(passClickedDto.Code);//to chyba tu nie jest potrzebne, do sprawdzenia
+
+            await _statusService.AddGwentAction(passClickedDto.Identity, passClickedDto.Code, actionResult.ActionType, new(), new());
+
+            TurnStatus turnStatus = await _statusService.UpdateTurn(passClickedDto.Code);
+
+            await SendStatus(passClickedDto.Identity, passClickedDto.Code, "PassClicked");
+        }
+
+        private async Task SendStatus(PlayerIdentity identity, string code, string methodName)
+        {
+            GameStatusDto playerGameStatus = await _gameService.GetStatus(code, identity);
+            PlayerIdentity enemyIdentity = identity.GetEnemy();
+            GameStatusDto enemyGameStatus = await _gameService.GetStatus(code, enemyIdentity);
+
+            await Clients.Caller.SendAsync(methodName, playerGameStatus);
+            await Clients.OthersInGroup(code).SendAsync(methodName, enemyGameStatus);
         }
     }
 }

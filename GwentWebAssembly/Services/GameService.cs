@@ -84,5 +84,10 @@ namespace GwentWebAssembly.Services
             if (card is null) return;
             await _gwentHubService.SendEnemyLaneClicked(_playerService.GetIdentity(), _playerService.LobbyCode, placement, card);
         }
+
+        public async Task PassClicked()
+        {
+            await _gwentHubService.SendPassClicked(_playerService.GetIdentity(), _playerService.LobbyCode);
+        }
     }
 }
