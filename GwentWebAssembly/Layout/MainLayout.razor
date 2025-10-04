@@ -1,6 +1,10 @@
 ﻿@inherits LayoutComponentBase
-<div class="page">
-    <main>
-        @Body
-    </main>
+<div id="dimensions"
+     style="position:fixed;
+            width:100vw;
+            height:calc(100vw * 1080 / 1920);
+            pointer-events:none;
+            z-index:-1;">
 </div>
+@Body
+

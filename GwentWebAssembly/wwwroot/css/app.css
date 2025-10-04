@@ -1,6 +1,28 @@
-html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+* {
+    box-sizing: border-box;
 }
+
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    overflow-x: visible;
+    scrollbar-width: none;
+}
+
+body {
+    font-size: 0px;
+    font-family: Arial Narrow, sans-serif;
+    color: goldenrod;
+    background-color: black;
+}
+
+body::-webkit-scrollbar {
+    display: none;
+}
+
 
 h1:focus {
     outline: none;
@@ -129,7 +151,18 @@ code {
     transition: top 1s ease-in-out, left 1s ease-in-out;
 }
 
-
+.card-my-animation {
+    height: 6.35vw;
+    width: 4.45vw;
+    background-size: contain;
+    background-repeat: no-repeat;
+    box-shadow: -.1vw -.1vw .5vw rgba(20,20,20, 0.5);
+    display: inline-block;
+    /*position: absolute;*/
+    position: relative;
+    transition: margin-bottom 0.05s, margin-left .25s, margin-right .25s, transform 0.5s;
+    z-index = 1;
+}
 
 .main-black-gwent-overlay {
     position: fixed;
@@ -143,10 +176,14 @@ code {
     z-index: 9999;
     background: linear-gradient(to top, transparent, black 40%, black 60%, transparent);
     color: #e3bc4f;
-    font-size: 3em;
+    font-size: 48px;
     font-family: Impact, fantasy;
     text-align: center;
     opacity: 0;
     transition: opacity 0.5s ease;
     pointer-events: none;
+}
+
+.hide {
+    display: none;
 }
