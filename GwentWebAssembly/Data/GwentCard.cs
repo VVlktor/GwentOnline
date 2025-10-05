@@ -10,5 +10,6 @@
         public TroopPlacement Placement { get; set; }
         public int Strength { get; set; }
         public Abilities Abilities { get; set; }
+        public string FileName { get; set; }
     }
 }

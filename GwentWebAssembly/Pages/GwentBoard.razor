@@ -113,12 +113,12 @@
 				<div id="enemyLaneSiege" class="row-cards card-container card-selectable" @onclick="async () => await gameService.EnemyLaneClicked(TroopPlacement.Siege)">
 					@foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.EnemyIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
 					{
-						<div id="@($"card-on-board-{card.PrimaryId}")" class="card noclick" style="background-image: url('img/sm/nilfgaard_shilard.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
+						<div id="@($"card-on-board-{card.PrimaryId}")" class="card noclick" style="background-image: url('img/sm/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">
 							<div style="background-image: url('img/icons/power_normal.png');">
 								<div class="center" style="color: goldenrod;">@card.CurrentStrength</div>
 							</div>
 							<div style="background-image: url('img/icons/card_row_close.png');"></div>
-							<div style="background-image: url('img/icons/card_ability_spy.png');"></div>
+							<div style="background-image: url('img/icons/card_ability_spy.png');"></div> <!-- dostosować ikony abilitek -->
 							<div style="background-size: 40%;" class="hide"></div>
 						</div>
 					}
@@ -145,7 +145,7 @@
 				<div id="enemyLaneRange" class="row-cards card-container card-selectable" @onclick="async () => await gameService.EnemyLaneClicked(TroopPlacement.Range)">
 					@foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.EnemyIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
 					{
-						<div id="@($"card-on-board-{card.PrimaryId}")" class="card noclick" style="background-image: url('img/sm/nilfgaard_shilard.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
+						<div id="@($"card-on-board-{card.PrimaryId}")" class="card noclick" style="background-image: url('img/sm/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">
 							<div style="background-image: url('img/icons/power_normal.png');">
 								<div class="center" style="color: goldenrod;">@card.CurrentStrength</div>
 							</div>
@@ -175,7 +175,7 @@
 				<div id="enemyLaneMelee" class="row-cards card-container card-selectable" @onclick="async () => await gameService.EnemyLaneClicked(TroopPlacement.Melee)">
 					@foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.EnemyIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
 					{
-						<div id="@($"card-on-board-{card.PrimaryId}")" class="card noclick" style="background-image: url('img/sm/nilfgaard_shilard.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
+						<div id="@($"card-on-board-{card.PrimaryId}")" class="card noclick" style="background-image: url('img/sm/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">
 							<div style="background-image: url('img/icons/power_normal.png');">
 								<div class="center" style="color: goldenrod;">@card.CurrentStrength</div>
 							</div>
@@ -210,7 +210,7 @@
 				<div id="playerLaneMelee" class="row-cards card-container card-selectable" @onclick="async () => await gameService.PlayerLaneClicked(TroopPlacement.Melee)">
 					@foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.GetIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
 					{
-						<div id="@($"card-on-board-{card.PrimaryId}")" @onclick="async () => await gameService.CardClicked(card)" class="card" style="background-image: url('img/sm/nilfgaard_shilard.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
+						<div id="@($"card-on-board-{card.PrimaryId}")" @onclick="async () => await gameService.CardClicked(card)" class="card" style="background-image: url('img/sm/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">
 							<div style="background-image: url('img/icons/power_normal.png');">
 								<div class="center" style="color: goldenrod;">@card.CurrentStrength</div>
 							</div>
@@ -241,7 +241,7 @@
 				<div id="playerLaneRange" class="row-cards card-container card-selectable" @onclick="async () => await gameService.PlayerLaneClicked(TroopPlacement.Range)">
 					@foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.GetIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
 					{
-						<div id="@($"card-on-board-{card.PrimaryId}")" @onclick="async () => await gameService.CardClicked(card)" class="card" style="background-image: url('img/sm/nilfgaard_shilard.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
+						<div id="@($"card-on-board-{card.PrimaryId}")" @onclick="async () => await gameService.CardClicked(card)" class="card" style="background-image: url('img/sm/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">
 							<div style="background-image: url('img/icons/power_normal.png');">
 								<div class="center" style="color: goldenrod;">@card.CurrentStrength</div>
 							</div>
@@ -271,7 +271,7 @@
 				<div id="playerLaneSiege" class="row-cards card-container card-selectable" @onclick="async () => await gameService.PlayerLaneClicked(TroopPlacement.Siege)">
 					@foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.GetIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
 					{
-						<div id="@($"card-on-board-{card.PrimaryId}")" @onclick="async () => await gameService.CardClicked(card)" class="card" style="background-image: url('img/sm/nilfgaard_shilard.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
+						<div id="@($"card-on-board-{card.PrimaryId}")" @onclick="async () => await gameService.CardClicked(card)" class="card" style="background-image: url('img/sm/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">
 							<div style="background-image: url('img/icons/power_normal.png');">
 								<div class="center" style="color: goldenrod;">@card.CurrentStrength</div>
 							</div>
@@ -289,7 +289,7 @@
 			<div id="hand-row" class="card-container card-selectable">
 				@foreach (var card in statusService.CardsInHand.OrderBy(x => x.Strength))
 				{
-					<div class="@(card.Name) card" id="@($"card-in-hand-{card.PrimaryId}")" @onclick="() => statusService.CardSelected(card)" style="background-image: url('img/sm/neutral_gaunter_odimm.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
+					<div class="@(card.Name) card" id="@($"card-in-hand-{card.PrimaryId}")" @onclick="() => statusService.CardSelected(card)" style="background-image: url('img/sm/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">
 						<div style="background-image: url('img/icons/power_normal.png');">
 							<div class="center">@card.Strength</div>
 						</div>
