@@ -79,8 +79,7 @@ namespace GwentWebAssembly.Services
                 endName = $"playerLane{boardCard.Placement.ToString()}";
             }
 
-            string imageUrl = $"img/sm/someName";
-            await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", startName, endName, imageUrl);
+            await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", startName, endName, $"img/cards/{boardCard.FileName}");
 
             if (isPlayer)
             {
@@ -88,9 +87,8 @@ namespace GwentWebAssembly.Services
                 return;
             }
 
-            imageUrl = $"img/sm/someOtherName";
-            if (gameStatusDto.PlayerDeckCount != 0)
-                await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", "deck-me", "hand-row", imageUrl);//potencjalnie bedzie trzeba dodac jendak jakie karty zostaly dodane do eq gracza, ale wsm nie teraz, moze sie obejdzie
+            if (gameStatusDto.PlayerDeckCount != 0)//zamiast someOtherName dać tył karty z danej talii
+                await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", "deck-me", "hand-row", $"img/cards/someOtherName");//potencjalnie bedzie trzeba dodac jendak jakie karty zostaly dodane do eq gracza, ale wsm nie teraz, moze sie obejdzie
         }
 
         private async Task PlayWeatherCardAnimation(GameStatusDto gameStatusDto)
@@ -101,8 +99,7 @@ namespace GwentWebAssembly.Services
             if (gameStatusDto.Action.Issuer == _playerService.GetIdentity())
                 startName = $"card-in-hand-{boardCard.PrimaryId}";
 
-            string imageUrl = $"img/sm/someName";
-            await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", startName, endName, imageUrl);
+            await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", startName, endName, $"img/cards/{boardCard.FileName}");
         }
 
         private async Task PlayDecoyAnimation(GameStatusDto gameStatusDto)//chyba bedzie trzeba dac to wszystko na publiczne i wywolac czesc przed podmianą statusu i część po podmianie statusu
@@ -117,8 +114,7 @@ namespace GwentWebAssembly.Services
             else
                 startName = "deck-name-op";
 
-            string imageUrl = $"img/sm/someName";
-            await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", startName, endName, imageUrl);
+            await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", startName, endName, $"img/cards/{decoyCard.FileName}");
 
             startName = endName;
             if (gameStatusDto.Action.Issuer == _playerService.GetIdentity())
@@ -126,8 +122,7 @@ namespace GwentWebAssembly.Services
             else
                 endName = "deck-name-op";
 
-            imageUrl = $"img/sm/someOtherName";
-            await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", startName, endName, imageUrl);
+            await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", startName, endName, $"img/cards/{swappedCard.FileName}");
         }
 
         private async Task PlayCommandersHornAnimation(GameStatusDto gameStatusDto)
@@ -145,8 +140,7 @@ namespace GwentWebAssembly.Services
                 endName = $"enemyHornLane{boardCard.Placement.ToString()}";
             }
 
-            string imageUrl = $"img/sm/someName";
-            await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", startName, endName, imageUrl);//potencjalnie w przyszlosci dodac efekt animacji-podswietlenia przy hornie
+            await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", startName, endName, $"img/cards/{boardCard.FileName}");//potencjalnie w przyszlosci dodac efekt animacji-podswietlenia przy hornie
         }
 
         private async Task PlayNormalCardAnimation(GameStatusDto gameStatusDto)
@@ -159,9 +153,7 @@ namespace GwentWebAssembly.Services
                 endName = $"playerLane{boardCard.Placement.ToString()}";
             }
 
-            string imageUrl = $"img/sm/someName";
-
-            await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", startName, endName, imageUrl);
+            await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", startName, endName, $"img/cards/{boardCard.FileName}");
         }
     }
 }

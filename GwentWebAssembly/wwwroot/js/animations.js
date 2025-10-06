@@ -19,17 +19,18 @@
     }, 2000);
 };
 
-async function moveCardByElementIds(cardElemId, destElemId, cardData) {
+async function moveCardByElementIds(cardElemId, destElemId, cardImage) {
     const startElem = document.getElementById(cardElemId);
     const destElem = document.getElementById(destElemId);
     const overlay = document.getElementById("card-overlay");
-    if (!startElem || !destElem || !overlay) return false;
 
-    const { image } = cardData;
+    if (!startElem || !destElem || !overlay) return false;
 
     const card = document.createElement("div");
     card.className = "card noclick";
-    card.style.backgroundImage = `url('${image}')`;
+    card.style.backgroundImage = `url('${cardImage}')`;
+    card.style.backgroundSize = "cover";
+    card.style.backgroundPosition = "center";
     card.style.height = "6.35vw";
     card.style.width = "4.45vw";
     card.style.position = "absolute";

@@ -19,12 +19,12 @@ namespace GwentApi.Services
             {
                 Abilities = card.Abilities,
                 CardId = card.CardId,
-                Description = card.Description,
                 Faction = card.Faction,
                 Name = card.Name,
                 Placement = card.Placement,
                 PrimaryId = card.PrimaryId,
-                Strength = card.Strength
+                Strength = card.Strength,
+                FileName = card.FileName
             };
 
             return newCard;

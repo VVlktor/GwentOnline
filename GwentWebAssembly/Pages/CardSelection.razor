@@ -11,10 +11,10 @@
                     @foreach(var card in TenCards)
                     {
                         <div class="card-item mt-4" style="width: 18%;" @onclick="async()=>await SwapCard(card)">
-                            <img src="" alt="Deyna" class="card-img">
+                            <img src="img/cards/@(card.FileName)" alt="Deyna" class="card-img">
                             <div class="card-content">
                                 <div class="card-name">@card.Name</div>
-                                <div class="card-description">@card.Description @card.Faction</div>
+                                <div class="card-description">@card.Faction</div>
                                 <div class="card-meta">
                                     @if (card.Placement != TroopPlacement.Special && card.Placement != TroopPlacement.Weather)
                                     {

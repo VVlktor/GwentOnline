@@ -23,10 +23,10 @@
                         {
                             <div class="card-col" @onclick="() => AddSelectedCard(card)">
                                 <div class="card-item">
-                                    <img src="" alt="card" class="card-img">
+                                    <img src="img/cards/@(card.FileName)" alt="card" class="card-img">
                                     <div class="card-content">
                                         <div class="card-name">@card.Name</div>
-                                        <div class="card-description">@card.Description @card.Faction</div>
+                                        <div class="card-description">@card.Faction</div>
                                         <div class="card-meta">
                                             @if(card.Placement!=TroopPlacement.Special && card.Placement!=TroopPlacement.Weather)
                                             {
@@ -57,7 +57,7 @@
                     <img src="" alt="Dowódca" class="center-card-img">
                     <div class="center-card-content">
                         <div class="center-card-name">@SelectedLeader.Name</div>
-                        <div class="center-card-description">@SelectedLeader.Description</div>
+                        <div class="center-card-description"></div>
                     </div>
                 </div>
 
@@ -93,10 +93,10 @@
                         {
                             <div class="card-col" @onclick="() => RemoveSelectedCard(card)">
                                 <div class="card-item">
-                                    <img src="" alt="card" class="card-img">
+                                    <img src="img/cards/@(card.FileName)" alt="card" class="card-img">
                                     <div class="card-content">
                                         <div class="card-name">@card.Name</div>
-                                        <div class="card-description">@card.Description @card.Faction</div>
+                                        <div class="card-description">@card.Faction</div>
                                         <div class="card-meta">
                                             @if (card.Placement != TroopPlacement.Special && card.Placement != TroopPlacement.Weather)
                                             {
@@ -132,7 +132,7 @@
 
     private int leaderIndex = 0;
 
-    private GwentCard SelectedLeader = new() { Name="", Description="" };
+    private GwentCard SelectedLeader = new() { Name="" };
 
     private CardFaction SelectedFaction = CardFaction.NorthernRealms;
 

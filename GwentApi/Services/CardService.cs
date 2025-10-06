@@ -34,12 +34,12 @@ namespace GwentApi.Services
                 PrimaryId = card.PrimaryId,
                 CardId = card.CardId,
                 Faction = card.Faction,
-                Description = card.Description,
                 Placement = hornClickedDto.Placement,
                 Strength = card.Strength,
                 Abilities = card.Abilities,
                 CurrentStrength = 0,
-                Owner = hornClickedDto.Identity
+                Owner = hornClickedDto.Identity,
+                FileName= card.FileName
             };
 
             playerSide.CardsInHand.Remove(card);
@@ -80,12 +80,12 @@ namespace GwentApi.Services
                 PrimaryId = card.PrimaryId,
                 CardId = card.CardId,
                 Faction = card.Faction,
-                Description = card.Description,
                 Placement = card.Placement,
                 Strength = card.Strength,
                 Abilities = card.Abilities,
                 CurrentStrength = card.Strength,
-                Owner = laneClickedDto.Identity
+                Owner = laneClickedDto.Identity,
+                FileName = card.FileName
             };
 
             GwentActionType gwentActionType = GwentActionType.NormalCardPlayed;
@@ -152,12 +152,12 @@ namespace GwentApi.Services
                 PrimaryId = card.PrimaryId,
                 CardId = card.CardId,
                 Faction = card.Faction,
-                Description = card.Description,
                 Placement = clickedCard.Placement,
                 Strength = card.Strength,
                 Abilities = card.Abilities,
                 CurrentStrength = 0,
-                Owner = cardClickedDto.Identity
+                Owner = cardClickedDto.Identity,
+                FileName = card.FileName
             };
 
             playerSide.CardsInHand.Remove(card);
@@ -169,10 +169,10 @@ namespace GwentApi.Services
                 PrimaryId = clickedCard.PrimaryId,
                 CardId = clickedCard.CardId,
                 Faction = clickedCard.Faction,
-                Description = clickedCard.Description,
                 Placement = clickedCard.Placement,
                 Strength = clickedCard.Strength,
-                Abilities = clickedCard.Abilities
+                Abilities = clickedCard.Abilities,
+                FileName = clickedCard.FileName
             };
 
             playerSide.CardsInHand.Add(cardToHand);
@@ -209,12 +209,12 @@ namespace GwentApi.Services
                 PrimaryId = card.PrimaryId,
                 CardId = card.CardId,
                 Faction = card.Faction,
-                Description = card.Description,
                 Placement = card.Placement,
                 Strength = 0,
                 Abilities = card.Abilities,
                 CurrentStrength = 0,
-                Owner = weatherClickedDto.Identity
+                Owner = weatherClickedDto.Identity,
+                FileName = card.FileName
             };
 
             if (card.CardId == 5)//id karty Clear Weather
@@ -277,12 +277,12 @@ namespace GwentApi.Services
                 PrimaryId = card.PrimaryId,
                 CardId = card.CardId,
                 Faction = card.Faction,
-                Description = card.Description,
                 Placement = card.Placement,
                 Strength = card.Strength,
                 Abilities = card.Abilities,
                 CurrentStrength = card.Strength,
-                Owner = enemyLaneClickedDto.Identity.GetEnemy()
+                Owner = enemyLaneClickedDto.Identity.GetEnemy(),
+                FileName = card.FileName
             };
 
             playerSide.CardsInHand.Remove(card);
