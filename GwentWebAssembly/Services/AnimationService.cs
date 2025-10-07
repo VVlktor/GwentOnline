@@ -81,14 +81,15 @@ namespace GwentWebAssembly.Services
 
             await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", startName, endName, $"img/cards/{boardCard.FileName}");
 
-            if (isPlayer)
-            {
-                await Task.Delay(800);
-                return;
-            }
+            //dziwnie to troche wyglada, chyba obejdzie sie bez
+            //if (isPlayer)
+            //{
+            //    await Task.Delay(800);
+            //    return;
+            //}
 
-            if (gameStatusDto.PlayerDeckCount != 0)//zamiast someOtherName dać tył karty z danej talii
-                await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", "deck-me", "hand-row", $"img/cards/someOtherName");//potencjalnie bedzie trzeba dodac jendak jakie karty zostaly dodane do eq gracza, ale wsm nie teraz, moze sie obejdzie
+            //if (gameStatusDto.PlayerDeckCount != 0)//zamiast someOtherName dać tył karty z danej talii
+            //    await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", "deck-me", "hand-row", $"img/cards/someOtherName");//potencjalnie bedzie trzeba dodac jendak jakie karty zostaly dodane do eq gracza, ale wsm nie teraz, moze sie obejdzie
         }
 
         private async Task PlayWeatherCardAnimation(GameStatusDto gameStatusDto)

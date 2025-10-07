@@ -336,5 +336,15 @@ namespace GwentApi.Services
 
             return actionResult;
         }
+
+        public async Task<LeaderClickedGwentActionResult> LeaderClicked(LeaderClickedDto leaderClickedDto)
+        {
+            Game game = await _gameRepository.GetGameByCode(leaderClickedDto.Code);
+
+            PlayerSide playerSide = game.GetPlayerSide(leaderClickedDto.Identity);
+
+            //playerSide.LeaderCard podmienic LeaderCard na cos dziedziczącego po GwentCard
+            throw new NotImplementedException();
+        }
     }
 }

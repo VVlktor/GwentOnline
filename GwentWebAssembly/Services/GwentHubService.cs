@@ -129,5 +129,15 @@ namespace GwentWebAssembly.Services
 
             await _connection.SendAsync("PassClicked", passClickedDto);
         }
+
+        public async Task SendLeaderClicked(PlayerIdentity identity, string code)
+        {
+            LeaderClickedDto leaderClickedDto = new() //stworzyc BaseClickedDto
+            {
+                Identity=identity,
+                Code=code
+            };
+            await _connection.SendAsync("LeaderClicked", leaderClickedDto);
+        }
     }
 }

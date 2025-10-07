@@ -11,7 +11,7 @@
 
 		<div id="leader-op" class="leader-box">
 			<div class="leader-container center">
-				<div class="card" style="background-image: url('img/sm/monsters_eredin_silver.jpg');"></div><!-- dostosowac img-->
+				<div class="card" style="background-image: url('img/cards/@(statusService.EnemyLeaderCard.FileName)');"></div><!-- dostosowac img-->
 			</div>
 			<div class="leader-active hide"><!-- dostosowac ability leadera-->
 				<div></div>
@@ -35,9 +35,9 @@
 			<div id="gem1-op" class="gem @(statusService.EnemyHp!=0 ? "gem-on" : "") bg-contain"></div>
 			<div id="gem2-op" class="gem @(statusService.EnemyHp > 1 ? "gem-on" : "") bg-contain"></div>
 
-			<div id="score-total-op" class="score-total score-leader">
+			<div id="score-total-op" class="score-total @(enemyTotalScore > playerTotalScore ? "score-leader" : "")">
 				<div class="center">
-					@statusService.CardsOnBoard.Sum(x => x.Owner == playerService.EnemyIdentity() ? x.CurrentStrength : 0)
+					@enemyTotalScore
 				</div>
 			</div>
 
@@ -55,7 +55,7 @@
 		<section id="stats-me" class="stats current-turn">
 			<div class="profile-img">
 				<div><div style="background-image: url('img/icons/deck_shield_realms.png');"></div></div>
-			</div>
+			</div> 
 			<div id="passed-me">Passed</div>
 			<div id="hand-count-me" class="hand-count">
 				@statusService.CardsInHand.Count()
@@ -67,17 +67,17 @@
 			<div id="name-me" class="name">Player 1</div>
 			<div id="deck-name-me" class="deck-name">@statusService.PlayerLeaderCard.Faction</div>
 
-			<div id="score-total-me" class="score-total">
+			<div id="score-total-me" class="score-total @(enemyTotalScore < playerTotalScore ? "score-leader" : "")">
 				<div class="center">
-					@statusService.CardsOnBoard.Sum(x => x.Owner == playerService.GetIdentity() ? x.CurrentStrength : 0)
+					@playerTotalScore
 				</div>
 			</div>
 
 
 		</section>
 
-		<div id="leader-me" class="leader-box">
-			<div class="leader-container center"><div class="card" style="background-image: url('img/sm/realms_foltest_copper.jpg');"></div></div>
+		<div id="leader-me" @onclick="async()=>await gameService.LeaderClicked()" class="leader-box">
+			<div class="leader-container center"><div class="card" style="background-image: url('img/cards/@(statusService.PlayerLeaderCard.FileName)');"></div></div>
 			<div class="leader-active">
 				<div></div>
 			</div>
@@ -114,11 +114,11 @@
 					@foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.EnemyIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
 					{
 						<div id="@($"card-on-board-{card.PrimaryId}")" class="card noclick" style="background-image: url('img/cards/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">
-							<div style="background-image: url('img/icons/power_normal.png');">
-								<div class="center" style="color: goldenrod;">@card.CurrentStrength</div>
+							<div style="background-image: url('img/icons/@(card.Abilities.HasFlag(Abilities.Hero) ? "power_hero" : "power_normal").png');">
+								<div class="center" style="@(card.Abilities.HasFlag(Abilities.Hero) ? "color: goldenrod;" : "")">@card.CurrentStrength</div>
 							</div>
-							<div style="background-image: url('img/icons/card_row_close.png');"></div>
-							<div style="background-image: url('img/icons/card_ability_spy.png');"></div> <!-- dostosować ikony abilitek -->
+							<div style="background-image: url('img/icons/card_row_siege.png');"></div>
+							<div style="background-image: url('img/icons/card_ability_@(card.Abilities.HasFlag(Abilities.Hero) ? $"{(card.Abilities & ~Abilities.Hero).ToString().ToLower()}" : $"{card.Abilities.ToString().ToLower()}").png');"></div> <!-- dostosować ikony abilitek -->
 							<div style="background-size: 40%;" class="hide"></div>
 						</div>
 					}
@@ -146,11 +146,11 @@
 					@foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.EnemyIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
 					{
 						<div id="@($"card-on-board-{card.PrimaryId}")" class="card noclick" style="background-image: url('img/cards/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">
-							<div style="background-image: url('img/icons/power_normal.png');">
-								<div class="center" style="color: goldenrod;">@card.CurrentStrength</div>
+							<div style="background-image: url('img/icons/@(card.Abilities.HasFlag(Abilities.Hero) ? "power_hero" : "power_normal").png');">
+								<div class="center" style="@(card.Abilities.HasFlag(Abilities.Hero) ? "color: goldenrod;" : "")">@card.CurrentStrength</div>
 							</div>
-							<div style="background-image: url('img/icons/card_row_close.png');"></div>
-							<div style="background-image: url('img/icons/card_ability_spy.png');"></div>
+							<div style="background-image: url('img/icons/card_row_range.png');"></div>
+							<div style="background-image: url('img/icons/card_ability_@(card.Abilities.HasFlag(Abilities.Hero) ? $"{(card.Abilities & ~Abilities.Hero).ToString().ToLower()}" : $"{card.Abilities.ToString().ToLower()}").png');"></div>
 							<div style="background-size: 40%;" class="hide"></div>
 						</div>
 					}
@@ -176,11 +176,11 @@
 					@foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.EnemyIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
 					{
 						<div id="@($"card-on-board-{card.PrimaryId}")" class="card noclick" style="background-image: url('img/cards/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">
-							<div style="background-image: url('img/icons/power_normal.png');">
-								<div class="center" style="color: goldenrod;">@card.CurrentStrength</div>
+							<div style="background-image: url('img/icons/@(card.Abilities.HasFlag(Abilities.Hero) ? "power_hero" : "power_normal").png');">
+								<div class="center" style="@(card.Abilities.HasFlag(Abilities.Hero) ? "color: goldenrod;" : "")">@card.CurrentStrength</div>
 							</div>
-							<div style="background-image: url('img/icons/card_row_close.png');"></div>
-							<div style="background-image: url('img/icons/card_ability_spy.png');"></div>
+							<div style="background-image: url('img/icons/card_row_melee.png');"></div>
+							<div style="background-image: url('img/icons/card_ability_@(card.Abilities.HasFlag(Abilities.Hero) ? $"{(card.Abilities & ~Abilities.Hero).ToString().ToLower()}" : $"{card.Abilities.ToString().ToLower()}").png');"></div>
 							<div style="background-size: 40%;" class="hide"></div>
 						</div>
 					}
@@ -211,11 +211,11 @@
 					@foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.GetIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
 					{
 						<div id="@($"card-on-board-{card.PrimaryId}")" @onclick="async () => await gameService.CardClicked(card)" class="card" style="background-image: url('img/cards/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">
-							<div style="background-image: url('img/icons/power_normal.png');">
-								<div class="center" style="color: goldenrod;">@card.CurrentStrength</div>
+							<div style="background-image: url('img/icons/@(card.Abilities.HasFlag(Abilities.Hero) ? "power_hero" : "power_normal").png');">
+								<div class="center" style="@(card.Abilities.HasFlag(Abilities.Hero) ? "color: goldenrod;" : "")">@card.CurrentStrength</div>
 							</div>
-							<div style="background-image: url('img/icons/card_row_close.png');"></div>
-							<div style="background-image: url('img/icons/card_ability_spy.png');"></div>
+							<div style="background-image: url('img/icons/card_row_melee.png');"></div>
+							<div style="background-image: url('img/icons/card_ability_@(card.Abilities.HasFlag(Abilities.Hero) ? $"{(card.Abilities & ~Abilities.Hero).ToString().ToLower()}" : $"{card.Abilities.ToString().ToLower()}").png');"></div>
 							<div style="background-size: 40%;" class="hide"></div>
 						</div>
 					}
@@ -242,11 +242,11 @@
 					@foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.GetIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
 					{
 						<div id="@($"card-on-board-{card.PrimaryId}")" @onclick="async () => await gameService.CardClicked(card)" class="card" style="background-image: url('img/cards/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">
-							<div style="background-image: url('img/icons/power_normal.png');">
-								<div class="center" style="color: goldenrod;">@card.CurrentStrength</div>
+							<div style="background-image: url('img/icons/@(card.Abilities.HasFlag(Abilities.Hero) ? "power_hero" : "power_normal").png');">
+								<div class="center" style="@(card.Abilities.HasFlag(Abilities.Hero) ? "color: goldenrod;" : "")">@card.CurrentStrength</div>
 							</div>
-							<div style="background-image: url('img/icons/card_row_close.png');"></div>
-							<div style="background-image: url('img/icons/card_ability_spy.png');"></div>
+							<div style="background-image: url('img/icons/card_row_range.png');"></div>
+							<div style="background-image: url('img/icons/card_ability_@(card.Abilities.HasFlag(Abilities.Hero) ? $"{(card.Abilities & ~Abilities.Hero).ToString().ToLower()}" : $"{card.Abilities.ToString().ToLower()}").png');"></div>
 							<div style="background-size: 40%;" class="hide"></div>
 						</div>
 					}
@@ -272,11 +272,11 @@
 					@foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.GetIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
 					{
 						<div id="@($"card-on-board-{card.PrimaryId}")" @onclick="async () => await gameService.CardClicked(card)" class="card" style="background-image: url('img/cards/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">
-							<div style="background-image: url('img/icons/power_normal.png');">
-								<div class="center" style="color: goldenrod;">@card.CurrentStrength</div>
+							<div style="background-image: url('img/icons/@(card.Abilities.HasFlag(Abilities.Hero) ? "power_hero" : "power_normal").png');">
+								<div class="center" style="@(card.Abilities.HasFlag(Abilities.Hero) ? "color: goldenrod;" : "")">@card.CurrentStrength</div>
 							</div>
-							<div style="background-image: url('img/icons/card_row_close.png');"></div>
-							<div style="background-image: url('img/icons/card_ability_spy.png');"></div>
+							<div style="background-image: url('img/icons/card_row_siege.png');"></div>
+							<div style="background-image: url('img/icons/card_ability_@(card.Abilities.HasFlag(Abilities.Hero) ? $"{(card.Abilities & ~Abilities.Hero).ToString().ToLower()}" : $"{card.Abilities.ToString().ToLower()}").png');"></div>
 							<div style="background-size: 40%;" class="hide"></div>
 						</div>
 					}
@@ -290,11 +290,11 @@
 				@foreach (var card in statusService.CardsInHand.OrderBy(x => x.Strength))
 				{
 					<div class="card" id="@($"card-in-hand-{card.PrimaryId}")" @onclick="() => statusService.CardSelected(card)" style="background-image: url('img/cards/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">
-						<div style="background-image: url('img/icons/power_normal.png');">
-							<div class="center">@card.Strength</div>
+						<div style="background-image: url('img/icons/@(card.Abilities.HasFlag(Abilities.Hero) ? "power_hero" : "power_normal").png');">
+							<div class="center" style="@(card.Abilities.HasFlag(Abilities.Hero) ? "color: goldenrod;" : "")">@card.Strength</div>
 						</div>
-						<div style="background-image: url('img/icons/card_row_siege.png');"></div>
-						<div style="background-image: url('img/icons/card_ability_muster.png');"></div>
+						<div style="background-image: url('img/icons/card_row_@(card.Placement.ToString().ToLower()).png');"></div>
+						<div style="background-image: url('img/icons/card_ability_@(card.Abilities.HasFlag(Abilities.Hero) ? $"{(card.Abilities & ~Abilities.Hero).ToString().ToLower()}" : $"{card.Abilities.ToString().ToLower()}").png');"></div>
 						<div></div>
 					</div>
 				}
@@ -322,6 +322,9 @@
 
 
 @code {
+	int enemyTotalScore => statusService.CardsOnBoard.Sum(x => x.Owner == playerService.EnemyIdentity() ? x.CurrentStrength : 0);
+	int playerTotalScore => statusService.CardsOnBoard.Sum(x => x.Owner == playerService.GetIdentity() ? x.CurrentStrength : 0);
+
     protected override async Task OnInitializedAsync()
     {
         if (!playerService.IsDataValid())

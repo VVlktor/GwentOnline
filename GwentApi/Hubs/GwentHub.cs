@@ -73,9 +73,9 @@ namespace GwentApi.Hubs
             await SendStatus(hornClickedDto.Identity, hornClickedDto.Code, "HornClicked");
         }
 
-        public async Task LeaderClicked()
+        public async Task LeaderClicked(LeaderClickedDto leaderClickedDto)
         {
-
+            await _cardService.LeaderClicked();
         }
 
         public async Task CardClicked(CardClickedDto cardClickedDto)//tylko decoy

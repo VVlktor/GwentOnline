@@ -54,10 +54,9 @@
 
             <div class="col-2 d-flex flex-column align-items-center">
                 <div class="center-card">
-                    <img src="" alt="Dowódca" class="center-card-img">
+                    <img src="img/cards/@(SelectedLeader.FileName)" alt="Dowódca" class="center-card-img">
                     <div class="center-card-content">
                         <div class="center-card-name">@SelectedLeader.Name</div>
-                        <div class="center-card-description"></div>
                     </div>
                 </div>
 
@@ -141,12 +140,16 @@
 
     private void NextLeader()
     {
-
+        leaderIndex++;
+        if (leaderIndex >= LeaderCards.Count) leaderIndex = 0;
+        SelectedLeader = LeaderCards[leaderIndex];
     }
 
     private void PreviousLeader()
     {
-        
+        leaderIndex--;
+        if (leaderIndex < 0) leaderIndex = LeaderCards.Count - 1;
+        SelectedLeader = LeaderCards[leaderIndex];
     }
 
     private async Task ReadyClicked()
@@ -188,6 +191,7 @@
         SelectedCards.Clear();
         LeaderCards = CardList.Where(x => x.Placement == TroopPlacement.Leader && x.Faction == SelectedFaction).ToList();
         SelectedLeader = LeaderCards.First();
+        leaderIndex = 0;
     }
 
     protected override async Task OnInitializedAsync()

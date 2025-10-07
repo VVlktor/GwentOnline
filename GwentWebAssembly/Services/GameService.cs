@@ -47,7 +47,7 @@ namespace GwentWebAssembly.Services
 
         public async Task LeaderClicked()
         {
-            throw new NotImplementedException();
+            await _gwentHubService.SendLeaderClicked(_playerService.GetIdentity(), _playerService.LobbyCode);
         }
 
         public async Task PlayerLaneClicked(TroopPlacement placement)
