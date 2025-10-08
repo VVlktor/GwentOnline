@@ -2,6 +2,7 @@
 @inject NavigationManager navigationManager
 @inject CardService cardService
 @inject IDeckService deckService
+@inject ILobbySetupService lobbySetupService 
 @page "/Deck"
 
 <div class="div-body">
@@ -159,17 +160,20 @@
         ResponseData responseData = await deckService.VerifyAndSetDeck(playerInfo);
         responseMessage = responseData.Message;
         StateHasChanged();
+
         if (!responseData.IsValid) {
             deckVerificationClicked = false;
             return; 
         }
 
-        while (true)
-        {
-            if (await deckService.PlayersReady(playerService.LobbyCode)) break;
-            await Task.Delay(4000);
-        }
-        navigationManager.NavigateTo("/CardSelection");
+        await lobbySetupService.JoinBoardAsync();//mozna to wszystko tak naprawde wywalic do deckService
+        await lobbySetupService.SendLobbyReady();
+        // while (true)
+        // {
+        //     if (await deckService.PlayersReady(playerService.LobbyCode)) break;
+        //     await Task.Delay(4000);
+        // }
+        // navigationManager.NavigateTo("/CardSelection");
     }
 
     private void RemoveSelectedCard(GwentCard card)

@@ -1,6 +1,7 @@
 ﻿using GwentWebAssembly.Data;
 using GwentWebAssembly.Data.Dtos;
 using GwentWebAssembly.Services.Interfaces;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 
 namespace GwentWebAssembly.Services
@@ -9,10 +10,12 @@ namespace GwentWebAssembly.Services
     {
         private HubConnection _connection;
         private IStatusService _statusService;
+        private NavigationManager _navigationManager;
 
-        public GwentHubService(IStatusService statusService)
+        public GwentHubService(IStatusService statusService, NavigationManager navigationManager)
         {
             _statusService = statusService;
+            _navigationManager = navigationManager;
 
             _connection = new HubConnectionBuilder()
             .WithUrl("http://localhost:5277/gwenthub")
@@ -47,6 +50,19 @@ namespace GwentWebAssembly.Services
             _connection.On<GameStatusDto>("PassClicked", async gameStatusDto =>
             {
                 await _statusService.ReceivedStatus(gameStatusDto);
+            });
+
+
+            _connection.On<ReadyDto>("LobbyReady", async lobbyReady =>
+            {
+                if(lobbyReady.Ready)
+                    _navigationManager.NavigateTo("/CardSelection");
+            });
+
+            _connection.On<ReadyDto>("CardsSelected", async cardsSelected =>
+            {
+                if(cardsSelected.Ready)
+                    _navigationManager.NavigateTo("/GwentBoard");
             });
         }
 
@@ -138,6 +154,16 @@ namespace GwentWebAssembly.Services
                 Code=code
             };
             await _connection.SendAsync("LeaderClicked", leaderClickedDto);
+        }
+
+        public async Task SendLobbyReady(string code)
+        {
+            await _connection.SendAsync("LobbyReady", code);
+        }
+
+        public async Task SendCardsSelected(string code)
+        {
+            await _connection.SendAsync("CardsSelected", code);
         }
     }
 }

@@ -17,7 +17,7 @@
     border-radius: 8px;
     padding: 8px;
     text-align: center;
-    height: 280px;
+    height: 400px;
     display: flex;
     flex-direction: column;
     cursor: pointer;
@@ -31,7 +31,7 @@
 .card-img {
     flex: 3;
     width: 100%;
-    height: 100%;
+    height: 80%;
     object-fit: cover;
     border-radius: 5px;
     margin-bottom: 6px;

@@ -12,5 +12,7 @@ namespace GwentWebAssembly.Services.Interfaces
         Task SendEnemyLaneClicked(PlayerIdentity identity, string code, TroopPlacement placement, GwentCard card);
         Task SendPassClicked(PlayerIdentity identity, string code);
         Task SendLeaderClicked(PlayerIdentity identity, string code);
+        Task SendLobbyReady(string code);
+        Task SendCardsSelected(string code);
     }
 }

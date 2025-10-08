@@ -11,14 +11,14 @@
 
 		<div id="leader-op" class="leader-box">
 			<div class="leader-container center">
-				<div class="card" style="background-image: url('img/cards/@(statusService.EnemyLeaderCard.FileName)');"></div><!-- dostosowac img-->
+				<div class="card" style="background-image: url('img/cards/@(statusService.EnemyLeaderCard.FileName)');"></div>
 			</div>
 			<div class="leader-active hide"><!-- dostosowac ability leadera-->
 				<div></div>
 			</div>
 		</div>
 
-		<section id="stats-op" class="stats">
+		<section id="stats-op" class="stats @(statusService.Turn == playerService.GetIdentity() ? "" : "current-turn")">
 			<div class="profile-img">
 				<div>
 					<div style="background-image: url('img/icons/deck_shield_monsters.png');"></div><!-- dostosowac img-->
@@ -52,7 +52,7 @@
 			}
 		</div>
 
-		<section id="stats-me" class="stats current-turn">
+		<section id="stats-me" class="stats @(statusService.Turn == playerService.GetIdentity() ? "current-turn" : "")">
 			<div class="profile-img">
 				<div><div style="background-image: url('img/icons/deck_shield_realms.png');"></div></div>
 			</div> 
@@ -334,7 +334,7 @@
         }
 
         await gameService.GetStartStatus();
-        await gameService.JoinBoardAsync();
+        //await gameService.JoinBoardAsync();
 
         statusService.OnStateChanged += RefreshState;
 

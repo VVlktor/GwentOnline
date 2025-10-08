@@ -2,6 +2,7 @@
 @inject PlayerService playerService
 @inject NavigationManager navigationManager
 @inject IDeckService deckService
+@inject ILobbySetupService lobbySetupService
 
 <div class="page-body">
     <div class="container-fluid">
@@ -66,12 +67,13 @@
     {
         IsReady = true;
         await deckService.SetReady();
-        while (true)
-        {
-            if (await deckService.GameReady()) break;
-            await Task.Delay(4000);
-        }
-        navigationManager.NavigateTo("/GwentBoard");
+        // while (true)
+        // {
+        //     if (await deckService.GameReady()) break;
+        //     await Task.Delay(4000);
+        // }
+        // navigationManager.NavigateTo("/GwentBoard");
+        await lobbySetupService.CardsSelected();
     }
 
     private async Task SwapCard(GwentCard card)

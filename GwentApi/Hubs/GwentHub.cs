@@ -11,12 +11,14 @@ namespace GwentApi.Hubs
         private IGameService _gameService;
         private ICardService _cardService;
         private IStatusService _statusService;
+        private ILobbyService _lobbyService;
 
-        public GwentHub(IGameService gameService, ICardService cardService, IStatusService statusService)
+        public GwentHub(IGameService gameService, ICardService cardService, IStatusService statusService, ILobbyService lobbyService)
         {
             _gameService = gameService;
             _cardService = cardService;
             _statusService = statusService;
+            _lobbyService = lobbyService;
         }
 
         public async Task JoinBoard(string code)
@@ -75,7 +77,7 @@ namespace GwentApi.Hubs
 
         public async Task LeaderClicked(LeaderClickedDto leaderClickedDto)
         {
-            await _cardService.LeaderClicked();
+            await _cardService.LeaderClicked(leaderClickedDto);
         }
 
         public async Task CardClicked(CardClickedDto cardClickedDto)//tylko decoy
@@ -148,6 +150,22 @@ namespace GwentApi.Hubs
 
             await Clients.Caller.SendAsync(methodName, playerGameStatus);
             await Clients.OthersInGroup(code).SendAsync(methodName, enemyGameStatus);
+        }
+
+        public async Task LobbyReady(string code)
+        {
+            bool playersReady = await _lobbyService.PlayersReady(code);
+            ReadyDto readyDto = new()
+            {
+                Ready = playersReady
+            };
+            await Clients.Group(code).SendAsync("LobbyReady", readyDto);
+        }
+
+        public async Task CardsSelected(string code)
+        {
+            ReadyDto readyDto = await _gameService.PlayersReady(code);
+            await Clients.Group(code).SendAsync("CardsSelected", readyDto);
         }
     }
 }

@@ -19,12 +19,12 @@ namespace GwentWebAssembly
             builder.Services.AddTransient<IHomePageService, HomePageService>();
             builder.Services.AddTransient<IDeckService, DeckService>();
             builder.Services.AddTransient<IGameService, GameService>();
-            builder.Services.AddTransient<IGwentHubService, GwentHubService>();
             builder.Services.AddTransient<IAnimationService, AnimationService>();
+            builder.Services.AddTransient<ILobbySetupService, LobbySetupService>();
 
-            builder.Services.AddScoped<IStatusService, StatusService>();
-
+            builder.Services.AddSingleton<IStatusService, StatusService>();
             builder.Services.AddSingleton<PlayerService>();
+            builder.Services.AddSingleton<IGwentHubService, GwentHubService>();
 
             await builder.Build().RunAsync();
         }
