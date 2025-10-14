@@ -11,5 +11,7 @@
         public int EnemyUsedCardsCount { get; set; }
         public int EnemyDeckCount { get; set; }
         public int PlayerDeckCount { get; set; }
+        public int PlayerHp { get; set; }
+        public int EnemyHp { get; set; }
     }
 }

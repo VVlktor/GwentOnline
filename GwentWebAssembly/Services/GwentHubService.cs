@@ -52,6 +52,11 @@ namespace GwentWebAssembly.Services
                 await _statusService.ReceivedStatus(gameStatusDto);
             });
 
+            _connection.On<GameStatusDto>("EndRound", async gameStatusDto =>
+            {
+                await _statusService.ReceivedStatus(gameStatusDto);
+            });
+
 
             _connection.On<ReadyDto>("LobbyReady", async lobbyReady =>
             {

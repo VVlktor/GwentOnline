@@ -7,5 +7,6 @@ namespace GwentApi.Services.Interfaces
         Task UpdateBoardState(string code);
         Task<GwentAction> AddGwentAction(PlayerIdentity identity, string code, GwentActionType actionType, List<GwentBoardCard> playedCards, List<GwentBoardCard> killedCards);
         Task<TurnStatus> UpdateTurn(string code);
+        Task EndRound(string code);
     }
 }

@@ -19,7 +19,7 @@ namespace GwentWebAssembly.Services
         public async Task OverlayAnimation(string text)
         {
             await _jsRuntime.InvokeVoidAsync("showOverlay", text);
-            await Task.Delay(2000);
+           
         }
 
         public async Task OverlayAnimation(PlayerIdentity turn)
@@ -28,12 +28,12 @@ namespace GwentWebAssembly.Services
             if (_playerService.GetIdentity() == turn)
                 stringTurn = "Twój ruch!";
             await _jsRuntime.InvokeVoidAsync("showOverlay", stringTurn);
-            await Task.Delay(2000);
+            
         }
 
         public async Task ProcessReceivedAnimation(GameStatusDto gameStatusDto)
         {
-            if (gameStatusDto.Action.CardsPlayed.Count == 0) return;
+            //if (gameStatusDto.Action.CardsPlayed.Count == 0) return;
 
             switch (gameStatusDto.Action.ActionType)
             {
@@ -54,6 +54,9 @@ namespace GwentWebAssembly.Services
                     break;
                 case GwentActionType.Pass:
                     await PlayPassAnimation(gameStatusDto);
+                    break;
+                case GwentActionType.EndRound:
+                    await OverlayAnimation("Koniec rundy!");//moze cos wiecej, np. zmiatanie kart z planszy
                     break;
             }
         }

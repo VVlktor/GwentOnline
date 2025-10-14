@@ -7,5 +7,6 @@
         public List<GwentCard> UsedCards = new();
         public CardFaction Faction { get; set; }
         public GwentCard LeaderCard { get; set; }
+        public int Hp { get; set; }
     }
 }

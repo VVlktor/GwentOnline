@@ -46,7 +46,8 @@ namespace GwentApi.Services
                 CardsInHand = playerInfo.Cards[..10],
                 Deck = playerInfo.Cards[10..],
                 Faction = playerInfo.Faction,
-                UsedCards = new()
+                UsedCards = new(),
+                Hp=2
             };
 
             game.SetPlayerSide(playerSide, identity);
@@ -82,7 +83,9 @@ namespace GwentApi.Services
                 EnemyCardsCount=enemySide.CardsInHand.Count,
                 EnemyUsedCardsCount=enemySide.UsedCards.Count,
                 PlayerDeckCount=playerSide.Deck.Count,
-                EnemyDeckCount=enemySide.Deck.Count
+                EnemyDeckCount=enemySide.Deck.Count,
+                EnemyHp=enemySide.Hp,
+                PlayerHp=playerSide.Hp
             };
 
             return status;

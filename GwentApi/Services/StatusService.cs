@@ -148,5 +148,40 @@ namespace GwentApi.Services
                 Turn = game.Turn
             };
         }
+
+        public async Task EndRound(string code)
+        {
+            Game game = await _gameRepository.GetGameByCode(code);
+
+            PlayerSide playerOne = game.PlayerOne;
+            PlayerSide playerTwo = game.PlayerTwo;
+
+            int playerOneScore = game.CardsOnBoard.Where(x => x.Owner == PlayerIdentity.PlayerOne).Sum(x => x.CurrentStrength);
+            int playerTwoScore = game.CardsOnBoard.Where(x => x.Owner == PlayerIdentity.PlayerTwo).Sum(x => x.CurrentStrength);
+
+            game.HasPassed = (false, false);
+
+            if (playerOneScore > playerTwoScore)
+            {//nie zapominac o tym ze chyba w nilfgaardzie jak jest remis to wygrywa nilfgaard
+                playerTwo.Hp -= 1;
+                game.Turn = PlayerIdentity.PlayerOne;
+            }
+            else if (playerTwoScore > playerOneScore)
+            {
+                playerOne.Hp -= 1;
+                game.Turn = PlayerIdentity.PlayerTwo;
+            }
+            else//remis
+            {
+                playerOne.Hp -= 1;
+                playerTwo.Hp -= 1;
+            }
+
+            game.PlayerOne.UsedCards.AddRange( game.CardsOnBoard.Where(x => x.Owner == PlayerIdentity.PlayerOne) );
+            game.PlayerTwo.UsedCards.AddRange( game.CardsOnBoard.Where(x => x.Owner == PlayerIdentity.PlayerTwo) );
+            game.CardsOnBoard.Clear();
+
+            await _gameRepository.UpdateGame(game);
+        }
     }
 }

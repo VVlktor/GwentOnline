@@ -63,6 +63,13 @@ namespace GwentWebAssembly.Services
 
             bool isSameTurn = Turn == gameStatusDto.Turn;
 
+            string? message = PlayerHp > gameStatusDto.PlayerHp && EnemyHp > gameStatusDto.EnemyHp ? "Remis" :
+                              PlayerHp > gameStatusDto.PlayerHp ? "Wygrał przeciwnik" :
+                              EnemyHp > gameStatusDto.EnemyHp ? "Wygrałeś rundę" : null;
+
+            if(message is not null)
+                await _animationService.OverlayAnimation(message);
+
             CardsOnBoard = gameStatusDto.CardsOnBoard;
             CardsInHand = gameStatusDto.CardsInHand;
             Turn = gameStatusDto.Turn;
@@ -71,11 +78,13 @@ namespace GwentWebAssembly.Services
             EnemyUsedCardsCount = gameStatusDto.EnemyUsedCardsCount;
             PlayerDeckCount = gameStatusDto.PlayerDeckCount;
             EnemyDeckCount = gameStatusDto.EnemyDeckCount;
+            PlayerHp = gameStatusDto.PlayerHp;
+            EnemyHp = gameStatusDto.EnemyHp;
 
             if (OnStateChanged is not null)
                 await OnStateChanged.Invoke();
 
-            if(!isSameTurn)
+            if(!isSameTurn || message is not null)
                 await _animationService.OverlayAnimation(Turn);
         }
 

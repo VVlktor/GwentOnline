@@ -133,13 +133,21 @@ namespace GwentApi.Hubs
 
             if (actionResult is null) return;
 
-            //await _statusService.UpdateBoardState(passClickedDto.Code);//to chyba tu nie jest potrzebne, do sprawdzenia
-
             await _statusService.AddGwentAction(passClickedDto.Identity, passClickedDto.Code, actionResult.ActionType, new(), new());
 
             TurnStatus turnStatus = await _statusService.UpdateTurn(passClickedDto.Code);
 
-            await SendStatus(passClickedDto.Identity, passClickedDto.Code, "PassClicked");
+            if (!turnStatus.EndRound)
+            {
+                await SendStatus(passClickedDto.Identity, passClickedDto.Code, "PassClicked");
+                return;
+            }
+
+            await _statusService.EndRound(passClickedDto.Code);
+
+            await _statusService.AddGwentAction(passClickedDto.Identity, passClickedDto.Code, GwentActionType.EndRound, new(), new());
+
+            await SendStatus(passClickedDto.Identity, passClickedDto.Code, "EndRound");
         }
 
         private async Task SendStatus(PlayerIdentity identity, string code, string methodName)

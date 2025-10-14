@@ -1,22 +1,25 @@
-﻿window.showOverlay = function (message) {
-    const overlay = document.createElement("div");
-    overlay.className = "main-black-gwent-overlay";
-    overlay.style.fontSize = "48px";
-    overlay.textContent = message;
+﻿async function showOverlay(message) {
+    return new Promise(resolve => {
+        const overlay = document.createElement("div");
+        overlay.className = "main-black-gwent-overlay";
+        overlay.style.fontSize = "48px";
+        overlay.textContent = message;
 
-    document.body.appendChild(overlay);
+        document.body.appendChild(overlay);
 
-    requestAnimationFrame(() => {
-        overlay.style.opacity = "1";
+        requestAnimationFrame(() => {
+            overlay.style.opacity = "1";
+        });
+
+        setTimeout(() => {
+            overlay.style.opacity = "0";
+        }, 1500);
+
+        setTimeout(() => {
+            overlay.remove();
+            resolve();
+        }, 2000);
     });
-
-    setTimeout(() => {
-        overlay.style.opacity = "0";
-    }, 1500);
-
-    setTimeout(() => {
-        overlay.remove();
-    }, 2000);
 };
 
 async function moveCardByElementIds(cardElemId, destElemId, cardImage) {

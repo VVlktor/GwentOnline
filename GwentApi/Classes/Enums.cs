@@ -67,7 +67,8 @@
         WeatherCardPlayer=8,
         LeaderCardPlayed=9,
         ScorchCardPlayed=10,
-        Pass=11
+        Pass=11,
+        EndRound=12
     }
 
     public enum ClickableGwentAction

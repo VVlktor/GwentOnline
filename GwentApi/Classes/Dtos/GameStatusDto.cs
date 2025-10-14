@@ -12,5 +12,7 @@
         public int EnemyDeckCount { get; set; }
         public int PlayerDeckCount { get; set; } // karty ktore nie zostaly jeszcze dodane do hand
         //bedzie trzeba dodac leaderow
+        public int PlayerHp { get; set; }
+        public int EnemyHp { get; set; }
     }
 }
