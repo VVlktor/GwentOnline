@@ -8,5 +8,7 @@ namespace GwentApi.Repository.Interfaces
         Task<Game> UpdateGame(Game game);
         Task<Game> AddGame(Game game);
         Task<bool> ExistsByCode(string code);
+        Task<List<Game>> GetAllGames();//tylko do testowania
+        Task RemoveGame(Game game);
     }
 }

@@ -64,7 +64,7 @@ namespace GwentWebAssembly.Services
             bool isSameTurn = Turn == gameStatusDto.Turn;
 
             string? message = PlayerHp > gameStatusDto.PlayerHp && EnemyHp > gameStatusDto.EnemyHp ? "Remis" :
-                              PlayerHp > gameStatusDto.PlayerHp ? "Wygrał przeciwnik" :
+                              PlayerHp > gameStatusDto.PlayerHp ? "Przeciwnik wygrał rundę" :
                               EnemyHp > gameStatusDto.EnemyHp ? "Wygrałeś rundę" : null;
 
             if(message is not null)
@@ -84,7 +84,13 @@ namespace GwentWebAssembly.Services
             if (OnStateChanged is not null)
                 await OnStateChanged.Invoke();
 
-            if(!isSameTurn || message is not null)
+            if (PlayerHp == 0 || EnemyHp == 0)
+            {
+                await _animationService.EndGameOverlayAnimation(EnemyHp == 0);//jak ostatnia runda bedzie remisem to obu graczom pokaze ze wygrali, malo wazne ale mozna poprawic
+                return;
+            }
+
+            if (!isSameTurn || message is not null)
                 await _animationService.OverlayAnimation(Turn);
         }
 

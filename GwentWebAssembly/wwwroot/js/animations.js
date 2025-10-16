@@ -22,6 +22,16 @@
     });
 };
 
+async function showEndGameOverlay(message) {
+    const overlay = document.createElement("div");
+    overlay.className = "main-black-gwent-overlay";
+    overlay.style.fontSize = "48px";
+    overlay.textContent = message;
+    overlay.style.opacity = "1";
+
+    document.body.appendChild(overlay);
+}
+
 async function moveCardByElementIds(cardElemId, destElemId, cardImage) {
     const startElem = document.getElementById(cardElemId);
     const destElem = document.getElementById(destElemId);

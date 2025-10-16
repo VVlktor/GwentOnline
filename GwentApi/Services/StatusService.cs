@@ -69,14 +69,21 @@ namespace GwentApi.Services
                 ApplyWeather(game.CardsOnBoard, Abilities.Rain, TroopPlacement.Siege);
             }
 
-            //podanie rączki
-
-            //plusik
-
-            //rog dowodcy
             var playerOneCards = game.CardsOnBoard.Where(x => x.Owner == PlayerIdentity.PlayerOne);
             var playerTwoCards = game.CardsOnBoard.Where(x => x.Owner == PlayerIdentity.PlayerTwo);
 
+            //podanie rączki(tight bond)
+            ApplyMorale(playerOneCards, TroopPlacement.Melee);
+            ApplyMorale(playerOneCards, TroopPlacement.Range);
+            ApplyMorale(playerOneCards, TroopPlacement.Siege);
+            ApplyMorale(playerTwoCards, TroopPlacement.Melee);
+            ApplyMorale(playerTwoCards, TroopPlacement.Range);
+            ApplyMorale(playerTwoCards, TroopPlacement.Siege);//nie podoba mi sie wywolywanie 6 razy tego samego, pomyslec nad alternatywą
+
+            //plusik (morale)
+
+
+            //rog dowodcy(horn)
             ApplyHorn(playerOneCards, TroopPlacement.Melee);
             ApplyHorn(playerOneCards, TroopPlacement.Range);
             ApplyHorn(playerOneCards, TroopPlacement.Siege);
@@ -91,6 +98,13 @@ namespace GwentApi.Services
             //foreach (var x in game.CardsOnBoard)
             //    blad+=$"{x.Name} - {x.CurrentStrength}\n";
             //throw new Exception($"{blad}");
+        }
+
+        private void ApplyMorale(IEnumerable<GwentBoardCard> cards, TroopPlacement placement)
+        {
+            foreach(var moraleCard in cards.Where(x => x.Abilities.HasFlag(Abilities.Morale) && x.Placement == placement))
+                foreach(var card in cards.Where(x=>x.Placement == placement && !x.Abilities.HasFlag(Abilities.Hero) && x.PrimaryId!=moraleCard.PrimaryId))
+                    card.CurrentStrength += 1;
         }
 
         private void ApplyWeather(IEnumerable<GwentBoardCard> cards, Abilities ability, TroopPlacement placement)

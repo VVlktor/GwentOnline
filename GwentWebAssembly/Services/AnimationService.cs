@@ -31,6 +31,12 @@ namespace GwentWebAssembly.Services
             
         }
 
+        public async Task EndGameOverlayAnimation(bool playerWon)
+        {
+            string message = playerWon ? "Wygrywasz grę" : "Przegrywasz grę";
+            await _jsRuntime.InvokeVoidAsync("showEndGameOverlay", message);
+        }
+
         public async Task ProcessReceivedAnimation(GameStatusDto gameStatusDto)
         {
             //if (gameStatusDto.Action.CardsPlayed.Count == 0) return;

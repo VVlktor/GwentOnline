@@ -21,6 +21,7 @@ namespace GwentApi.Repository
         public async Task<Game> UpdateGame(Game game)
         {
             int index = _games.FindIndex(x => x.Code == game.Code);
+            game.LastUpdate = DateTime.Now;
             if (index >= 0)
                 _games[index] = game;
             return game;
@@ -29,6 +30,16 @@ namespace GwentApi.Repository
         public async Task<bool> ExistsByCode(string code)
         {
             return _games.Any(x => x.Code == code);
+        }
+
+        public async Task<List<Game>> GetAllGames()
+        {
+            return _games;
+        }
+
+        public async Task RemoveGame(Game game)
+        {
+            _games.Remove(game);
         }
     }
 }

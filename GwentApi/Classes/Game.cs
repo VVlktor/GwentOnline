@@ -16,7 +16,7 @@
         public PlayerIdentity Turn = PlayerIdentity.PlayerOne;//do zmiany w zaleznosci od talii
 
         public string Code { get; set; }
-        public DateTime LastMove = DateTime.Now;
+        public DateTime LastUpdate = DateTime.Now;
         (bool playerOne, bool playerTwo) IsReady = (false, false);
 
         public (bool PlayerOne, bool PlayerTwo) HasPassed = (false, false);

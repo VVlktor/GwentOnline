@@ -53,7 +53,10 @@ namespace GwentApi.Services
             game.SetPlayerSide(playerSide, identity);
             game.SetReady(identity);
 
-            await _gameRepository.AddGame(game);
+            if(gameExists)
+                await _gameRepository.UpdateGame(game);
+            else
+                await _gameRepository.AddGame(game);//tworze gre ale nigdy nie usuwam - dodac jakiegos background workera
 
             return new() { Ready=true };
         }
