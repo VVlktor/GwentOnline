@@ -29,5 +29,20 @@ namespace GwentApi.Services
 
             return newCard;
         }
+
+        public List<GwentCard> GetCards(Func<GwentCard, bool> predicate)
+        {
+            return Cards.Where(predicate).Select(c => new GwentCard
+            {
+                Name = c.Name,
+                PrimaryId = c.PrimaryId,
+                CardId = c.CardId,
+                Faction = c.Faction,
+                Placement = c.Placement,
+                Strength = c.Strength,
+                Abilities = c.Abilities,
+                FileName = c.FileName
+            }).ToList();
+        }
     }
 }

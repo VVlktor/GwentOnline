@@ -50,14 +50,14 @@ namespace GwentApi.Hubs
 
             TurnStatus turnStatus = await _statusService.UpdateTurn(laneClickedDto.Code);
 
-            string methodName = "LaneClickedNormalCard";
+            //string methodName = "LaneClickedNormalCard";
 
-            if (actionResult.ActionType == GwentActionType.MusterCardPlayed)
-                methodName = "LaneClickedMusterCard";
-            else if (actionResult.ActionType == GwentActionType.MedicCardPlayed)
-                methodName = "LaneClickedMedicCard";
+            //if (actionResult.ActionType == GwentActionType.MusterCardPlayed)
+            //    methodName = "LaneClickedMusterCard";
+            //else if (actionResult.ActionType == GwentActionType.MedicCardPlayed)
+            //    methodName = "LaneClickedMedicCard";
 
-            await SendStatus(laneClickedDto.Identity, laneClickedDto.Code, methodName);
+            await SendStatus(laneClickedDto.Identity, laneClickedDto.Code, "ActionReceived");
         }
 
         public async Task HornClicked(HornClickedDto hornClickedDto)
@@ -72,7 +72,7 @@ namespace GwentApi.Hubs
 
             TurnStatus turnStatus = await _statusService.UpdateTurn(hornClickedDto.Code);
 
-            await SendStatus(hornClickedDto.Identity, hornClickedDto.Code, "HornClicked");
+            await SendStatus(hornClickedDto.Identity, hornClickedDto.Code, "ActionReceived");
         }
 
         public async Task LeaderClicked(LeaderClickedDto leaderClickedDto)
@@ -94,7 +94,7 @@ namespace GwentApi.Hubs
 
             TurnStatus turnStatus = await _statusService.UpdateTurn(cardClickedDto.Code);
 
-            await SendStatus(cardClickedDto.Identity, cardClickedDto.Code, "CardClicked");
+            await SendStatus(cardClickedDto.Identity, cardClickedDto.Code, "ActionReceived");
         }
 
         public async Task WeatherClicked(WeatherClickedDto weatherClickedDto)
@@ -109,7 +109,7 @@ namespace GwentApi.Hubs
 
             TurnStatus turnStatus = await _statusService.UpdateTurn(weatherClickedDto.Code);
 
-            await SendStatus(weatherClickedDto.Identity, weatherClickedDto.Code, "WeatherClicked");
+            await SendStatus(weatherClickedDto.Identity, weatherClickedDto.Code, "ActionReceived");
         }
 
         public async Task EnemyLaneClicked(EnemyLaneClickedDto enemyLaneClickedDto)
@@ -124,7 +124,7 @@ namespace GwentApi.Hubs
 
             TurnStatus turnStatus = await _statusService.UpdateTurn(enemyLaneClickedDto.Code);
 
-            await SendStatus(enemyLaneClickedDto.Identity, enemyLaneClickedDto.Code, "EnemyLaneClicked");
+            await SendStatus(enemyLaneClickedDto.Identity, enemyLaneClickedDto.Code, "ActionReceived");
         }
 
         public async Task PassClicked(PassClickedDto passClickedDto)
@@ -139,7 +139,7 @@ namespace GwentApi.Hubs
 
             if (!turnStatus.EndRound)
             {
-                await SendStatus(passClickedDto.Identity, passClickedDto.Code, "PassClicked");
+                await SendStatus(passClickedDto.Identity, passClickedDto.Code, "ActionReceived");
                 return;
             }
 
@@ -147,7 +147,7 @@ namespace GwentApi.Hubs
 
             await _statusService.AddGwentAction(passClickedDto.Identity, passClickedDto.Code, GwentActionType.EndRound, new(), new());
 
-            await SendStatus(passClickedDto.Identity, passClickedDto.Code, "EndRound");
+            await SendStatus(passClickedDto.Identity, passClickedDto.Code, "ActionReceived");
         }
 
         private async Task SendStatus(PlayerIdentity identity, string code, string methodName)

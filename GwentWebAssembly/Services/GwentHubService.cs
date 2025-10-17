@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 
 namespace GwentWebAssembly.Services
 {
-    public class GwentHubService : IGwentHubService
+    public class GwentHubService : IGwentHubService, IAsyncDisposable
     {
         private HubConnection _connection;
         private IStatusService _statusService;
@@ -21,41 +21,41 @@ namespace GwentWebAssembly.Services
             .WithUrl("http://localhost:5277/gwenthub")
             .Build();
 
-            _connection.On<GameStatusDto>("HornClicked", async gameStatusDto =>
+            _connection.On<GameStatusDto>("ActionReceived", async gameStatusDto =>
             {
                 await _statusService.ReceivedStatus(gameStatusDto);
             });
 
-            _connection.On<GameStatusDto>("LaneClickedNormalCard", async gameStatusDto =>
-            {
-               await _statusService.ReceivedStatus(gameStatusDto);
-            });
-            //LaneClickedMusterCard, medic etc.
+            //_connection.On<GameStatusDto>("LaneClickedNormalCard", async gameStatusDto =>
+            //{
+            //   await _statusService.ReceivedStatus(gameStatusDto);
+            //});
+            ////LaneClickedMusterCard, medic etc.
 
-            _connection.On<GameStatusDto>("CardClicked", async gameStatusDto =>
-            {
-                await _statusService.ReceivedStatus(gameStatusDto);
-            });
+            //_connection.On<GameStatusDto>("CardClicked", async gameStatusDto =>
+            //{
+            //    await _statusService.ReceivedStatus(gameStatusDto);
+            //});
 
-            _connection.On<GameStatusDto>("WeatherClicked", async gameStatusDto =>
-            {
-                await _statusService.ReceivedStatus(gameStatusDto);
-            });
+            //_connection.On<GameStatusDto>("WeatherClicked", async gameStatusDto =>
+            //{
+            //    await _statusService.ReceivedStatus(gameStatusDto);
+            //});
 
-            _connection.On<GameStatusDto>("EnemyLaneClicked", async gameStatusDto =>
-            {
-                await _statusService.ReceivedStatus(gameStatusDto);
-            });//skoro to wszystko jest to samo, moze wsadzic to do jednego syfu i fajrant?
+            //_connection.On<GameStatusDto>("EnemyLaneClicked", async gameStatusDto =>
+            //{
+            //    await _statusService.ReceivedStatus(gameStatusDto);
+            //});//skoro to wszystko jest to samo, moze wsadzic to do jednego syfu i fajrant?
 
-            _connection.On<GameStatusDto>("PassClicked", async gameStatusDto =>
-            {
-                await _statusService.ReceivedStatus(gameStatusDto);
-            });
+            //_connection.On<GameStatusDto>("PassClicked", async gameStatusDto =>
+            //{
+            //    await _statusService.ReceivedStatus(gameStatusDto);
+            //});
 
-            _connection.On<GameStatusDto>("EndRound", async gameStatusDto =>
-            {
-                await _statusService.ReceivedStatus(gameStatusDto);
-            });
+            //_connection.On<GameStatusDto>("EndRound", async gameStatusDto =>
+            //{
+            //    await _statusService.ReceivedStatus(gameStatusDto);
+            //});
 
 
             _connection.On<ReadyDto>("LobbyReady", async lobbyReady =>
@@ -169,6 +169,15 @@ namespace GwentWebAssembly.Services
         public async Task SendCardsSelected(string code)
         {
             await _connection.SendAsync("CardsSelected", code);
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (_connection is not null)
+            {
+                await _connection.StopAsync();
+                await _connection.DisposeAsync();
+            }
         }
     }
 }

@@ -156,7 +156,7 @@
     private async Task ReadyClicked()
     {
         deckVerificationClicked = true;
-        PlayerInfo playerInfo = new(SelectedFaction, SelectedCards, SelectedLeader);
+        PlayerDeckInfo playerInfo = new(SelectedCards.Select(x=>x.PrimaryId).ToList(), SelectedLeader.PrimaryId, SelectedFaction);
         ResponseData responseData = await deckService.VerifyAndSetDeck(playerInfo);
         responseMessage = responseData.Message;
         StateHasChanged();

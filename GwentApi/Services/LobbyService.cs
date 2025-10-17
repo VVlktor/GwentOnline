@@ -41,10 +41,16 @@ namespace GwentApi.Services
             return true;
         }
 
-        public async Task SetDeck(string lobbyCode, PlayerIdentity player, PlayerInfo playerInfo)
+        public async Task SetDeck(string lobbyCode, PlayerIdentity player, PlayerDeckInfo playerDeckInfo)
         {
             Random rng = new Random();
+            PlayerInfo playerInfo = new();
+
+            playerInfo.Faction = playerDeckInfo.Faction;
+            playerInfo.LeaderCard = _cardsService.GetCardByPrimaryId(playerDeckInfo.LeaderCardId);
             playerInfo.CardsSwapped = 0;
+            playerInfo.Cards = _cardsService.GetCards(x => playerDeckInfo.CardsId.Contains(x.PrimaryId)).ToList();
+
             int n = playerInfo.Cards.Count;
             while (n > 1)
             {

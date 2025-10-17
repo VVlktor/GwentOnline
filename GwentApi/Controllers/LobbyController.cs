@@ -50,7 +50,7 @@ namespace GwentApi.Controllers
         }
 
         [HttpPost("VerifyAndSetDeck/{lobbyCode}/{player}")]
-        public async Task<IActionResult> VerifyAndSetDeck(string lobbyCode, PlayerIdentity player, [FromBody] PlayerInfo playerInfo)
+        public async Task<IActionResult> VerifyAndSetDeck(string lobbyCode, PlayerIdentity player, [FromBody] PlayerDeckInfo playerInfo)
         {
             var responseData = _deckService.VerifyDeck(playerInfo);
             if (!responseData.IsValid) return Ok(responseData);

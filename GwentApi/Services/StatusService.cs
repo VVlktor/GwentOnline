@@ -72,24 +72,20 @@ namespace GwentApi.Services
             var playerOneCards = game.CardsOnBoard.Where(x => x.Owner == PlayerIdentity.PlayerOne);
             var playerTwoCards = game.CardsOnBoard.Where(x => x.Owner == PlayerIdentity.PlayerTwo);
 
-            //podanie rączki(tight bond)
-            ApplyMorale(playerOneCards, TroopPlacement.Melee);
-            ApplyMorale(playerOneCards, TroopPlacement.Range);
-            ApplyMorale(playerOneCards, TroopPlacement.Siege);
-            ApplyMorale(playerTwoCards, TroopPlacement.Melee);
-            ApplyMorale(playerTwoCards, TroopPlacement.Range);
-            ApplyMorale(playerTwoCards, TroopPlacement.Siege);//nie podoba mi sie wywolywanie 6 razy tego samego, pomyslec nad alternatywą
+            List<TroopPlacement> placements = [TroopPlacement.Melee, TroopPlacement.Range, TroopPlacement.Siege];
 
-            //plusik (morale)
-
-
-            //rog dowodcy(horn)
-            ApplyHorn(playerOneCards, TroopPlacement.Melee);
-            ApplyHorn(playerOneCards, TroopPlacement.Range);
-            ApplyHorn(playerOneCards, TroopPlacement.Siege);
-            ApplyHorn(playerTwoCards, TroopPlacement.Melee);
-            ApplyHorn(playerTwoCards, TroopPlacement.Range);
-            ApplyHorn(playerTwoCards, TroopPlacement.Siege);
+            foreach(var placement in placements)
+            {
+                //podanie rączki(tight bond)
+                ApplyBond(playerOneCards, placement);
+                ApplyBond(playerTwoCards, placement);
+                //plusik (morale)
+                ApplyMorale(playerOneCards, placement);
+                ApplyMorale(playerTwoCards, placement);
+                //rog dowodcy(horn)
+                ApplyHorn(playerOneCards, placement);
+                ApplyHorn(playerTwoCards, placement);
+            }
 
             await _gameRepository.UpdateGame(game);
             if (!game.CardsOnBoard.Any(x => x.CardId == 6)) return;
@@ -98,6 +94,20 @@ namespace GwentApi.Services
             //foreach (var x in game.CardsOnBoard)
             //    blad+=$"{x.Name} - {x.CurrentStrength}\n";
             //throw new Exception($"{blad}");
+        }
+
+        private void ApplyBond(IEnumerable<GwentBoardCard> cards, TroopPlacement placement)
+        {
+            var bondCards = cards.Where(x => x.Abilities.HasFlag(Abilities.Bond) && x.Placement == placement)
+                                 .GroupBy(x => x.Name)
+                                 .Where(g => g.Count() > 1);
+            foreach (var group in bondCards)
+            {
+                int multiplier = group.Count();
+                foreach (var card in group)
+                    if (!card.Abilities.HasFlag(Abilities.Hero))
+                        card.CurrentStrength *= multiplier;
+            }
         }
 
         private void ApplyMorale(IEnumerable<GwentBoardCard> cards, TroopPlacement placement)

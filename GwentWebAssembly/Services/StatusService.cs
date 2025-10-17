@@ -31,7 +31,9 @@ namespace GwentWebAssembly.Services
         public int EnemyPoints { get; set; } = 0;
         public int PlayerPoints { get; set; } = 0;
 
-        private GwentCard SelectedCard { get; set; } = new();
+        public GwentCard SelectedCard { get; set; } = new();
+
+        private GwentCard DummyCard { get; } = new();
 
         public event Func<Task>? OnStateChanged;
 
@@ -83,6 +85,8 @@ namespace GwentWebAssembly.Services
 
             if (OnStateChanged is not null)
                 await OnStateChanged.Invoke();
+
+            SelectedCard = DummyCard;
 
             if (PlayerHp == 0 || EnemyHp == 0)
             {

@@ -17,7 +17,7 @@ namespace GwentWebAssembly.Services
             _playerService = playerService;
         }
 
-        public async Task<ResponseData> VerifyAndSetDeck(PlayerInfo playerInfo)
+        public async Task<ResponseData> VerifyAndSetDeck(PlayerDeckInfo playerInfo)
         {
             string json = JsonSerializer.Serialize(playerInfo);
             var data = new StringContent(json, Encoding.UTF8, "application/json");

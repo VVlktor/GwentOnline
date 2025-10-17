@@ -20,6 +20,8 @@ namespace GwentWebAssembly.Services.Interfaces
         //Obiecuje ze to zrobie, ale chce juz zagrac w gwinta ze znajomymi, zalezy mi na czasie.
         PlayerIdentity Turn { get; set; }
 
+        GwentCard SelectedCard { get; set; }
+
         List<GwentBoardCard> CardsOnBoard { get; set; }
         List<GwentCard> CardsInHand { get; set; }
         List<GwentCard> PlayerUsedCards { get; set; }
