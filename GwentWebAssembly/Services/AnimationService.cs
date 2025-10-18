@@ -58,6 +58,12 @@ namespace GwentWebAssembly.Services
                 case GwentActionType.SpyCardPlayed:
                     await PlaySpyCardAnimation(gameStatusDto);
                     break;
+                case GwentActionType.ScorchCardPlayed:
+                    await PlayScorchCardAnimation(gameStatusDto);
+                    break;
+                case GwentActionType.ScorchBoardCardPlayed:
+                    await PlayScorchBoardCardAnimation(gameStatusDto);
+                    break;
                 case GwentActionType.Pass:
                     await PlayPassAnimation(gameStatusDto);
                     break;
@@ -65,6 +71,36 @@ namespace GwentWebAssembly.Services
                     await OverlayAnimation("Koniec rundy!");//moze cos wiecej, np. zmiatanie kart z planszy
                     break;
             }
+        }
+
+        private async Task PlayScorchBoardCardAnimation(GameStatusDto gameStatusDto)
+        {
+            GwentBoardCard boardCard = gameStatusDto.Action.CardsPlayed[0];
+            string startName = "deck-name-op", endName = $"enemyLane{boardCard.Placement.ToString()}";
+            if (gameStatusDto.Action.Issuer == _playerService.GetIdentity())
+            {
+                startName = $"card-in-hand-{boardCard.PrimaryId}";
+                endName = $"playerLane{boardCard.Placement.ToString()}";
+            }
+
+            await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", startName, endName, $"img/cards/{boardCard.FileName}");
+
+            List<string> killedCardsIds = gameStatusDto.Action.CardsKilled.Select(x => $"card-on-board-{x.PrimaryId}").ToList();
+            await _jsRuntime.InvokeVoidAsync("showScorchAnimation", killedCardsIds);
+        }
+
+        private async Task PlayScorchCardAnimation(GameStatusDto gameStatusDto)
+        {
+            GwentBoardCard boardCard = gameStatusDto.Action.CardsPlayed[0];
+            string startName = "deck-name-op", endName = "weather";
+
+            if (gameStatusDto.Action.Issuer == _playerService.GetIdentity())
+                startName = $"card-in-hand-{boardCard.PrimaryId}";
+
+            await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", startName, endName, $"img/cards/{boardCard.FileName}");
+
+            List<string> killedCardsIds = gameStatusDto.Action.CardsKilled.Select(x => $"card-on-board-{x.PrimaryId}").ToList();
+            await _jsRuntime.InvokeVoidAsync("showScorchAnimation", killedCardsIds);
         }
 
         private async Task PlayPassAnimation(GameStatusDto gameStatusDto)

@@ -194,7 +194,7 @@
     "PrimaryId": 20,
     "CardId": 11,
     "Faction": 1,
-    "Placement": 6,
+    "Placement": 5,
     "Strength": 0,
     "Abilities": 4096,
     "FileName": "special_scorch.jpg"
@@ -204,7 +204,7 @@
     "PrimaryId": 21,
     "CardId": 11,
     "Faction": 1,
-    "Placement": 6,
+    "Placement": 5,
     "Strength": 0,
     "Abilities": 4096,
     "FileName": "special_scorch.jpg"
@@ -214,7 +214,7 @@
     "PrimaryId": 22,
     "CardId": 11,
     "Faction": 1,
-    "Placement": 6,
+    "Placement": 5,
     "Strength": 0,
     "Abilities": 4096,
     "FileName": "special_scorch.jpg"

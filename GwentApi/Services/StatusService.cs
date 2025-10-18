@@ -41,19 +41,6 @@ namespace GwentApi.Services
         {
             Game game = await _gameRepository.GetGameByCode(code);
 
-            //tutaj jeszcze sprawdzic czy w pogodowych jesst scorch (efekt przypisany do karty bede sprawdzal w LaneClicked)
-            //trzeba przemyslec podejscie czy tu czy w LaneWeatherClicked. Jeszcze nie wiem
-            //if (game.CardsOnBoard.Any(x => x.CardId == 11))
-            //{
-            //    var nonHeroes = game.CardsOnBoard.Where(x => !x.Abilities.HasFlag(Abilities.Hero));
-            //    if (nonHeroes.Any())
-            //    {
-            //        int maxCurrentSstrength = nonHeroes.Max(x => x.CurrentStrength);
-            //        var strongestCards = nonHeroes.Where(x => x.CurrentStrength == maxCurrentSstrength);
-            //    }
-            //}
-
-
             //wyczyszczenie efektow z poprzedniej tury
             foreach (var card in game.CardsOnBoard)
                 card.CurrentStrength = card.Strength;

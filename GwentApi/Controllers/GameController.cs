@@ -23,7 +23,7 @@ namespace GwentApi.Controllers
         public async Task<IActionResult> GetAllGames()
         {
             List<Game> games = await _gameRepository.GetAllGames();
-            return Ok(games);
+            return Ok(games.Select(x=>x.Actions).ToList());
         }
 
         [HttpGet("GameState/{code}")]

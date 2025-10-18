@@ -66,13 +66,16 @@ namespace GwentApi.Services
                 card.Placement == TroopPlacement.Weather ||
                 card.Placement == TroopPlacement.Special) return null;
 
-            if (card.Placement != laneClickedDto.Placement) return null;
+            bool canBePlaced = card.Placement == laneClickedDto.Placement
+                                                || (card.Placement == TroopPlacement.Agile && (laneClickedDto.Placement == TroopPlacement.Melee
+                                                || laneClickedDto.Placement == TroopPlacement.Range));
+
+            if(!canBePlaced) return null;
 
             //koniec sprawdzania
 
             if (card.Placement == TroopPlacement.Agile)
                 card.Placement = laneClickedDto.Placement;
-            
             
             GwentBoardCard boardCard = new()
             {
@@ -92,7 +95,6 @@ namespace GwentApi.Services
             if (card.Abilities.HasFlag(Abilities.Medic))
             {
                 gwentActionType = GwentActionType.MedicCardPlayed;
-                //mediko
             }
             else if (card.Abilities.HasFlag(Abilities.Muster))
             {
@@ -104,12 +106,47 @@ namespace GwentApi.Services
                 card.Abilities.HasFlag(Abilities.ScorchSiege) ||
                 card.Abilities.HasFlag(Abilities.ScorchRange))
             {
-                gwentActionType = GwentActionType.ScorchCardPlayed;//moze bedzie trzeba rozdzielic scorch jako karte od kart z abilitką scorch, sie zobaczyc
-
+                gwentActionType = GwentActionType.ScorchBoardCardPlayed;
             }
-            else{
-                //normalne - przemyslec jak rozwiazac sprawe np. jaskra - niby animacja ale karta zagrywana jak kazda inna
-                //edit: w gwenthub napisalem co i jak
+
+            LaneClickedGwentActionResult actionResult = new()
+            {
+                ActionType = gwentActionType,
+                KilledCards = new(),
+                PlayedCards = new() { boardCard }
+            };
+
+            if(gwentActionType == GwentActionType.ScorchBoardCardPlayed)
+            {
+                //139 - toad - range
+                //214 schirru - siege
+                //15 - viller - melee
+                if (boardCard.CardId == 139 || boardCard.CardId == 214 || boardCard.CardId == 15)
+                {
+                    var rowCards = game.CardsOnBoard.Where(x => x.Placement == boardCard.Placement && x.Owner == laneClickedDto.Identity.GetEnemy());
+                    if (rowCards.Sum(x => x.CurrentStrength) >= 10 && rowCards.Any(x => !x.Abilities.HasFlag(Abilities.Hero)))
+                    {
+                        int maxCurrentSstrength = rowCards.Where(x=>!x.Abilities.HasFlag(Abilities.Hero)).Max(x => x.CurrentStrength);
+                        var strongestCards = rowCards.Where(x => x.CurrentStrength == maxCurrentSstrength).ToList();
+                        actionResult.KilledCards = strongestCards;
+                        foreach (var strongCard in strongestCards)
+                            game.CardsOnBoard.Remove(strongCard);
+                    }
+                    else {
+                        actionResult.ActionType = GwentActionType.NormalCardPlayed;
+                    }
+                }
+                else {
+                    var nonHeroes = game.CardsOnBoard.Where(x => !x.Abilities.HasFlag(Abilities.Hero));
+                    if (nonHeroes.Any())
+                    {
+                        int maxCurrentSstrength = nonHeroes.Max(x => x.CurrentStrength);
+                        var strongestCards = nonHeroes.Where(x => x.CurrentStrength == maxCurrentSstrength).ToList();
+                        actionResult.KilledCards = strongestCards;
+                        foreach (var strongCard in strongestCards)
+                            game.CardsOnBoard.Remove(strongCard);
+                    }
+                }
             }
 
             playerSide.CardsInHand.Remove(card);
@@ -117,12 +154,7 @@ namespace GwentApi.Services
 
             await _gameRepository.UpdateGame(game);
 
-            return new()
-            {
-                ActionType = gwentActionType,
-                KilledCards=new(),
-                PlayedCards = new() { boardCard }
-            };
+            return actionResult;
         }
 
         public async Task<CardClickedGwentActionResult> CardClicked(CardClickedDto cardClickedDto)
@@ -217,6 +249,35 @@ namespace GwentApi.Services
                 FileName = card.FileName
             };
 
+            if(card.CardId==11)//id karty Scorch
+            {
+                var nonHeroes = game.CardsOnBoard.Where(x => !x.Abilities.HasFlag(Abilities.Hero));
+
+                WeatherClickedGwentActionResult scorchActionResult = new()
+                {
+                    ActionType = GwentActionType.ScorchCardPlayed,
+                    RemovedCards = new(),
+                    PlayedCard = boardCard
+                };
+
+                if (nonHeroes.Any())
+                {
+                    int maxCurrentSstrength = nonHeroes.Max(x => x.CurrentStrength);
+                    var strongestCards = nonHeroes.Where(x => x.CurrentStrength == maxCurrentSstrength).ToList();
+                    
+                    scorchActionResult.RemovedCards = strongestCards;
+
+                    foreach (var strongCard in strongestCards)
+                        game.CardsOnBoard.Remove(strongCard);
+                }
+
+                playerSide.CardsInHand.Remove(card);
+
+                await _gameRepository.UpdateGame(game);
+
+                return scorchActionResult;
+            }
+
             if (card.CardId == 5)//id karty Clear Weather
             {
                 List<GwentBoardCard> weatherCards = game.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Weather).ToList();
@@ -232,7 +293,7 @@ namespace GwentApi.Services
 
                 WeatherClickedGwentActionResult clearWeatherActionResult = new()
                 {
-                    ActionType = GwentActionType.WeatherCardPlayer,
+                    ActionType = GwentActionType.WeatherCardPlayed,
                     RemovedCards = weatherCards,
                     PlayedCard = boardCard
                 };
@@ -247,7 +308,7 @@ namespace GwentApi.Services
 
             WeatherClickedGwentActionResult weatherActionResult = new()
             {
-                ActionType = GwentActionType.WeatherCardPlayer,
+                ActionType = GwentActionType.WeatherCardPlayed,
                 RemovedCards = new(),
                 PlayedCard = boardCard
             };

@@ -207,7 +207,7 @@
 						</div>
 					}
 				</div>
-				<div id="playerLaneMelee" class="row-cards card-container card-selectable @(statusService.SelectedCard.Placement == TroopPlacement.Melee && statusService.Turn == playerService.GetIdentity() && !statusService.SelectedCard.Abilities.HasFlag(Abilities.Spy) ? "row-selectable" : "")" @onclick="async () => await gameService.PlayerLaneClicked(TroopPlacement.Melee)">
+				<div id="playerLaneMelee" class="row-cards card-container card-selectable @((statusService.SelectedCard.Placement == TroopPlacement.Melee || statusService.SelectedCard.Placement == TroopPlacement.Agile) && statusService.Turn == playerService.GetIdentity() && !statusService.SelectedCard.Abilities.HasFlag(Abilities.Spy) ? "row-selectable" : "")" @onclick="async () => await gameService.PlayerLaneClicked(TroopPlacement.Melee)">
 					@foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.GetIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
 					{
 						<div id="@($"card-on-board-{card.PrimaryId}")" @onclick="async () => await gameService.CardClicked(card)" class="card" style="background-image: url('img/cards/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">
@@ -238,7 +238,7 @@
 						</div>
 					}
 				</div>
-				<div id="playerLaneRange" class="row-cards card-container card-selectable @(statusService.SelectedCard.Placement == TroopPlacement.Range && statusService.Turn == playerService.GetIdentity() && !statusService.SelectedCard.Abilities.HasFlag(Abilities.Spy) ? "row-selectable" : "")" @onclick="async () => await gameService.PlayerLaneClicked(TroopPlacement.Range)">
+				<div id="playerLaneRange" class="row-cards card-container card-selectable @((statusService.SelectedCard.Placement == TroopPlacement.Range || statusService.SelectedCard.Placement == TroopPlacement.Agile) && statusService.Turn == playerService.GetIdentity() && !statusService.SelectedCard.Abilities.HasFlag(Abilities.Spy) ? "row-selectable" : "")" @onclick="async () => await gameService.PlayerLaneClicked(TroopPlacement.Range)">
 					@foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.GetIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
 					{
 						<div id="@($"card-on-board-{card.PrimaryId}")" @onclick="async () => await gameService.CardClicked(card)" class="card" style="background-image: url('img/cards/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">

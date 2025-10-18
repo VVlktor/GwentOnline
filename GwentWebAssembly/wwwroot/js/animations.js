@@ -22,6 +22,28 @@
     });
 };
 
+async function showScorchAnimation(listOfIds) {
+    const elements = listOfIds.map(id => document.querySelector(`#${id} > div:nth-child(4)`));
+
+    elements.forEach(el => {
+        el.classList.remove("hide");
+        el.style.backgroundSize = "cover";
+        el.style.backgroundImage = "url('/img/icons/anim_scorch.png')";
+        el.style.opacity = 0;
+        el.style.transition = "opacity 0.5s";
+    });
+
+    await new Promise(r => setTimeout(r, 10));
+
+    elements.forEach(el => el.style.opacity = 1);
+    await new Promise(r => setTimeout(r, 750));
+
+    elements.forEach(el => el.style.opacity = 0);
+    await new Promise(r => setTimeout(r, 750));
+
+    return true;
+}
+
 async function showEndGameOverlay(message) {
     const overlay = document.createElement("div");
     overlay.className = "main-black-gwent-overlay";

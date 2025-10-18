@@ -89,6 +89,11 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if (!playerService.IsDataValid())
+        {
+            navigationManager.NavigateTo("/");
+            return;
+        }
         PlayerInfo playerInfo = await deckService.GetPlayerInfo();
         AllCards = playerInfo.Cards;
         TenCards = playerInfo.Cards[..10];

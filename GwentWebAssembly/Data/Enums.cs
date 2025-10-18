@@ -20,7 +20,8 @@
         LeaderCardPlayed = 9,
         ScorchCardPlayed = 10,
         Pass = 11,
-        EndRound = 12
+        EndRound = 12,
+        ScorchBoardCardPlayed = 13
     }
 
     public enum CardFaction
