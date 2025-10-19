@@ -161,6 +161,17 @@ namespace GwentWebAssembly.Services
             await _connection.SendAsync("LeaderClicked", leaderClickedDto);
         }
 
+        public async Task SendCarouselCardClicked(PlayerIdentity identity, string code, GwentCard card)
+        {
+            CarouselCardClickedDto carouselCardClickedDto = new()
+            {
+                Identity=identity,
+                Code=code,
+                Card=card
+            };
+            await _connection.SendAsync("CarouselCardClicked", carouselCardClickedDto);
+        }
+
         public async Task SendLobbyReady(string code)
         {
             await _connection.SendAsync("LobbyReady", code);

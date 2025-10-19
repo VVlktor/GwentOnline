@@ -148,7 +148,9 @@ namespace GwentApi.Services
 
             bool hasEnemyPassed = lastTurn == PlayerIdentity.PlayerOne ? game.HasPassed.PlayerTwo : game.HasPassed.PlayerOne;
 
-            if (!hasEnemyPassed)
+            bool isMedic = game.Actions.Last().ActionType == GwentActionType.MedicCardPlayed && game.GetPlayerSide(game.Actions.Last().Issuer).UsedCards.Any(x => !x.Abilities.HasFlag(Abilities.Hero) && x.Placement != TroopPlacement.Weather && x.Placement != TroopPlacement.Special);
+
+            if (!hasEnemyPassed && !isMedic)
                 game.Turn = lastTurn.GetEnemy();
 
             await _gameRepository.UpdateGame(game);

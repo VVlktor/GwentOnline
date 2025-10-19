@@ -14,5 +14,6 @@ namespace GwentWebAssembly.Services.Interfaces
         Task SendLeaderClicked(PlayerIdentity identity, string code);
         Task SendLobbyReady(string code);
         Task SendCardsSelected(string code);
+        Task SendCarouselCardClicked(PlayerIdentity identity, string code, GwentCard card);
     }
 }

@@ -130,7 +130,11 @@ namespace GwentApi.Services
                         var strongestCards = rowCards.Where(x => x.CurrentStrength == maxCurrentSstrength).ToList();
                         actionResult.KilledCards = strongestCards;
                         foreach (var strongCard in strongestCards)
+                        {
                             game.CardsOnBoard.Remove(strongCard);
+                            game.GetPlayerSide(strongCard.Owner).UsedCards.Add(strongCard);
+                        }
+                            
                     }
                     else {
                         actionResult.ActionType = GwentActionType.NormalCardPlayed;
@@ -144,7 +148,10 @@ namespace GwentApi.Services
                         var strongestCards = nonHeroes.Where(x => x.CurrentStrength == maxCurrentSstrength).ToList();
                         actionResult.KilledCards = strongestCards;
                         foreach (var strongCard in strongestCards)
+                        {
                             game.CardsOnBoard.Remove(strongCard);
+                            game.GetPlayerSide(strongCard.Owner).UsedCards.Add(strongCard);
+                        }
                     }
                 }
             }
@@ -268,7 +275,11 @@ namespace GwentApi.Services
                     scorchActionResult.RemovedCards = strongestCards;
 
                     foreach (var strongCard in strongestCards)
+                    {
                         game.CardsOnBoard.Remove(strongCard);
+                        game.GetPlayerSide(strongCard.Owner).UsedCards.Add(strongCard);
+                    }
+                        
                 }
 
                 playerSide.CardsInHand.Remove(card);
@@ -406,6 +417,118 @@ namespace GwentApi.Services
 
             //playerSide.LeaderCard podmienic LeaderCard na cos dziedziczącego po GwentCard
             throw new NotImplementedException();
+        }
+
+        public async Task<CarouselCardClickedGwentActionResult> CarouselCardClicked(CarouselCardClickedDto carouselCardClickedDto)
+        {
+            Game game = await _gameRepository.GetGameByCode(carouselCardClickedDto.Code);
+            
+            if (game.Turn != carouselCardClickedDto.Identity) return null;
+
+            GwentAction lastGwentAction = game.Actions.Last();
+
+            if (lastGwentAction.AbilitiyUsed.HasFlag(Abilities.Medic) || lastGwentAction.Issuer != carouselCardClickedDto.Identity) return null;
+
+            PlayerSide playerSide = game.GetPlayerSide(carouselCardClickedDto.Identity);
+
+            if (!playerSide.UsedCards.Any(x => x.PrimaryId == carouselCardClickedDto.Card.PrimaryId)) return null;//wsm mozna zrobic firstordefalut i jesli default to zwrocic null, do poprawki
+
+            if (carouselCardClickedDto.Card.CardId == 2) return null;
+
+            GwentCard card = playerSide.UsedCards.First(x => x.PrimaryId == carouselCardClickedDto.Card.PrimaryId);
+
+            GwentBoardCard boardCard = new()
+            {
+                Name = card.Name,
+                PrimaryId = card.PrimaryId,
+                CardId = card.CardId,
+                Faction = card.Faction,
+                Placement = card.Placement,
+                Strength = card.Strength,
+                Abilities = card.Abilities,
+                CurrentStrength = card.Strength,
+                Owner = carouselCardClickedDto.Identity,
+                FileName = card.FileName
+            };
+
+            if (card.Placement == TroopPlacement.Agile)
+                card.Placement = TroopPlacement.Melee;//na wszelki wypadek
+
+            GwentActionType gwentActionType = GwentActionType.NormalCardPlayed;
+
+            if (card.Abilities.HasFlag(Abilities.Spy))
+            {
+                boardCard.Owner = carouselCardClickedDto.Identity.GetEnemy();//TUTAJ WROCIC
+                gwentActionType = GwentActionType.SpyCardPlayed;
+            }
+            else if (card.Abilities.HasFlag(Abilities.Medic))
+            {
+                gwentActionType = GwentActionType.MedicCardPlayed;
+            }
+            else if (card.Abilities.HasFlag(Abilities.Muster))
+            {
+                gwentActionType = GwentActionType.MusterCardPlayed;
+
+            }
+            else if (card.Abilities.HasFlag(Abilities.Scorch) ||
+                card.Abilities.HasFlag(Abilities.ScorchMelee) ||
+                card.Abilities.HasFlag(Abilities.ScorchSiege) ||
+                card.Abilities.HasFlag(Abilities.ScorchRange))
+            {
+                gwentActionType = GwentActionType.ScorchBoardCardPlayed;
+            }
+
+            CarouselCardClickedGwentActionResult actionResult = new()
+            {
+                ActionType = gwentActionType,
+                KilledCards = new(),
+                PlayedCards = new() { boardCard }
+            };
+
+            if (gwentActionType == GwentActionType.ScorchBoardCardPlayed)
+            {
+                if (boardCard.CardId == 139 || boardCard.CardId == 214 || boardCard.CardId == 15)
+                {
+                    var rowCards = game.CardsOnBoard.Where(x => x.Placement == boardCard.Placement && x.Owner == carouselCardClickedDto.Identity.GetEnemy());
+                    if (rowCards.Sum(x => x.CurrentStrength) >= 10 && rowCards.Any(x => !x.Abilities.HasFlag(Abilities.Hero)))
+                    {
+                        int maxCurrentSstrength = rowCards.Where(x => !x.Abilities.HasFlag(Abilities.Hero)).Max(x => x.CurrentStrength);
+                        var strongestCards = rowCards.Where(x => x.CurrentStrength == maxCurrentSstrength).ToList();
+                        actionResult.KilledCards = strongestCards;
+                        foreach (var strongCard in strongestCards)
+                        {
+                            game.CardsOnBoard.Remove(strongCard);
+                            game.GetPlayerSide(strongCard.Owner).UsedCards.Add(strongCard);
+                        }
+                    }
+                    else
+                    {
+                        actionResult.ActionType = GwentActionType.NormalCardPlayed;
+                    }
+                }
+                else
+                {
+                    var nonHeroes = game.CardsOnBoard.Where(x => !x.Abilities.HasFlag(Abilities.Hero));
+                    if (nonHeroes.Any())
+                    {
+                        int maxCurrentSstrength = nonHeroes.Max(x => x.CurrentStrength);
+                        var strongestCards = nonHeroes.Where(x => x.CurrentStrength == maxCurrentSstrength).ToList();
+                        actionResult.KilledCards = strongestCards;
+                        foreach (var strongCard in strongestCards)
+                        {
+                            game.CardsOnBoard.Remove(strongCard);
+                            game.GetPlayerSide(strongCard.Owner).UsedCards.Add(strongCard);
+                        }
+                    }
+                }
+            }
+
+            playerSide.UsedCards.Remove(card);
+            game.CardsOnBoard.Add(boardCard);
+
+            await _gameRepository.UpdateGame(game);
+
+            return actionResult;
         }
     }
 }

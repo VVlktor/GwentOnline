@@ -44,6 +44,7 @@ namespace GwentWebAssembly.Services
             switch (gameStatusDto.Action.ActionType)
             {
                 case GwentActionType.NormalCardPlayed:
+                case GwentActionType.MedicCardPlayed:
                     await PlayNormalCardAnimation(gameStatusDto);
                     break;
                 case GwentActionType.CommandersHornCardPlayed:

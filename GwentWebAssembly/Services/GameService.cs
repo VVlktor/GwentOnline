@@ -1,7 +1,6 @@
 ﻿using GwentWebAssembly.Data;
 using GwentWebAssembly.Data.Dtos;
 using GwentWebAssembly.Services.Interfaces;
-using System.Net.Http;
 using System.Text.Json;
 
 namespace GwentWebAssembly.Services
@@ -88,6 +87,13 @@ namespace GwentWebAssembly.Services
         public async Task PassClicked()
         {
             await _gwentHubService.SendPassClicked(_playerService.GetIdentity(), _playerService.LobbyCode);
+        }
+
+        public async Task CarouselCardClicked(CarouselSlot slot)
+        {
+            if (slot.IsEmpty) return;
+            if (slot.Item is null) return;
+            await _gwentHubService.SendCarouselCardClicked(_playerService.GetIdentity(), _playerService.LobbyCode, slot.Item);
         }
     }
 }

@@ -25,6 +25,7 @@ namespace GwentWebAssembly
             builder.Services.AddSingleton<IStatusService, StatusService>();
             builder.Services.AddSingleton<PlayerService>();
             builder.Services.AddSingleton<IGwentHubService, GwentHubService>();
+            builder.Services.AddSingleton<ICarouselService, CarouselService>();
 
             await builder.Build().RunAsync();
         }

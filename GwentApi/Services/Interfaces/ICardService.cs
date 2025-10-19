@@ -12,5 +12,6 @@ namespace GwentApi.Services.Interfaces
         Task<EnemyLaneClickedGwentActionResult> EnemyLaneClicked(EnemyLaneClickedDto enemyLaneClickedDto);
         Task<PassClickedGwentActionResult> PassClicked(PassClickedDto passClickedDto);
         Task<LeaderClickedGwentActionResult> LeaderClicked(LeaderClickedDto leaderClickedDto);
+        Task<CarouselCardClickedGwentActionResult> CarouselCardClicked(CarouselCardClickedDto carouselCardClickedDto);
     }
 }

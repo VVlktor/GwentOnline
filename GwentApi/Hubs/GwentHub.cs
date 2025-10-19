@@ -150,6 +150,21 @@ namespace GwentApi.Hubs
             await SendStatus(passClickedDto.Identity, passClickedDto.Code, "ActionReceived");
         }
 
+        public async Task CarouselCardClicked(CarouselCardClickedDto carouselCardClickedDto)
+        {
+            CarouselCardClickedGwentActionResult actionResult = await _cardService.CarouselCardClicked(carouselCardClickedDto);
+
+            if (actionResult is null) return;
+
+            await _statusService.UpdateBoardState(carouselCardClickedDto.Code);
+
+            await _statusService.AddGwentAction(carouselCardClickedDto.Identity, carouselCardClickedDto.Code, actionResult.ActionType, actionResult.PlayedCards, actionResult.KilledCards);
+
+            TurnStatus turnStatus = await _statusService.UpdateTurn(carouselCardClickedDto.Code);
+
+            await SendStatus(carouselCardClickedDto.Identity, carouselCardClickedDto.Code, "ActionReceived");
+        }
+
         private async Task SendStatus(PlayerIdentity identity, string code, string methodName)
         {
             GameStatusDto playerGameStatus = await _gameService.GetStatus(code, identity);

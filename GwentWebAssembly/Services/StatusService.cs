@@ -10,6 +10,8 @@ namespace GwentWebAssembly.Services
     public class StatusService : IStatusService
     {
         private IAnimationService _animationService;
+        private PlayerService _playerService;
+        private ICarouselService _carouselService;
 
         public List<GwentBoardCard> CardsOnBoard { get; set; } = new();
         public List<GwentCard> CardsInHand { get; set; } = new();
@@ -37,9 +39,11 @@ namespace GwentWebAssembly.Services
 
         public event Func<Task>? OnStateChanged;
 
-        public StatusService(IAnimationService animationService)
+        public StatusService(IAnimationService animationService, PlayerService playerService, ICarouselService carouselService)
         {
+            _playerService = playerService;
             _animationService = animationService;
+            _carouselService = carouselService;
         }
 
         public GwentCard GetSelectedCard() => SelectedCard;
@@ -82,6 +86,15 @@ namespace GwentWebAssembly.Services
             EnemyDeckCount = gameStatusDto.EnemyDeckCount;
             PlayerHp = gameStatusDto.PlayerHp;
             EnemyHp = gameStatusDto.EnemyHp;
+
+            if (gameStatusDto.Action.ActionType == GwentActionType.MedicCardPlayed)
+            {
+                if(gameStatusDto.Action.Issuer == _playerService.GetIdentity())
+                    _carouselService.ShowCarousel(PlayerUsedCards);
+                if (OnStateChanged is not null)
+                    await OnStateChanged.Invoke();
+                return;
+            }
 
             if (OnStateChanged is not null)
                 await OnStateChanged.Invoke();

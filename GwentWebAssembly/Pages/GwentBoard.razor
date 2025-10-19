@@ -3,6 +3,8 @@
 @inject NavigationManager navigationManager
 @inject IGameService gameService
 @inject IStatusService statusService
+@inject ICarouselService carouselService
+
 <main>
 	<section id="click-background" class="noclick"></section>
 
@@ -319,12 +321,61 @@
 	</section>
 
 	<div id="card-overlay"></div>
+
+	<!-- karuzela -->
+
+	<section id="carousel" class="@(carouselService.IsCarouselShown ? "" : "hide")">
+		<div class="carousel-container">
+			@foreach (var slot in carouselService.CarouselSlots)
+			{
+				if (slot.IsEmpty)
+				{
+					<div class="card-lg empty">
+						<!-- puste miejsce, np. pozostaw styl pusty -->
+					</div>
+				}
+				else
+				{
+					if (slot.Offset == 0)
+					{
+						<div class="card-lg"
+							 @onclick="@(async() => await CenterCarouselCardClicked(slot))"
+							 @onclick:stopPropagation
+							 style="background-image: url('img/cards/@(slot.Item.FileName)');">
+						</div>
+					}
+					else
+					{
+						<div class="card-lg"
+							 @onclick="@(() => carouselService.OnCardClick(slot))"
+							 @onclick:stopPropagation
+							 style="background-image: url('img/cards/@(slot.Item.FileName)');">
+						</div>
+					}
+				}
+			}
+		</div>
+		<div  class="card-description">
+			<div style="background-image: url('img/icons/card_ability_spy.png');"></div>
+			<h1>spy</h1>
+			<p>Place on your opponents battlefield (counts towards your opponents total) and draw 2 cards from your deck. </p>
+		</div>
+		<div>Choose up to 2 cards to redraw.</div>
+	</section>
+
+
 </main>
 
 
 @code {
 	int enemyTotalScore => statusService.CardsOnBoard.Sum(x => x.Owner == playerService.EnemyIdentity() ? x.CurrentStrength : 0);
 	int playerTotalScore => statusService.CardsOnBoard.Sum(x => x.Owner == playerService.GetIdentity() ? x.CurrentStrength : 0);
+
+	private async Task CenterCarouselCardClicked(CarouselSlot slot)
+	{
+		carouselService.HideCarousel();
+		await gameService.CarouselCardClicked(slot);
+	}
 
     protected override async Task OnInitializedAsync()
     {
