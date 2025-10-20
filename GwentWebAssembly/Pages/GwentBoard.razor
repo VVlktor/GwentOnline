@@ -309,14 +309,21 @@
 	<!-- prawa strona-->
 
 	<section id="panel-right" class="panel">
-		<div id="grave-op" class="cardpile"></div>
-		<div id="deck-op" class="cardpile">
-			<div class="deck-card" style="background-image: url('img/icons/deck_back_monsters.jpg'); left: 0vw;"></div>
-
+		<div id="grave-op" class="cardpile">
+			<div class="card" style="background-image: url('img/icons/deck_back_@(statusService.EnemyLeaderCard.Faction.ToString()).jpg');"></div>
+			<div class="deck-counter center">@statusService.EnemyUsedCardsCount</div>
 		</div>
-		<div id="grave-me" class="cardpile"></div>
+		<div id="deck-op" class="cardpile">
+			<div class="deck-card" style="background-image: url('img/icons/deck_back_@(statusService.EnemyLeaderCard.Faction.ToString()).jpg');"></div>
+			<div class="deck-counter center">@statusService.EnemyDeckCount</div>
+		</div>
+		<div id="grave-me" class="cardpile">
+			<div class="card" style="background-image: url('img/icons/deck_back_@(statusService.PlayerLeaderCard.Faction.ToString()).jpg');"></div>
+			<div class="deck-counter center">@statusService.PlayerUsedCards.Count()</div>
+		</div>
 		<div id="deck-me" class="cardpile">
-			<div class="deck-card" style="background-image: url('img/icons/deck_back_realms.jpg'); left: 0vw;"></div>
+			<div class="deck-card" style="background-image: url('img/icons/deck_back_@(statusService.PlayerLeaderCard.Faction.ToString()).jpg');"></div>
+			<div class="deck-counter center">@statusService.PlayerDeckCount</div>
 		</div>
 	</section>
 
@@ -330,37 +337,25 @@
 			{
 				if (slot.IsEmpty)
 				{
-					<div class="card-lg empty">
-						<!-- puste miejsce, np. pozostaw styl pusty -->
-					</div>
+					<div class="card-lg empty"></div>
 				}
 				else
 				{
 					if (slot.Offset == 0)
 					{
-						<div class="card-lg"
-							 @onclick="@(async() => await CenterCarouselCardClicked(slot))"
-							 @onclick:stopPropagation
-							 style="background-image: url('img/cards/@(slot.Item.FileName)');">
-						</div>
+						<div class="card-lg" @onclick="@(async() => await CenterCarouselCardClicked(slot))" style="background-image: url('img/cards/@(slot.Item.FileName)');"></div>
 					}
 					else
 					{
-						<div class="card-lg"
-							 @onclick="@(() => carouselService.OnCardClick(slot))"
-							 @onclick:stopPropagation
-							 style="background-image: url('img/cards/@(slot.Item.FileName)');">
-						</div>
+						<div class="card-lg" @onclick="@(() => carouselService.OnCardClick(slot))" style="background-image: url('img/cards/@(slot.Item.FileName)');"></div>
 					}
 				}
 			}
 		</div>
 		<div  class="card-description">
-			<div style="background-image: url('img/icons/card_ability_spy.png');"></div>
-			<h1>spy</h1>
-			<p>Place on your opponents battlefield (counts towards your opponents total) and draw 2 cards from your deck. </p>
+			<p>Choose a card to revive </p>
 		</div>
-		<div>Choose up to 2 cards to redraw.</div>
+		<div>Choose a card to revive.</div>
 	</section>
 
 
@@ -386,10 +381,7 @@
         }
 
         await gameService.GetStartStatus();
-        //await gameService.JoinBoardAsync();
-
         statusService.OnStateChanged += RefreshState;
-
     }
 
     public async Task RefreshState()

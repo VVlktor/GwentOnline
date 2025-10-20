@@ -3,6 +3,7 @@ using GwentApi.Classes.Dtos;
 using GwentApi.Extensions;
 using GwentApi.Repository.Interfaces;
 using GwentApi.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace GwentApi.Services
 {
@@ -118,42 +119,17 @@ namespace GwentApi.Services
 
             if(gwentActionType == GwentActionType.ScorchBoardCardPlayed)
             {
-                //139 - toad - range
-                //214 schirru - siege
-                //15 - viller - melee
-                if (boardCard.CardId == 139 || boardCard.CardId == 214 || boardCard.CardId == 15)
-                {
-                    var rowCards = game.CardsOnBoard.Where(x => x.Placement == boardCard.Placement && x.Owner == laneClickedDto.Identity.GetEnemy());
-                    if (rowCards.Sum(x => x.CurrentStrength) >= 10 && rowCards.Any(x => !x.Abilities.HasFlag(Abilities.Hero)))
-                    {
-                        int maxCurrentSstrength = rowCards.Where(x=>!x.Abilities.HasFlag(Abilities.Hero)).Max(x => x.CurrentStrength);
-                        var strongestCards = rowCards.Where(x => x.CurrentStrength == maxCurrentSstrength).ToList();
-                        actionResult.KilledCards = strongestCards;
-                        foreach (var strongCard in strongestCards)
-                        {
-                            game.CardsOnBoard.Remove(strongCard);
-                            game.GetPlayerSide(strongCard.Owner).UsedCards.Add(strongCard);
-                        }
-                            
-                    }
-                    else {
-                        actionResult.ActionType = GwentActionType.NormalCardPlayed;
-                    }
-                }
-                else {
-                    var nonHeroes = game.CardsOnBoard.Where(x => !x.Abilities.HasFlag(Abilities.Hero));
-                    if (nonHeroes.Any())
-                    {
-                        int maxCurrentSstrength = nonHeroes.Max(x => x.CurrentStrength);
-                        var strongestCards = nonHeroes.Where(x => x.CurrentStrength == maxCurrentSstrength).ToList();
-                        actionResult.KilledCards = strongestCards;
-                        foreach (var strongCard in strongestCards)
-                        {
-                            game.CardsOnBoard.Remove(strongCard);
-                            game.GetPlayerSide(strongCard.Owner).UsedCards.Add(strongCard);
-                        }
-                    }
-                }
+                var result = ScorchBoardCardPlayed(game, boardCard, laneClickedDto.Identity);
+                actionResult.KilledCards = result.Item1;
+                actionResult.ActionType = result.Item2;
+            }
+            else if (gwentActionType == GwentActionType.MusterCardPlayed)
+            {
+                var musterCards = MusterCardPlayed(game, boardCard, laneClickedDto.Identity);
+                if(musterCards.Count() == 0)
+                    actionResult.ActionType = GwentActionType.NormalCardPlayed;
+                else
+                    actionResult.PlayedCards.AddRange(musterCards);
             }
 
             playerSide.CardsInHand.Remove(card);
@@ -460,6 +436,36 @@ namespace GwentApi.Services
             {
                 boardCard.Owner = carouselCardClickedDto.Identity.GetEnemy();//TUTAJ WROCIC
                 gwentActionType = GwentActionType.SpyCardPlayed;
+
+                playerSide.UsedCards.Remove(card);
+                game.CardsOnBoard.Add(boardCard);
+
+                List<GwentCard> drawnCards = new();
+                switch (playerSide.Deck.Count)
+                {
+                    case >= 2:
+                        drawnCards = [playerSide.Deck[0], playerSide.Deck[1]];
+                        playerSide.Deck.RemoveRange(0, 2);
+                        break;
+
+                    case 1:
+                        drawnCards = [playerSide.Deck[0]];
+                        playerSide.Deck.RemoveAt(0);
+                        break;
+                }
+
+                playerSide.CardsInHand.AddRange(drawnCards);
+
+                await _gameRepository.UpdateGame(game);
+
+                CarouselCardClickedGwentActionResult spyActionResult = new()
+                {
+                    ActionType = GwentActionType.SpyCardPlayed,
+                    PlayedCards = new(){ boardCard },
+                    KilledCards = new()
+                };
+
+                return spyActionResult;
             }
             else if (card.Abilities.HasFlag(Abilities.Medic))
             {
@@ -487,40 +493,9 @@ namespace GwentApi.Services
 
             if (gwentActionType == GwentActionType.ScorchBoardCardPlayed)
             {
-                if (boardCard.CardId == 139 || boardCard.CardId == 214 || boardCard.CardId == 15)
-                {
-                    var rowCards = game.CardsOnBoard.Where(x => x.Placement == boardCard.Placement && x.Owner == carouselCardClickedDto.Identity.GetEnemy());
-                    if (rowCards.Sum(x => x.CurrentStrength) >= 10 && rowCards.Any(x => !x.Abilities.HasFlag(Abilities.Hero)))
-                    {
-                        int maxCurrentSstrength = rowCards.Where(x => !x.Abilities.HasFlag(Abilities.Hero)).Max(x => x.CurrentStrength);
-                        var strongestCards = rowCards.Where(x => x.CurrentStrength == maxCurrentSstrength).ToList();
-                        actionResult.KilledCards = strongestCards;
-                        foreach (var strongCard in strongestCards)
-                        {
-                            game.CardsOnBoard.Remove(strongCard);
-                            game.GetPlayerSide(strongCard.Owner).UsedCards.Add(strongCard);
-                        }
-                    }
-                    else
-                    {
-                        actionResult.ActionType = GwentActionType.NormalCardPlayed;
-                    }
-                }
-                else
-                {
-                    var nonHeroes = game.CardsOnBoard.Where(x => !x.Abilities.HasFlag(Abilities.Hero));
-                    if (nonHeroes.Any())
-                    {
-                        int maxCurrentSstrength = nonHeroes.Max(x => x.CurrentStrength);
-                        var strongestCards = nonHeroes.Where(x => x.CurrentStrength == maxCurrentSstrength).ToList();
-                        actionResult.KilledCards = strongestCards;
-                        foreach (var strongCard in strongestCards)
-                        {
-                            game.CardsOnBoard.Remove(strongCard);
-                            game.GetPlayerSide(strongCard.Owner).UsedCards.Add(strongCard);
-                        }
-                    }
-                }
+                var result = ScorchBoardCardPlayed(game, boardCard, carouselCardClickedDto.Identity);
+                actionResult.KilledCards = result.Item1;
+                actionResult.ActionType = result.Item2;
             }
 
             playerSide.UsedCards.Remove(card);
@@ -529,6 +504,107 @@ namespace GwentApi.Services
             await _gameRepository.UpdateGame(game);
 
             return actionResult;
+        }
+
+        private (List<GwentBoardCard>, GwentActionType) ScorchBoardCardPlayed(Game game, GwentBoardCard boardCard, PlayerIdentity identity)
+        {
+            //139 - toad - range
+            //214 schirru - siege
+            //15 - viller - melee
+            List<GwentBoardCard> KilledCards = new();
+            GwentActionType actionType = GwentActionType.ScorchBoardCardPlayed;
+            if (boardCard.CardId == 139 || boardCard.CardId == 214 || boardCard.CardId == 15)
+            {
+                var rowCards = game.CardsOnBoard.Where(x => x.Placement == boardCard.Placement && x.Owner == identity.GetEnemy());
+                if (rowCards.Sum(x => x.CurrentStrength) >= 10 && rowCards.Any(x => !x.Abilities.HasFlag(Abilities.Hero)))
+                {
+                    int maxCurrentSstrength = rowCards.Where(x => !x.Abilities.HasFlag(Abilities.Hero)).Max(x => x.CurrentStrength);
+                    var strongestCards = rowCards.Where(x => x.CurrentStrength == maxCurrentSstrength).ToList();
+                    KilledCards = strongestCards;
+                    foreach (var strongCard in strongestCards)
+                    {
+                        game.CardsOnBoard.Remove(strongCard);
+                        game.GetPlayerSide(strongCard.Owner).UsedCards.Add(strongCard);
+                    }
+                }
+                else
+                {
+                    actionType = GwentActionType.NormalCardPlayed;
+                }
+            }
+            else
+            {
+                var nonHeroes = game.CardsOnBoard.Where(x => !x.Abilities.HasFlag(Abilities.Hero));
+                if (nonHeroes.Any())
+                {
+                    int maxCurrentSstrength = nonHeroes.Max(x => x.CurrentStrength);
+                    var strongestCards = nonHeroes.Where(x => x.CurrentStrength == maxCurrentSstrength).ToList();
+                    KilledCards = strongestCards;
+                    foreach (var strongCard in strongestCards)
+                    {
+                        game.CardsOnBoard.Remove(strongCard);
+                        game.GetPlayerSide(strongCard.Owner).UsedCards.Add(strongCard);
+                    }
+                }
+            }
+
+            return (KilledCards, actionType);
+        }
+
+        private List<GwentBoardCard> MusterCardPlayed(Game game, GwentBoardCard boardCard, PlayerIdentity identity)
+        {
+            List<GwentBoardCard> playedCards = new();
+            PlayerSide playerSide = game.GetPlayerSide(identity);
+
+            string musterName = boardCard.Name.Split(' ')[0];
+            int[] badCards = [19, 102];
+
+            //if(boardCard.CardId == 4 || boardCard.CardId == 9)
+            //{
+            //    if(playerSide.CardsInHand.Any(x=>x.CardId == 1000))
+            //}dodac plotke do jsona
+
+            foreach (var musterCard in playerSide.CardsInHand.Where(x => x.Name.Split(' ')[0] == musterName && x.PrimaryId != boardCard.PrimaryId && !badCards.Contains(x.CardId)).ToList())
+            {
+                playerSide.CardsInHand.Remove(musterCard);
+                GwentBoardCard boardMusterCard = new()
+                {
+                    Name = musterCard.Name,
+                    PrimaryId = musterCard.PrimaryId,
+                    CardId = musterCard.CardId,
+                    Faction = musterCard.Faction,
+                    Placement = musterCard.Placement,
+                    Strength = musterCard.Strength,
+                    Abilities = musterCard.Abilities,
+                    CurrentStrength = musterCard.Strength,
+                    Owner = identity,
+                    FileName = musterCard.FileName
+                };
+                game.CardsOnBoard.Add(boardMusterCard);
+                playedCards.Add(boardMusterCard);
+            }
+
+            foreach (var musterCard in playerSide.Deck.Where(x => x.Name.Split(' ')[0] == musterName && x.PrimaryId != boardCard.PrimaryId && !badCards.Contains(x.CardId)).ToList())
+            {
+                playerSide.Deck.Remove(musterCard);
+                GwentBoardCard boardMusterCard = new()
+                {
+                    Name = musterCard.Name,
+                    PrimaryId = musterCard.PrimaryId,
+                    CardId = musterCard.CardId,
+                    Faction = musterCard.Faction,
+                    Placement = musterCard.Placement,
+                    Strength = musterCard.Strength,
+                    Abilities = musterCard.Abilities,
+                    CurrentStrength = musterCard.Strength,
+                    Owner = identity,
+                    FileName = musterCard.FileName
+                };
+                game.CardsOnBoard.Add(boardMusterCard);
+                playedCards.Add(boardMusterCard);
+            }
+
+            return playedCards;
         }
     }
 }

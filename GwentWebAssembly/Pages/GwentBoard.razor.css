@@ -563,9 +563,9 @@ main {
     z-index: 1;
 }
 
-    .cardpile .card {
-        pointer-events: none;
-    }
+.cardpile .card {
+    pointer-events: none;
+}
 
 #grave-op {
     top: 6.5%;

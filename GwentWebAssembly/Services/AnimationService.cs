@@ -2,6 +2,7 @@
 using GwentWebAssembly.Data.Dtos;
 using GwentWebAssembly.Services.Interfaces;
 using Microsoft.JSInterop;
+using System.Security.Cryptography.X509Certificates;
 
 namespace GwentWebAssembly.Services
 {
@@ -62,6 +63,9 @@ namespace GwentWebAssembly.Services
                 case GwentActionType.ScorchCardPlayed:
                     await PlayScorchCardAnimation(gameStatusDto);
                     break;
+                case GwentActionType.MusterCardPlayed:
+                    await PlayMusterAnimation(gameStatusDto);
+                    break;
                 case GwentActionType.ScorchBoardCardPlayed:
                     await PlayScorchBoardCardAnimation(gameStatusDto);
                     break;
@@ -71,6 +75,26 @@ namespace GwentWebAssembly.Services
                 case GwentActionType.EndRound:
                     await OverlayAnimation("Koniec rundy!");//moze cos wiecej, np. zmiatanie kart z planszy
                     break;
+            }
+        }
+
+        private async Task PlayMusterAnimation(GameStatusDto gameStatusDto)
+        {
+            GwentBoardCard boardCard = gameStatusDto.Action.CardsPlayed[0];
+            string startName = "deck-name-op", endName = $"enemyLane{boardCard.Placement.ToString()}";
+            
+            if (gameStatusDto.Action.Issuer == _playerService.GetIdentity())
+            {
+                startName = $"card-in-hand-{boardCard.PrimaryId}";
+                endName = $"playerLane{boardCard.Placement.ToString()}";
+                await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", startName, endName, $"img/cards/{boardCard.FileName}");
+                return;
+            }
+
+            foreach (var card in gameStatusDto.Action.CardsPlayed)
+            {
+                endName = $"enemyLane{card.Placement.ToString()}";
+                await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", startName, endName, $"img/cards/{card.FileName}");
             }
         }
 

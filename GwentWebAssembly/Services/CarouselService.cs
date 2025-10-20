@@ -69,12 +69,7 @@ namespace GwentWebAssembly.Services
 
         public void OnCardClick(CarouselSlot slot)
         {
-            if (slot.Offset == 0)
-            {
-                // środkowa karta - wybór
-                IsCarouselShown = false;
-            }
-            else
+            if (slot.Offset != 0)
             {
                 NextCard(slot.Offset);
                 CarouselSlots = GetSlots();
