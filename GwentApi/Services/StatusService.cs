@@ -9,10 +9,12 @@ namespace GwentApi.Services
     public class StatusService : IStatusService
     {
         private IGameRepository _gameRepository;
+        private IGameDataService _gameDataService;
 
-        public StatusService(IGameRepository gameRepository)
+        public StatusService(IGameRepository gameRepository, IGameDataService gameDataService)
         {
             _gameRepository = gameRepository;
+            _gameDataService = gameDataService;
         }
 
         public async Task<GwentAction> AddGwentAction(PlayerIdentity identity, string code, GwentActionType actionType, List<GwentBoardCard> playedCards, List<GwentBoardCard> killedCards)
@@ -21,7 +23,7 @@ namespace GwentApi.Services
 
             GwentAction gwentAction = new()
             {
-                Id = game.GetNextActionId(),
+                Id = _gameDataService.GetNextActionId(game),
                 ActionType = actionType,
                 Issuer = identity,
                 CardsPlayed = playedCards,
@@ -148,7 +150,7 @@ namespace GwentApi.Services
 
             bool hasEnemyPassed = lastTurn == PlayerIdentity.PlayerOne ? game.HasPassed.PlayerTwo : game.HasPassed.PlayerOne;
 
-            bool isMedic = game.Actions.Last().ActionType == GwentActionType.MedicCardPlayed && game.GetPlayerSide(game.Actions.Last().Issuer).UsedCards.Any(x => !x.Abilities.HasFlag(Abilities.Hero) && x.Placement != TroopPlacement.Weather && x.Placement != TroopPlacement.Special);
+            bool isMedic = game.Actions.Last().ActionType == GwentActionType.MedicCardPlayed && _gameDataService.GetPlayerSide(game, game.Actions.Last().Issuer).UsedCards.Any(x => !x.Abilities.HasFlag(Abilities.Hero) && x.Placement != TroopPlacement.Weather && x.Placement != TroopPlacement.Special);
 
             if (!hasEnemyPassed && !isMedic)
                 game.Turn = lastTurn.GetEnemy();

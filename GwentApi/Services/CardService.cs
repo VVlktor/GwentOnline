@@ -10,10 +10,12 @@ namespace GwentApi.Services
     public class CardService : ICardService
     {
         private IGameRepository _gameRepository;
+        private IGameDataService _gameDataService;
 
-        public CardService(IGameRepository gameRepository)
+        public CardService(IGameRepository gameRepository, IGameDataService gameDataService)
         {
             _gameRepository = gameRepository;
+            _gameDataService = gameDataService;
         }
 
         public async Task<GwentBoardCard> HornClicked(HornClickedDto hornClickedDto)
@@ -22,7 +24,7 @@ namespace GwentApi.Services
 
             if (game.Turn != hornClickedDto.Identity) return null;
 
-            PlayerSide playerSide = game.GetPlayerSide(hornClickedDto.Identity);
+            PlayerSide playerSide = _gameDataService.GetPlayerSide(game, hornClickedDto.Identity);
 
             if (game.CardsOnBoard.Any(x => x.CardId == 6 && x.Placement == hornClickedDto.Placement)) return null;
             if (!playerSide.CardsInHand.Any(x => x.PrimaryId == hornClickedDto.Card.PrimaryId)) return null;
@@ -57,7 +59,7 @@ namespace GwentApi.Services
 
             if (game.Turn != laneClickedDto.Identity) return null;
 
-            PlayerSide playerSide = game.GetPlayerSide(laneClickedDto.Identity);
+            PlayerSide playerSide = _gameDataService.GetPlayerSide(game, laneClickedDto.Identity);
 
             if (!playerSide.CardsInHand.Any(x => x.PrimaryId == laneClickedDto.Card.PrimaryId)) return null;
 
@@ -146,7 +148,7 @@ namespace GwentApi.Services
 
             if (game.Turn != cardClickedDto.Identity) return null;
 
-            PlayerSide playerSide = game.GetPlayerSide(cardClickedDto.Identity);
+            PlayerSide playerSide = _gameDataService.GetPlayerSide(game, cardClickedDto.Identity);
 
             if (!playerSide.CardsInHand.Any(x => x.PrimaryId == cardClickedDto.SelectedCard.PrimaryId)) return null;
 
@@ -209,7 +211,7 @@ namespace GwentApi.Services
 
             if (game.Turn != weatherClickedDto.Identity) return null;
 
-            PlayerSide playerSide = game.GetPlayerSide(weatherClickedDto.Identity);
+            PlayerSide playerSide = _gameDataService.GetPlayerSide(game, weatherClickedDto.Identity);
 
             if (!playerSide.CardsInHand.Any(x => x.PrimaryId == weatherClickedDto.Card.PrimaryId)) return null;
 
@@ -253,7 +255,7 @@ namespace GwentApi.Services
                     foreach (var strongCard in strongestCards)
                     {
                         game.CardsOnBoard.Remove(strongCard);
-                        game.GetPlayerSide(strongCard.Owner).UsedCards.Add(strongCard);
+                        _gameDataService.GetPlayerSide(game, strongCard.Owner).UsedCards.Add(strongCard);
                     }
                         
                 }
@@ -309,7 +311,7 @@ namespace GwentApi.Services
 
             if (game.Turn != enemyLaneClickedDto.Identity) return null;
 
-            PlayerSide playerSide = game.GetPlayerSide(enemyLaneClickedDto.Identity);
+            PlayerSide playerSide = _gameDataService.GetPlayerSide(game, enemyLaneClickedDto.Identity);
 
             if(!playerSide.CardsInHand.Any(x => x.PrimaryId == enemyLaneClickedDto.Card.PrimaryId)) return null;
 
@@ -389,7 +391,7 @@ namespace GwentApi.Services
         {
             Game game = await _gameRepository.GetGameByCode(leaderClickedDto.Code);
 
-            PlayerSide playerSide = game.GetPlayerSide(leaderClickedDto.Identity);
+            PlayerSide playerSide = _gameDataService.GetPlayerSide(game, leaderClickedDto.Identity);
 
             //playerSide.LeaderCard podmienic LeaderCard na cos dziedziczącego po GwentCard
             throw new NotImplementedException();
@@ -405,7 +407,7 @@ namespace GwentApi.Services
 
             if (lastGwentAction.AbilitiyUsed.HasFlag(Abilities.Medic) || lastGwentAction.Issuer != carouselCardClickedDto.Identity) return null;
 
-            PlayerSide playerSide = game.GetPlayerSide(carouselCardClickedDto.Identity);
+            PlayerSide playerSide = _gameDataService.GetPlayerSide(game, carouselCardClickedDto.Identity);
 
             if (!playerSide.UsedCards.Any(x => x.PrimaryId == carouselCardClickedDto.Card.PrimaryId)) return null;//wsm mozna zrobic firstordefalut i jesli default to zwrocic null, do poprawki
 
@@ -524,7 +526,7 @@ namespace GwentApi.Services
                     foreach (var strongCard in strongestCards)
                     {
                         game.CardsOnBoard.Remove(strongCard);
-                        game.GetPlayerSide(strongCard.Owner).UsedCards.Add(strongCard);
+                        _gameDataService.GetPlayerSide(game, strongCard.Owner).UsedCards.Add(strongCard);
                     }
                 }
                 else
@@ -543,7 +545,7 @@ namespace GwentApi.Services
                     foreach (var strongCard in strongestCards)
                     {
                         game.CardsOnBoard.Remove(strongCard);
-                        game.GetPlayerSide(strongCard.Owner).UsedCards.Add(strongCard);
+                        _gameDataService.GetPlayerSide(game, strongCard.Owner).UsedCards.Add(strongCard);
                     }
                 }
             }
@@ -554,7 +556,7 @@ namespace GwentApi.Services
         private List<GwentBoardCard> MusterCardPlayed(Game game, GwentBoardCard boardCard, PlayerIdentity identity)
         {
             List<GwentBoardCard> playedCards = new();
-            PlayerSide playerSide = game.GetPlayerSide(identity);
+            PlayerSide playerSide = _gameDataService.GetPlayerSide(game, identity);
 
             string musterName = boardCard.Name.Split(' ')[0];
             int[] badCards = [19, 102];

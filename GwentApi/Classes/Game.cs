@@ -17,45 +17,8 @@
 
         public string Code { get; set; }
         public DateTime LastUpdate = DateTime.Now;
-        (bool playerOne, bool playerTwo) IsReady = (false, false);
+        public (bool playerOne, bool playerTwo) IsReady = (false, false);
 
         public (bool PlayerOne, bool PlayerTwo) HasPassed = (false, false);
-
-        public void SetReady(PlayerIdentity identity)
-        {
-            if (identity == PlayerIdentity.PlayerOne)
-                IsReady.playerOne = true;
-            else
-                IsReady.playerTwo = true;
-        }
-
-        public int GetNextActionId() => Actions.Count==0 ? 1 : Actions.Last().Id+1;
-
-        public bool PlayersReady() => IsReady.playerTwo && IsReady.playerOne;
-
-        public void SetPlayerSide(PlayerSide playerSide, PlayerIdentity identity)
-        {
-            if (identity == PlayerIdentity.PlayerOne)
-                PlayerOne = playerSide;
-            else
-                PlayerTwo = playerSide;
-        }
-
-        public PlayerSide GetPlayerSide(PlayerIdentity identity) => identity == PlayerIdentity.PlayerOne ? PlayerOne : PlayerTwo;
-        
-        public void AddAction(GwentActionType actionType, PlayerIdentity issuer, Abilities ability, List<GwentBoardCard> affectedCards, GwentBoardCard? playedCard = null)
-        {
-            int index = Actions.Count;
-            GwentAction action = new()
-            {
-                Id=index,
-                ActionType=actionType,
-                Issuer=issuer,
-                AbilitiyUsed=ability,
-                //CardsAffected=affectedCards,
-                //CardPlayed=playedCard,
-            };
-            Actions.Add(action);
-        }
     }
 }

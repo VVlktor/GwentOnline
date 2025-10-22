@@ -9,11 +9,13 @@ namespace GwentApi.Services
     {
         private IGameRepository _gameRepository;
         private ILobbyRepository _lobbyRepository;
+        private IGameDataService _gameDataService;
 
-        public GameService(IGameRepository gameRepository, ILobbyRepository lobbyRepository)
+        public GameService(IGameRepository gameRepository, ILobbyRepository lobbyRepository, IGameDataService gameDataService)
         {
             _gameRepository = gameRepository;
             _lobbyRepository = lobbyRepository;
+            _gameDataService = gameDataService;
         }
 
         public async Task<ReadyDto> ReadyForGame(string code, PlayerIdentity identity)
@@ -50,9 +52,9 @@ namespace GwentApi.Services
                 Hp=2
             };
 
-            game.SetPlayerSide(playerSide, identity);
-            game.SetReady(identity);
-
+            _gameDataService.SetPlayerSide(game, playerSide, identity);
+            _gameDataService.SetReady(game, identity);
+            
             if(gameExists)
                 await _gameRepository.UpdateGame(game);
             else
@@ -64,7 +66,7 @@ namespace GwentApi.Services
         public async Task<ReadyDto> PlayersReady(string code)
         {
             Game game = await _gameRepository.GetGameByCode(code);
-            return new() { Ready = game.PlayersReady() };
+            return new() { Ready = _gameDataService.PlayersReady(game) };
         }
 
         public async Task<GameStatusDto> GetStatus(string code, PlayerIdentity identity)

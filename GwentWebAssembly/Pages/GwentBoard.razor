@@ -4,6 +4,7 @@
 @inject IGameService gameService
 @inject IStatusService statusService
 @inject ICarouselService carouselService
+@inject IDataService dataService
 
 <main>
 	<section id="click-background" class="noclick"></section>
@@ -13,14 +14,14 @@
 
 		<div id="leader-op" class="leader-box">
 			<div class="leader-container center">
-				<div class="card" style="background-image: url('img/cards/@(statusService.EnemyLeaderCard.FileName)');"></div>
+				<div class="card" style="background-image: url('img/cards/@(dataService.EnemyLeaderCard.FileName)');"></div>
 			</div>
 			<div class="leader-active hide"><!-- dostosowac ability leadera-->
 				<div></div>
 			</div>
 		</div>
 
-		<section id="stats-op" class="stats @(statusService.Turn == playerService.GetIdentity() ? "" : "current-turn")">
+		<section id="stats-op" class="stats @(dataService.Turn == playerService.GetIdentity() ? "" : "current-turn")">
 			<div class="profile-img">
 				<div>
 					<div style="background-image: url('img/icons/deck_shield_monsters.png');"></div><!-- dostosowac img-->
@@ -28,14 +29,14 @@
 			</div>
 
 			<div id="name-op" class="name">Player 2</div>
-			<div id="deck-name-op" class="deck-name">@statusService.EnemyLeaderCard.Faction</div>
+			<div id="deck-name-op" class="deck-name">@dataService.EnemyLeaderCard.Faction</div>
 
 			<div id="hand-count-op" class="hand-count">
-				@statusService.EnemyCardsCount
+				@dataService.EnemyCardsCount
 			</div>
 
-			<div id="gem1-op" class="gem @(statusService.EnemyHp!=0 ? "gem-on" : "") bg-contain"></div>
-			<div id="gem2-op" class="gem @(statusService.EnemyHp > 1 ? "gem-on" : "") bg-contain"></div>
+			<div id="gem1-op" class="gem @(dataService.EnemyHp != 0 ? "gem-on" : "") bg-contain"></div>
+			<div id="gem2-op" class="gem @(dataService.EnemyHp > 1 ? "gem-on" : "") bg-contain"></div>
 
 			<div id="score-total-op" class="score-total @(enemyTotalScore > playerTotalScore ? "score-leader" : "")">
 				<div class="center">
@@ -47,27 +48,27 @@
 
 		</section>
 
-		<div id="weather" @onclick="async()=>await gameService.WeatherClicked()" class="card-container @(statusService.SelectedCard.Placement==TroopPlacement.Weather && statusService.Turn == playerService.GetIdentity() ? "row-selectable" : "")">
-			@foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Weather))
+		<div id="weather" @onclick="async () => await gameService.WeatherClicked()" class="card-container @(statusService.SelectedCard.Placement == TroopPlacement.Weather && dataService.Turn == playerService.GetIdentity() ? "row-selectable" : "")">
+			@foreach (var card in dataService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Weather))
             {
 				<div class="card noclick" style="background-image: url('img/cards/@($"{card.FileName}")'); margin-right: 0.075vw; margin-left: 0.075vw;"><div style="background-image: url('img/icons/power_@(card.Abilities.ToString().ToLower()).png');"></div><div></div><div></div><div></div></div>
 			}
 		</div>
 
-		<section id="stats-me" class="stats @(statusService.Turn == playerService.GetIdentity() ? "current-turn" : "")">
+		<section id="stats-me" class="stats @(dataService.Turn == playerService.GetIdentity() ? "current-turn" : "")">
 			<div class="profile-img">
 				<div><div style="background-image: url('img/icons/deck_shield_realms.png');"></div></div>
 			</div> 
 			<div id="passed-me">Passed</div>
 			<div id="hand-count-me" class="hand-count">
-				@statusService.CardsInHand.Count()
+				@dataService.CardsInHand.Count()
 			</div>
 
-			<div id="gem1-me" class="gem @(statusService.PlayerHp != 0 ? "gem-on" : "") bg-contain"></div>
-			<div id="gem2-me" class="gem @(statusService.PlayerHp > 1 ? "gem-on" : "") bg-contain"></div>
+			<div id="gem1-me" class="gem @(dataService.PlayerHp != 0 ? "gem-on" : "") bg-contain"></div>
+			<div id="gem2-me" class="gem @(dataService.PlayerHp > 1 ? "gem-on" : "") bg-contain"></div>
 
 			<div id="name-me" class="name">Player 1</div>
-			<div id="deck-name-me" class="deck-name">@statusService.PlayerLeaderCard.Faction</div>
+			<div id="deck-name-me" class="deck-name">@dataService.PlayerLeaderCard.Faction</div>
 
 			<div id="score-total-me" class="score-total @(enemyTotalScore < playerTotalScore ? "score-leader" : "")">
 				<div class="center">
@@ -79,7 +80,7 @@
 		</section>
 
 		<div id="leader-me" @onclick="async()=>await gameService.LeaderClicked()" class="leader-box">
-			<div class="leader-container center"><div class="card" style="background-image: url('img/cards/@(statusService.PlayerLeaderCard.FileName)');"></div></div>
+			<div class="leader-container center"><div class="card" style="background-image: url('img/cards/@(dataService.PlayerLeaderCard.FileName)');"></div></div>
 			<div class="leader-active">
 				<div></div>
 			</div>
@@ -97,11 +98,11 @@
 			<div class="field-row">
 
 				<div class="row-score center">
-					@statusService.CardsOnBoard.Sum(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.EnemyIdentity() ? x.CurrentStrength : 0)
+					@dataService.CardsOnBoard.Sum(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.EnemyIdentity() ? x.CurrentStrength : 0)
 				</div>
 
 				<div id="enemyHornLaneSiege" class="row-special card-container">
-					@if(statusService.CardsOnBoard.Any(x=>x.Owner==playerService.EnemyIdentity() && x.Placement == TroopPlacement.Siege && x.CardId == 6))
+					@if (dataService.CardsOnBoard.Any(x => x.Owner == playerService.EnemyIdentity() && x.Placement == TroopPlacement.Siege && x.CardId == 6))
                     {
 						<div class="card special noclick" style="background-image: url('img/cards/special_horn.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
 							<div style="background-image: url('img/icons/power_horn.png');">
@@ -112,8 +113,8 @@
 						</div>
 					}
 				</div>
-				<div id="enemyLaneSiege" class="row-cards card-container card-selectable @(statusService.SelectedCard.Placement == TroopPlacement.Siege && statusService.Turn == playerService.GetIdentity() && statusService.SelectedCard.Abilities.HasFlag(Abilities.Spy) ? "row-selectable" : "")" @onclick="async () => await gameService.EnemyLaneClicked(TroopPlacement.Siege)">
-					@foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.EnemyIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
+				<div id="enemyLaneSiege" class="row-cards card-container card-selectable @(statusService.SelectedCard.Placement == TroopPlacement.Siege && dataService.Turn == playerService.GetIdentity() && statusService.SelectedCard.Abilities.HasFlag(Abilities.Spy) ? "row-selectable" : "")" @onclick="async () => await gameService.EnemyLaneClicked(TroopPlacement.Siege)">
+					@foreach (var card in dataService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.EnemyIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
 					{
 						<div id="@($"card-on-board-{card.PrimaryId}")" class="card noclick" style="background-image: url('img/cards/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">
 							<div style="background-image: url('img/icons/@(card.Abilities.HasFlag(Abilities.Hero) ? "power_hero" : "power_normal").png');">
@@ -125,16 +126,16 @@
 						</div>
 					}
 				</div>
-				<div class="row-weather @(statusService.CardsOnBoard.Any(x => x.Abilities.HasFlag(Abilities.Rain)) ? "rain" : "")"></div>
+				<div class="row-weather @(dataService.CardsOnBoard.Any(x => x.Abilities.HasFlag(Abilities.Rain)) ? "rain" : "")"></div>
 			</div>
 
 
 			<div class="field-row">
 				<div class="row-score center">
-					@statusService.CardsOnBoard.Sum(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.EnemyIdentity() ? x.CurrentStrength : 0)
+					@dataService.CardsOnBoard.Sum(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.EnemyIdentity() ? x.CurrentStrength : 0)
 				</div>
 				<div id="enemyHornLaneRange" class="row-special card-container">
-					@if (statusService.CardsOnBoard.Any(x => x.Owner == playerService.EnemyIdentity() && x.Placement == TroopPlacement.Range && x.CardId == 6))
+					@if (dataService.CardsOnBoard.Any(x => x.Owner == playerService.EnemyIdentity() && x.Placement == TroopPlacement.Range && x.CardId == 6))
 					{
 						<div class="card special noclick" style="background-image: url('img/cards/special_horn.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
 							<div style="background-image: url('img/icons/power_horn.png');">
@@ -144,8 +145,8 @@
 						</div>
 					}
 				</div>
-				<div id="enemyLaneRange" class="row-cards card-container card-selectable @(statusService.SelectedCard.Placement == TroopPlacement.Range && statusService.Turn == playerService.GetIdentity() && statusService.SelectedCard.Abilities.HasFlag(Abilities.Spy) ? "row-selectable" : "")" @onclick="async () => await gameService.EnemyLaneClicked(TroopPlacement.Range)">
-					@foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.EnemyIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
+				<div id="enemyLaneRange" class="row-cards card-container card-selectable @(statusService.SelectedCard.Placement == TroopPlacement.Range && dataService.Turn == playerService.GetIdentity() && statusService.SelectedCard.Abilities.HasFlag(Abilities.Spy) ? "row-selectable" : "")" @onclick="async () => await gameService.EnemyLaneClicked(TroopPlacement.Range)">
+					@foreach (var card in dataService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.EnemyIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
 					{
 						<div id="@($"card-on-board-{card.PrimaryId}")" class="card noclick" style="background-image: url('img/cards/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">
 							<div style="background-image: url('img/icons/@(card.Abilities.HasFlag(Abilities.Hero) ? "power_hero" : "power_normal").png');">
@@ -157,14 +158,14 @@
 						</div>
 					}
 				</div>
-				<div class="row-weather @(statusService.CardsOnBoard.Any(x => x.Abilities.HasFlag(Abilities.Fog)) ? "fog" : "")"></div>
+				<div class="row-weather @(dataService.CardsOnBoard.Any(x => x.Abilities.HasFlag(Abilities.Fog)) ? "fog" : "")"></div>
 			</div>
 
 
 			<div class="field-row">
-				<div class="row-score center">@statusService.CardsOnBoard.Sum(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.EnemyIdentity() ? x.CurrentStrength : 0)</div>
+				<div class="row-score center">@dataService.CardsOnBoard.Sum(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.EnemyIdentity() ? x.CurrentStrength : 0)</div>
 				<div id="enemyHornLaneMelee" class="row-special card-container">
-					@if (statusService.CardsOnBoard.Any(x => x.Owner == playerService.EnemyIdentity() && x.Placement == TroopPlacement.Melee && x.CardId == 6))
+					@if (dataService.CardsOnBoard.Any(x => x.Owner == playerService.EnemyIdentity() && x.Placement == TroopPlacement.Melee && x.CardId == 6))
 					{
 						<div class="card special noclick" style="background-image: url('img/cards/special_horn.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
 							<div style="background-image: url('img/icons/power_horn.png');">
@@ -174,8 +175,8 @@
 						</div>
 					}
 				</div>
-				<div id="enemyLaneMelee" class="row-cards card-container card-selectable @(statusService.SelectedCard.Placement == TroopPlacement.Melee && statusService.Turn == playerService.GetIdentity() && statusService.SelectedCard.Abilities.HasFlag(Abilities.Spy) ? "row-selectable" : "")" @onclick="async () => await gameService.EnemyLaneClicked(TroopPlacement.Melee)">
-					@foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.EnemyIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
+				<div id="enemyLaneMelee" class="row-cards card-container card-selectable @(statusService.SelectedCard.Placement == TroopPlacement.Melee && dataService.Turn == playerService.GetIdentity() && statusService.SelectedCard.Abilities.HasFlag(Abilities.Spy) ? "row-selectable" : "")" @onclick="async () => await gameService.EnemyLaneClicked(TroopPlacement.Melee)">
+					@foreach (var card in dataService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.EnemyIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
 					{
 						<div id="@($"card-on-board-{card.PrimaryId}")" class="card noclick" style="background-image: url('img/cards/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">
 							<div style="background-image: url('img/icons/@(card.Abilities.HasFlag(Abilities.Hero) ? "power_hero" : "power_normal").png');">
@@ -187,7 +188,7 @@
 						</div>
 					}
 				</div>
-				<div class="row-weather @(statusService.CardsOnBoard.Any(x => x.Abilities.HasFlag(Abilities.Frost)) ? "frost" : "")"></div>
+				<div class="row-weather @(dataService.CardsOnBoard.Any(x => x.Abilities.HasFlag(Abilities.Frost)) ? "frost" : "")"></div>
 			</div>
 		</section>
 
@@ -196,10 +197,10 @@
 		<section id="field-me" class="field">
 			<div class="field-row">
 				<div class="row-score center">
-					@statusService.CardsOnBoard.Sum(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.GetIdentity() ? x.CurrentStrength : 0)
+					@dataService.CardsOnBoard.Sum(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.GetIdentity() ? x.CurrentStrength : 0)
 				</div>
-				<div id="playerHornLaneMelee" class="row-special card-container @(statusService.SelectedCard.CardId == 6 && statusService.Turn == playerService.GetIdentity() ? "row-selectable" : "")" @onclick="async () => await gameService.HornClicked(TroopPlacement.Melee)">
-					@if (statusService.CardsOnBoard.Any(x => x.Owner == playerService.GetIdentity() && x.Placement == TroopPlacement.Melee && x.CardId == 6))
+				<div id="playerHornLaneMelee" class="row-special card-container @(statusService.SelectedCard.CardId == 6 && dataService.Turn == playerService.GetIdentity() ? "row-selectable" : "")" @onclick="async () => await gameService.HornClicked(TroopPlacement.Melee)">
+					@if (dataService.CardsOnBoard.Any(x => x.Owner == playerService.GetIdentity() && x.Placement == TroopPlacement.Melee && x.CardId == 6))
 					{
 						<div class="card special " style="background-image: url('img/cards/special_horn.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
 							<div style="background-image: url('img/icons/power_horn.png');">
@@ -209,8 +210,8 @@
 						</div>
 					}
 				</div>
-				<div id="playerLaneMelee" class="row-cards card-container card-selectable @((statusService.SelectedCard.Placement == TroopPlacement.Melee || statusService.SelectedCard.Placement == TroopPlacement.Agile) && statusService.Turn == playerService.GetIdentity() && !statusService.SelectedCard.Abilities.HasFlag(Abilities.Spy) ? "row-selectable" : "")" @onclick="async () => await gameService.PlayerLaneClicked(TroopPlacement.Melee)">
-					@foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.GetIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
+				<div id="playerLaneMelee" class="row-cards card-container card-selectable @((statusService.SelectedCard.Placement == TroopPlacement.Melee || statusService.SelectedCard.Placement == TroopPlacement.Agile) && dataService.Turn == playerService.GetIdentity() && !statusService.SelectedCard.Abilities.HasFlag(Abilities.Spy) ? "row-selectable" : "")" @onclick="async () => await gameService.PlayerLaneClicked(TroopPlacement.Melee)">
+					@foreach (var card in dataService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.GetIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
 					{
 						<div id="@($"card-on-board-{card.PrimaryId}")" @onclick="async () => await gameService.CardClicked(card)" class="card" style="background-image: url('img/cards/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">
 							<div style="background-image: url('img/icons/@(card.Abilities.HasFlag(Abilities.Hero) ? "power_hero" : "power_normal").png');">
@@ -222,15 +223,15 @@
 						</div>
 					}
 				</div>
-				<div class="row-weather @(statusService.CardsOnBoard.Any(x => x.Abilities.HasFlag(Abilities.Frost)) ? "frost" : "")"></div>
+				<div class="row-weather @(dataService.CardsOnBoard.Any(x => x.Abilities.HasFlag(Abilities.Frost)) ? "frost" : "")"></div>
 			</div>
 
 			<div class="field-row">
 				<div class="row-score center">
-					@statusService.CardsOnBoard.Sum(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.GetIdentity() ? x.CurrentStrength : 0)
+					@dataService.CardsOnBoard.Sum(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.GetIdentity() ? x.CurrentStrength : 0)
 				</div>
-				<div id="playerHornLaneRange" class="row-special card-container @(statusService.SelectedCard.CardId == 6 && statusService.Turn == playerService.GetIdentity() ? "row-selectable" : "")" @onclick="async () => await gameService.HornClicked(TroopPlacement.Range)">
-					@if (statusService.CardsOnBoard.Any(x => x.Owner == playerService.GetIdentity() && x.Placement == TroopPlacement.Range && x.CardId == 6))
+				<div id="playerHornLaneRange" class="row-special card-container @(statusService.SelectedCard.CardId == 6 && dataService.Turn == playerService.GetIdentity() ? "row-selectable" : "")" @onclick="async () => await gameService.HornClicked(TroopPlacement.Range)">
+					@if (dataService.CardsOnBoard.Any(x => x.Owner == playerService.GetIdentity() && x.Placement == TroopPlacement.Range && x.CardId == 6))
 					{
 						<div class="card special noclick" style="background-image: url('img/cards/special_horn.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
 							<div style="background-image: url('img/icons/power_horn.png');">
@@ -240,8 +241,8 @@
 						</div>
 					}
 				</div>
-				<div id="playerLaneRange" class="row-cards card-container card-selectable @((statusService.SelectedCard.Placement == TroopPlacement.Range || statusService.SelectedCard.Placement == TroopPlacement.Agile) && statusService.Turn == playerService.GetIdentity() && !statusService.SelectedCard.Abilities.HasFlag(Abilities.Spy) ? "row-selectable" : "")" @onclick="async () => await gameService.PlayerLaneClicked(TroopPlacement.Range)">
-					@foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.GetIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
+				<div id="playerLaneRange" class="row-cards card-container card-selectable @((statusService.SelectedCard.Placement == TroopPlacement.Range || statusService.SelectedCard.Placement == TroopPlacement.Agile) && dataService.Turn == playerService.GetIdentity() && !statusService.SelectedCard.Abilities.HasFlag(Abilities.Spy) ? "row-selectable" : "")" @onclick="async () => await gameService.PlayerLaneClicked(TroopPlacement.Range)">
+					@foreach (var card in dataService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.GetIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
 					{
 						<div id="@($"card-on-board-{card.PrimaryId}")" @onclick="async () => await gameService.CardClicked(card)" class="card" style="background-image: url('img/cards/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">
 							<div style="background-image: url('img/icons/@(card.Abilities.HasFlag(Abilities.Hero) ? "power_hero" : "power_normal").png');">
@@ -253,14 +254,14 @@
 						</div>
 					}
 				</div>
-				<div class="row-weather @(statusService.CardsOnBoard.Any(x => x.Abilities.HasFlag(Abilities.Fog)) ? "fog" : "")"></div>
+				<div class="row-weather @(dataService.CardsOnBoard.Any(x => x.Abilities.HasFlag(Abilities.Fog)) ? "fog" : "")"></div>
 			</div>
 			<div class="field-row">
 				<div class="row-score center">
-					@statusService.CardsOnBoard.Sum(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.GetIdentity() ? x.CurrentStrength : 0)
+					@dataService.CardsOnBoard.Sum(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.GetIdentity() ? x.CurrentStrength : 0)
 				</div>
-				<div id="playerHornLaneSiege" class="row-special card-container @(statusService.SelectedCard.CardId==6 && statusService.Turn == playerService.GetIdentity() ? "row-selectable" : "")" @onclick="async () => await gameService.HornClicked(TroopPlacement.Siege)">
-					@if (statusService.CardsOnBoard.Any(x => x.Owner == playerService.GetIdentity() && x.Placement == TroopPlacement.Siege && x.CardId == 6))
+				<div id="playerHornLaneSiege" class="row-special card-container @(statusService.SelectedCard.CardId == 6 && dataService.Turn == playerService.GetIdentity() ? "row-selectable" : "")" @onclick="async () => await gameService.HornClicked(TroopPlacement.Siege)">
+					@if (dataService.CardsOnBoard.Any(x => x.Owner == playerService.GetIdentity() && x.Placement == TroopPlacement.Siege && x.CardId == 6))
 					{
 						<div class="card special noclick" style="background-image: url('img/cards/special_horn.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
 							<div style="background-image: url('img/icons/power_horn.png');">
@@ -270,8 +271,8 @@
 						</div>
 					}
 				</div>
-				<div id="playerLaneSiege" class="row-cards card-container card-selectable @(statusService.SelectedCard.Placement==TroopPlacement.Siege && statusService.Turn==playerService.GetIdentity() && !statusService.SelectedCard.Abilities.HasFlag(Abilities.Spy) ? "row-selectable" : "")" @onclick="async () => await gameService.PlayerLaneClicked(TroopPlacement.Siege)">
-					@foreach (var card in statusService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.GetIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
+				<div id="playerLaneSiege" class="row-cards card-container card-selectable @(statusService.SelectedCard.Placement == TroopPlacement.Siege && dataService.Turn == playerService.GetIdentity() && !statusService.SelectedCard.Abilities.HasFlag(Abilities.Spy) ? "row-selectable" : "")" @onclick="async () => await gameService.PlayerLaneClicked(TroopPlacement.Siege)">
+					@foreach (var card in dataService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.GetIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
 					{
 						<div id="@($"card-on-board-{card.PrimaryId}")" @onclick="async () => await gameService.CardClicked(card)" class="card" style="background-image: url('img/cards/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">
 							<div style="background-image: url('img/icons/@(card.Abilities.HasFlag(Abilities.Hero) ? "power_hero" : "power_normal").png');">
@@ -283,13 +284,13 @@
 						</div>
 					}
 				</div>
-				<div class="row-weather @(statusService.CardsOnBoard.Any(x=>x.Abilities.HasFlag(Abilities.Rain)) ? "rain" : "")"></div>
+				<div class="row-weather @(dataService.CardsOnBoard.Any(x => x.Abilities.HasFlag(Abilities.Rain)) ? "rain" : "")"></div>
 			</div>
 		</section>
 
 		<section id="field-hand">
 			<div id="hand-row" class="card-container card-selectable">
-				@foreach (var card in statusService.CardsInHand.OrderBy(x => x.Strength))
+				@foreach (var card in dataService.CardsInHand.OrderBy(x => x.Strength))
 				{
 					<div class="card" id="@($"card-in-hand-{card.PrimaryId}")" @onclick="() => statusService.CardSelected(card)" style="background-image: url('img/cards/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">
 						<div style="background-image: url('img/icons/@(card.Abilities.HasFlag(Abilities.Hero) ? "power_hero" : "power_normal").png');" class="@(card.Placement == TroopPlacement.Weather ? "hidden-invisible" : "")">
@@ -310,20 +311,20 @@
 
 	<section id="panel-right" class="panel">
 		<div id="grave-op" class="cardpile">
-			<div class="card" style="background-image: url('img/icons/deck_back_@(statusService.EnemyLeaderCard.Faction.ToString()).jpg');"></div>
-			<div class="deck-counter center">@statusService.EnemyUsedCardsCount</div>
+			<div class="card" style="background-image: url('img/icons/deck_back_@(dataService.EnemyLeaderCard.Faction.ToString()).jpg');"></div>
+			<div class="deck-counter center">@dataService.EnemyUsedCardsCount</div>
 		</div>
 		<div id="deck-op" class="cardpile">
-			<div class="deck-card" style="background-image: url('img/icons/deck_back_@(statusService.EnemyLeaderCard.Faction.ToString()).jpg');"></div>
-			<div class="deck-counter center">@statusService.EnemyDeckCount</div>
+			<div class="deck-card" style="background-image: url('img/icons/deck_back_@(dataService.EnemyLeaderCard.Faction.ToString()).jpg');"></div>
+			<div class="deck-counter center">@dataService.EnemyDeckCount</div>
 		</div>
 		<div id="grave-me" class="cardpile">
-			<div class="card" style="background-image: url('img/icons/deck_back_@(statusService.PlayerLeaderCard.Faction.ToString()).jpg');"></div>
-			<div class="deck-counter center">@statusService.PlayerUsedCards.Count()</div>
+			<div class="card" style="background-image: url('img/icons/deck_back_@(dataService.PlayerLeaderCard.Faction.ToString()).jpg');"></div>
+			<div class="deck-counter center">@dataService.PlayerUsedCards.Count()</div>
 		</div>
 		<div id="deck-me" class="cardpile">
-			<div class="deck-card" style="background-image: url('img/icons/deck_back_@(statusService.PlayerLeaderCard.Faction.ToString()).jpg');"></div>
-			<div class="deck-counter center">@statusService.PlayerDeckCount</div>
+			<div class="deck-card" style="background-image: url('img/icons/deck_back_@(dataService.PlayerLeaderCard.Faction.ToString()).jpg');"></div>
+			<div class="deck-counter center">@dataService.PlayerDeckCount</div>
 		</div>
 	</section>
 
@@ -363,8 +364,8 @@
 
 
 @code {
-	int enemyTotalScore => statusService.CardsOnBoard.Sum(x => x.Owner == playerService.EnemyIdentity() ? x.CurrentStrength : 0);
-	int playerTotalScore => statusService.CardsOnBoard.Sum(x => x.Owner == playerService.GetIdentity() ? x.CurrentStrength : 0);
+	int enemyTotalScore => dataService.CardsOnBoard.Sum(x => x.Owner == playerService.EnemyIdentity() ? x.CurrentStrength : 0);
+	int playerTotalScore => dataService.CardsOnBoard.Sum(x => x.Owner == playerService.GetIdentity() ? x.CurrentStrength : 0);
 
 	private async Task CenterCarouselCardClicked(CarouselSlot slot)
 	{
