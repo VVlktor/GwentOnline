@@ -42,9 +42,23 @@ namespace GwentApi.Services
 
             await _lobbyRepository.UpdateLobby(lobby);
 
+            GwentLeaderCard leaderCard = new()
+            {
+                PrimaryId = playerInfo.LeaderCard.PrimaryId,
+                CardId = playerInfo.LeaderCard.CardId,
+                Abilities = playerInfo.LeaderCard.Abilities,
+                Faction = playerInfo.LeaderCard.Faction,
+                FileName = playerInfo.LeaderCard.FileName,
+                LeaderActive = false,
+                LeaderAvailable = true,
+                Strength = playerInfo.LeaderCard.Strength,
+                Name = playerInfo.LeaderCard.Name,
+                Placement = playerInfo.LeaderCard.Placement,
+            };
+
             PlayerSide playerSide = new()
             {
-                LeaderCard = playerInfo.LeaderCard,
+                LeaderCard = leaderCard,
                 CardsInHand = playerInfo.Cards[..10],
                 Deck = playerInfo.Cards[10..],
                 Faction = playerInfo.Faction,

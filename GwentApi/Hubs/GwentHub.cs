@@ -77,7 +77,17 @@ namespace GwentApi.Hubs
 
         public async Task LeaderClicked(LeaderClickedDto leaderClickedDto)
         {
-            await _cardService.LeaderClicked(leaderClickedDto);
+            LeaderClickedGwentActionResult actionResult = await _cardService.LeaderClicked(leaderClickedDto);
+
+            if (actionResult is null) return;
+
+            await _statusService.UpdateBoardState(leaderClickedDto.Code);
+
+            await _statusService.AddGwentAction(leaderClickedDto.Identity, leaderClickedDto.Code, actionResult.ActionType, [actionResult.PlayedCard], actionResult.RemovedCards);
+
+            TurnStatus turnStatus = await _statusService.UpdateTurn(leaderClickedDto.Code);
+
+            await SendStatus(leaderClickedDto.Identity, leaderClickedDto.Code, "ActionReceived");
         }
 
         public async Task CardClicked(CardClickedDto cardClickedDto)//tylko decoy

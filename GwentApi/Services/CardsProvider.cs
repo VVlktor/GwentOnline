@@ -12,6 +12,41 @@ namespace GwentApi.Services
 
         public List<GwentCard> Cards { get; set; }
 
+        public GwentBoardCard CreateGwentBoardCard(GwentCard gwentCard, PlayerIdentity identity)
+        {
+            return new()
+            {
+                PrimaryId = gwentCard.PrimaryId,
+                CardId = gwentCard.CardId,
+                Abilities = gwentCard.Abilities,
+                Strength = gwentCard.Strength,
+                Faction = gwentCard.Faction,
+                FileName = gwentCard.FileName,
+                Name = gwentCard.Name,
+                Owner = identity,
+                Placement = gwentCard.Placement
+            };
+        }
+
+        public GwentCard GetCardByCardId(int id)
+        {
+            GwentCard card = Cards.First(x=>x.CardId == id);
+
+            GwentCard newCard = new GwentCard()
+            {
+                Abilities = card.Abilities,
+                CardId = card.CardId,
+                Faction = card.Faction,
+                Name = card.Name,
+                Placement = card.Placement,
+                PrimaryId = card.PrimaryId,
+                Strength = card.Strength,
+                FileName = card.FileName
+            };
+
+            return newCard;
+        }
+
         public GwentCard GetCardByPrimaryId(int id) {
             GwentCard card = Cards.First(x => x.PrimaryId == id);
 

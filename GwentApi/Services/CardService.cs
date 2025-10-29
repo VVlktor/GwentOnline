@@ -11,9 +11,11 @@ namespace GwentApi.Services
     {
         private IGameRepository _gameRepository;
         private IGameDataService _gameDataService;
+        private CardsProvider _cardsProvider;
 
-        public CardService(IGameRepository gameRepository, IGameDataService gameDataService)
+        public CardService(IGameRepository gameRepository, IGameDataService gameDataService, CardsProvider cardsProvider)
         {
+            _cardsProvider = cardsProvider;
             _gameRepository = gameRepository;
             _gameDataService = gameDataService;
         }
@@ -392,9 +394,62 @@ namespace GwentApi.Services
             Game game = await _gameRepository.GetGameByCode(leaderClickedDto.Code);
 
             PlayerSide playerSide = _gameDataService.GetPlayerSide(game, leaderClickedDto.Identity);
+            PlayerSide enemySide = _gameDataService.GetEnemySide(game, leaderClickedDto.Identity);
 
-            //playerSide.LeaderCard podmienic LeaderCard na cos dziedziczącego po GwentCard
-            throw new NotImplementedException();
+            if (game.Turn != leaderClickedDto.Identity) return null;
+
+            if (!playerSide.LeaderCard.LeaderAvailable) return null;
+
+            if(playerSide.LeaderCard.CardId == 59 || enemySide.LeaderCard.CardId == 59) return null;//Emhry White Flame - dowodcy nie dzialaja
+
+            int identityOffset = leaderClickedDto.Identity == PlayerIdentity.PlayerOne ? 1 : 2;
+
+            if (playerSide.LeaderCard.CardId == 24)
+            {
+                GwentCard clearCard = _cardsProvider.GetCardByCardId(12);
+                clearCard.PrimaryId = 200 + 10 + identityOffset;
+
+                GwentBoardCard clearBoardCard = _cardsProvider.CreateGwentBoardCard(clearCard, leaderClickedDto.Identity);
+
+                List<GwentBoardCard> weatherCards = game.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Weather).ToList();
+
+                foreach (var weatherCard in weatherCards)
+                    game.CardsOnBoard.Remove(weatherCard);
+               
+                playerSide.LeaderCard.LeaderAvailable = false;
+
+                await _gameRepository.UpdateGame(game);
+
+                return new()
+                {
+                    RemovedCards = weatherCards,
+                    ActionType=GwentActionType.WeatherCardPlayed,
+                    PlayedCard=clearBoardCard
+                };
+            }
+
+            if(playerSide.LeaderCard.CardId == 23 || playerSide.LeaderCard.CardId == 57)
+            {
+                GwentCard weatherCard = _cardsProvider.GetCardByCardId(playerSide.LeaderCard.CardId == 23 ? 10 : 12);
+                weatherCard.PrimaryId = 200 + 20 + identityOffset;
+
+                GwentBoardCard weatherBoardCard = _cardsProvider.CreateGwentBoardCard(weatherCard, leaderClickedDto.Identity);
+
+                game.CardsOnBoard.Add(weatherBoardCard);
+
+                playerSide.LeaderCard.LeaderAvailable = false;
+
+                await _gameRepository.UpdateGame(game);
+
+                return new()
+                {
+                    ActionType =GwentActionType.WeatherCardPlayed,
+                    PlayedCard=weatherBoardCard,
+                    RemovedCards = []
+                };
+            }
+
+            throw new NotImplementedException($"{playerSide.LeaderCard.CardId}");
         }
 
         public async Task<CarouselCardClickedGwentActionResult> CarouselCardClicked(CarouselCardClickedDto carouselCardClickedDto)

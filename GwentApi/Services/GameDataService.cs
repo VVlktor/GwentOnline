@@ -18,6 +18,8 @@ namespace GwentApi.Services
             game.Actions.Add(action);
         }
 
+        public PlayerSide GetEnemySide(Game game, PlayerIdentity identity) => identity == PlayerIdentity.PlayerOne ? game.PlayerTwo : game.PlayerOne;
+
         public int GetNextActionId(Game game) => game.Actions.Count == 0 ? 1 : game.Actions.Last().Id + 1;
         
         public PlayerSide GetPlayerSide(Game game, PlayerIdentity identity) => identity == PlayerIdentity.PlayerOne ? game.PlayerOne : game.PlayerTwo;
