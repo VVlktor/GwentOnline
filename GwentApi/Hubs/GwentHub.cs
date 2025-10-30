@@ -83,7 +83,7 @@ namespace GwentApi.Hubs
 
             await _statusService.UpdateBoardState(leaderClickedDto.Code);
 
-            await _statusService.AddGwentAction(leaderClickedDto.Identity, leaderClickedDto.Code, actionResult.ActionType, [actionResult.PlayedCard], actionResult.RemovedCards);
+            await _statusService.AddGwentAction(leaderClickedDto.Identity, leaderClickedDto.Code, actionResult.ActionType, [actionResult.PlayedCard], actionResult.RemovedCards, true);
 
             TurnStatus turnStatus = await _statusService.UpdateTurn(leaderClickedDto.Code);
 

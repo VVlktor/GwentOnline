@@ -4,6 +4,7 @@ using GwentApi.Extensions;
 using GwentApi.Repository.Interfaces;
 using GwentApi.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Principal;
 
 namespace GwentApi.Services
 {
@@ -428,9 +429,9 @@ namespace GwentApi.Services
                 };
             }
 
-            if(playerSide.LeaderCard.CardId == 23 || playerSide.LeaderCard.CardId == 57)
+            if(playerSide.LeaderCard.CardId == 23 || playerSide.LeaderCard.CardId == 57 || playerSide.LeaderCard.CardId == 143)
             {
-                GwentCard weatherCard = _cardsProvider.GetCardByCardId(playerSide.LeaderCard.CardId == 23 ? 10 : 12);
+                GwentCard weatherCard = _cardsProvider.GetCardByCardId(playerSide.LeaderCard.CardId == 23 ? 10 : playerSide.LeaderCard.CardId == 57 ? 12 : 3);
                 weatherCard.PrimaryId = 200 + 20 + identityOffset;
 
                 GwentBoardCard weatherBoardCard = _cardsProvider.CreateGwentBoardCard(weatherCard, leaderClickedDto.Identity);
@@ -446,6 +447,54 @@ namespace GwentApi.Services
                     ActionType =GwentActionType.WeatherCardPlayed,
                     PlayedCard=weatherBoardCard,
                     RemovedCards = []
+                };
+            }
+
+            if(playerSide.LeaderCard.CardId == 25 || playerSide.LeaderCard.CardId == 141)
+            {
+                TroopPlacement placement = playerSide.LeaderCard.CardId == 25 ? TroopPlacement.Siege : TroopPlacement.Range;
+                if (game.CardsOnBoard.Any(x => x.CardId == 6 && x.Placement == placement)) return null;
+
+                GwentCard hornCard = _cardsProvider.GetCardByCardId(6);
+                hornCard.PrimaryId = 200 + 30 + identityOffset;
+                hornCard.Placement= placement;
+
+                GwentBoardCard hornBoardCard = _cardsProvider.CreateGwentBoardCard(hornCard, leaderClickedDto.Identity);
+
+                game.CardsOnBoard.Add(hornBoardCard);
+                playerSide.LeaderCard.LeaderAvailable = false;
+
+                await _gameRepository.UpdateGame(game);
+
+                return new()
+                {
+                    ActionType = GwentActionType.CommandersHornCardPlayed,
+                    PlayedCard = hornBoardCard,
+                    RemovedCards = []
+                };
+            }
+
+            if(playerSide.LeaderCard.CardId == 27 || playerSide.LeaderCard.CardId == 26 || playerSide.LeaderCard.CardId == 140)
+            {
+                TroopPlacement placement = playerSide.LeaderCard.CardId == 26 ? TroopPlacement.Siege : playerSide.LeaderCard.CardId == 27 ? TroopPlacement.Range : TroopPlacement.Melee;
+                var rowCards = game.CardsOnBoard.Where(x => x.Placement == placement && x.Owner == leaderClickedDto.Identity.GetEnemy());
+                List<GwentBoardCard> KilledCards = new();
+                if (rowCards.Sum(x => x.CurrentStrength) >= 10 && rowCards.Any(x => !x.Abilities.HasFlag(Abilities.Hero)))
+                {
+                    int maxCurrentSstrength = rowCards.Where(x => !x.Abilities.HasFlag(Abilities.Hero)).Max(x => x.CurrentStrength);
+                    var strongestCards = rowCards.Where(x => x.CurrentStrength == maxCurrentSstrength).ToList();
+                    KilledCards = strongestCards;
+                    foreach (var strongCard in strongestCards)
+                    {
+                        game.CardsOnBoard.Remove(strongCard);
+                        _gameDataService.GetPlayerSide(game, strongCard.Owner).UsedCards.Add(strongCard);
+                    }
+                }
+
+                return new()
+                {
+                    ActionType=GwentActionType.ScorchCardPlayed,
+                    RemovedCards=KilledCards
                 };
             }
 

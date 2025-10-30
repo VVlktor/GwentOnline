@@ -24,7 +24,8 @@ namespace GwentApi.Services
                 FileName = gwentCard.FileName,
                 Name = gwentCard.Name,
                 Owner = identity,
-                Placement = gwentCard.Placement
+                Placement = gwentCard.Placement,
+                CurrentStrength = gwentCard.Strength,
             };
         }
 

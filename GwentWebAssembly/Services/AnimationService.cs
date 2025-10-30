@@ -42,6 +42,12 @@ namespace GwentWebAssembly.Services
         {
             //if (gameStatusDto.Action.CardsPlayed.Count == 0) return;
 
+            if (gameStatusDto.Action.LeaderUsed)
+            {
+                string message = gameStatusDto.Action.Issuer == _playerService.GetIdentity() ? "Użyto umiejętności dowódcy" : "Przeciwnik używa umiejętności dowódcy";
+                await OverlayAnimation(message);
+            }
+
             switch (gameStatusDto.Action.ActionType)
             {
                 case GwentActionType.NormalCardPlayed:
@@ -116,13 +122,16 @@ namespace GwentWebAssembly.Services
 
         private async Task PlayScorchCardAnimation(GameStatusDto gameStatusDto)
         {
-            GwentBoardCard boardCard = gameStatusDto.Action.CardsPlayed[0];
-            string startName = "deck-name-op", endName = "weather";
+            if (!gameStatusDto.Action.LeaderUsed)
+            {
+                GwentBoardCard boardCard = gameStatusDto.Action.CardsPlayed[0];
+                string startName = "deck-name-op", endName = "weather";
 
-            if (gameStatusDto.Action.Issuer == _playerService.GetIdentity())
-                startName = $"card-in-hand-{boardCard.PrimaryId}";
+                if (gameStatusDto.Action.Issuer == _playerService.GetIdentity())
+                    startName = $"card-in-hand-{boardCard.PrimaryId}";
 
-            await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", startName, endName, $"img/cards/{boardCard.FileName}");
+                await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", startName, endName, $"img/cards/{boardCard.FileName}");
+            }
 
             List<string> killedCardsIds = gameStatusDto.Action.CardsKilled.Select(x => $"card-on-board-{x.PrimaryId}").ToList();
             await _jsRuntime.InvokeVoidAsync("showScorchAnimation", killedCardsIds);
@@ -202,7 +211,7 @@ namespace GwentWebAssembly.Services
             string startName = "", endName = "";
             if (gameStatusDto.Action.Issuer == _playerService.GetIdentity())
             {
-                startName = $"card-in-hand-{boardCard.PrimaryId}";
+                startName = gameStatusDto.Action.LeaderUsed ? "leader-me" : $"card-in-hand-{boardCard.PrimaryId}";
                 endName = $"playerHornLane{boardCard.Placement.ToString()}";
             }
             else
