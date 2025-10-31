@@ -9,8 +9,8 @@ namespace GwentWebAssembly.Services
         public List<GwentBoardCard> CardsOnBoard { get; set; } = new();
         public List<GwentCard> CardsInHand { get; set; } = new();
 
-        public GwentCard PlayerLeaderCard { get; set; } = new();
-        public GwentCard EnemyLeaderCard { get; set; } = new();
+        public GwentLeaderCard PlayerLeaderCard { get; set; } = new();
+        public GwentLeaderCard EnemyLeaderCard { get; set; } = new();
 
         public int EnemyCardsCount { get; set; } = 10;//do zagrania
         public int EnemyDeckCount { get; set; } = 0;//pozostale/nieuzywane w talii
@@ -48,6 +48,8 @@ namespace GwentWebAssembly.Services
             EnemyDeckCount = gameStatusDto.EnemyDeckCount;
             PlayerHp = gameStatusDto.PlayerHp;
             EnemyHp = gameStatusDto.EnemyHp;
+            PlayerLeaderCard.LeaderAvailable = gameStatusDto.PlayerLeaderAvailable;
+            EnemyLeaderCard.LeaderAvailable = gameStatusDto.EnemyLeaderAvailable;
         }
     }
 }

@@ -20,6 +20,8 @@ namespace GwentApi.Services
 
         public async Task<ReadyDto> ReadyForGame(string code, PlayerIdentity identity)
         {
+            Random rnd = new();
+
             bool lobbyExists = await _lobbyRepository.ExistsByCode(code);
             if(!lobbyExists) return new(){ Ready=false };
 
@@ -66,9 +68,26 @@ namespace GwentApi.Services
                 Hp=2
             };
 
+            if (playerSide.LeaderCard.CardId == 142)
+            {
+                GwentCard card = playerSide.Deck[rnd.Next(playerSide.Deck.Count)];
+                playerSide.Deck.Remove(card);
+                playerSide.CardsInHand.Add(card);
+            }
+
             _gameDataService.SetPlayerSide(game, playerSide, identity);
             _gameDataService.SetReady(game, identity);
-            
+
+            if (gameExists)
+            {
+                if (game.PlayerOne.Faction == CardFaction.NilfgaardianEmpire && game.PlayerTwo.Faction == CardFaction.NilfgaardianEmpire)
+                    game.Turn = rnd.Next(1,3) == 1 ? PlayerIdentity.PlayerTwo : PlayerIdentity.PlayerOne;
+                if (game.PlayerOne.Faction == CardFaction.NilfgaardianEmpire && game.PlayerTwo.Faction != CardFaction.NilfgaardianEmpire)
+                    game.Turn = PlayerIdentity.PlayerOne;
+                else if (game.PlayerOne.Faction != CardFaction.NilfgaardianEmpire && game.PlayerTwo.Faction == CardFaction.NilfgaardianEmpire)
+                    game.Turn = PlayerIdentity.PlayerTwo;
+            }
+
             if(gameExists)
                 await _gameRepository.UpdateGame(game);
             else
@@ -104,7 +123,9 @@ namespace GwentApi.Services
                 PlayerDeckCount=playerSide.Deck.Count,
                 EnemyDeckCount=enemySide.Deck.Count,
                 EnemyHp=enemySide.Hp,
-                PlayerHp=playerSide.Hp
+                PlayerHp=playerSide.Hp,
+                PlayerLeaderAvailable=playerSide.LeaderCard.LeaderAvailable,
+                EnemyLeaderAvailable=enemySide.LeaderCard.LeaderAvailable
             };
 
             return status;

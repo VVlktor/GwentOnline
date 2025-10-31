@@ -12,11 +12,11 @@
 	<!-- lewa strona -->
 	<section id="panel-left" class="panel">
 
-		<div id="leader-op" class="leader-box">
+		<div id="leader-op" class="leader-box @(dataService.EnemyLeaderCard.LeaderAvailable ? "" : "fade")">
 			<div class="leader-container center">
 				<div class="card" style="background-image: url('img/cards/@(dataService.EnemyLeaderCard.FileName)');"></div>
 			</div>
-			<div class="leader-active hide"><!-- dostosowac ability leadera-->
+			<div class="leader-active @(dataService.EnemyLeaderCard.LeaderAvailable ? "" : "hide")"
 				<div></div>
 			</div>
 		</div>
@@ -24,7 +24,7 @@
 		<section id="stats-op" class="stats @(dataService.Turn == playerService.GetIdentity() ? "" : "current-turn")">
 			<div class="profile-img">
 				<div>
-					<div style="background-image: url('img/icons/deck_shield_monsters.png');"></div><!-- dostosowac img-->
+					<div style="background-image: url('img/icons/deck_shield_@(dataService.EnemyLeaderCard.Faction.ToString()).png');"></div><!-- dostosowac img-->
 					</div>
 			</div>
 
@@ -57,7 +57,7 @@
 
 		<section id="stats-me" class="stats @(dataService.Turn == playerService.GetIdentity() ? "current-turn" : "")">
 			<div class="profile-img">
-				<div><div style="background-image: url('img/icons/deck_shield_realms.png');"></div></div>
+				<div><div style="background-image: url('img/icons/deck_shield_@(dataService.PlayerLeaderCard.Faction.ToString()).png');"></div></div>
 			</div> 
 			<div id="passed-me">Passed</div>
 			<div id="hand-count-me" class="hand-count">
@@ -79,9 +79,9 @@
 
 		</section>
 
-		<div id="leader-me" @onclick="async()=>await gameService.LeaderClicked()" class="leader-box">
+		<div id="leader-me" @onclick="async()=>await gameService.LeaderClicked()" class="leader-box @(dataService.PlayerLeaderCard.LeaderAvailable ? "" : "fade")">
 			<div class="leader-container center"><div class="card" style="background-image: url('img/cards/@(dataService.PlayerLeaderCard.FileName)');"></div></div>
-			<div class="leader-active">
+			<div class="leader-active @(dataService.PlayerLeaderCard.LeaderAvailable ? "" : "hide")">
 				<div></div>
 			</div>
 		</div>

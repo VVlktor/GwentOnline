@@ -77,6 +77,8 @@ namespace GwentApi.Services
                 ApplyHorn(playerTwoCards, placement);
             }
 
+            ApplyMonstersLeader(game.CardsOnBoard, game.PlayerOne.LeaderCard, game.PlayerTwo.LeaderCard);
+
             await _gameRepository.UpdateGame(game);
             if (!game.CardsOnBoard.Any(x => x.CardId == 6)) return;
 
@@ -84,6 +86,13 @@ namespace GwentApi.Services
             //foreach (var x in game.CardsOnBoard)
             //    blad+=$"{x.Name} - {x.CurrentStrength}\n";
             //throw new Exception($"{blad}");
+        }
+
+        private void ApplyMonstersLeader(IEnumerable<GwentBoardCard> cards, GwentLeaderCard leaderOne, GwentLeaderCard leaderTwo)
+        {
+            if((leaderOne.CardId == 98 && leaderOne.LeaderActive) || (leaderTwo.CardId == 98 && leaderTwo.LeaderActive))
+                foreach(var spyCard in cards.Where(x => x.Abilities.HasFlag(Abilities.Spy) && !x.Abilities.HasFlag(Abilities.Hero)))
+                    spyCard.CurrentStrength *= 2;
         }
 
         private void ApplyBond(IEnumerable<GwentBoardCard> cards, TroopPlacement placement)
@@ -177,27 +186,70 @@ namespace GwentApi.Services
 
             game.HasPassed = (false, false);
 
+            Random rnd = new();
+
             if (playerOneScore > playerTwoScore)
-            {//nie zapominac o tym ze chyba w nilfgaardzie jak jest remis to wygrywa nilfgaard
+            {
                 playerTwo.Hp -= 1;
                 game.Turn = PlayerIdentity.PlayerOne;
+                HandleNorthern(playerOne, rnd);
             }
             else if (playerTwoScore > playerOneScore)
             {
                 playerOne.Hp -= 1;
                 game.Turn = PlayerIdentity.PlayerTwo;
+                HandleNorthern(playerTwo, rnd);
             }
             else//remis
             {
-                playerOne.Hp -= 1;
-                playerTwo.Hp -= 1;
+                if(playerOne.Faction != CardFaction.NilfgaardianEmpire)
+                    playerOne.Hp -= 1;
+                if(playerTwo.Faction != CardFaction.NilfgaardianEmpire)
+                    playerTwo.Hp -= 1;
             }
 
-            game.PlayerOne.UsedCards.AddRange( game.CardsOnBoard.Where(x => x.Owner == PlayerIdentity.PlayerOne) );
-            game.PlayerTwo.UsedCards.AddRange( game.CardsOnBoard.Where(x => x.Owner == PlayerIdentity.PlayerTwo) );
+            game.PlayerOne.UsedCards.AddRange(game.CardsOnBoard.Where(x => x.Owner == PlayerIdentity.PlayerOne));
+            game.PlayerTwo.UsedCards.AddRange(game.CardsOnBoard.Where(x => x.Owner == PlayerIdentity.PlayerTwo));
+
+            GwentBoardCard cardOne = await HandleMonsters(game, playerOne, PlayerIdentity.PlayerOne, rnd);
+            GwentBoardCard cardTwo = await HandleMonsters(game, playerTwo, PlayerIdentity.PlayerTwo, rnd);
+
             game.CardsOnBoard.Clear();
 
+            if (cardOne is not null)
+                game.CardsOnBoard.Add(cardOne);
+            if (cardTwo is not null)
+                game.CardsOnBoard.Add(cardTwo);
+
+            playerOne.LeaderCard.LeaderActive = false;//moze bedzie jakis ktory trwa cala gre, wtedy sie bede martwil
+            playerTwo.LeaderCard.LeaderActive = false;
+
             await _gameRepository.UpdateGame(game);
+        }
+
+        private void HandleNorthern(PlayerSide playerSide, Random rnd)
+        {
+            if (playerSide.Deck.Count == 0) return;
+
+            GwentCard additionalCard = playerSide.Deck[rnd.Next(playerSide.Deck.Count)];
+
+            playerSide.Deck.Remove(additionalCard);
+            playerSide.CardsInHand.Add(additionalCard);
+        }
+
+        private async Task<GwentBoardCard> HandleMonsters(Game game, PlayerSide playerSide, PlayerIdentity identity, Random rnd)
+        {
+            if (playerSide.Faction != CardFaction.Monsters) return null;
+            
+            var playersCards = game.CardsOnBoard.Where(x => x.Owner == identity && (x.Placement == TroopPlacement.Melee || x.Placement==TroopPlacement.Siege || x.Placement == TroopPlacement.Range) && x.CardId!=6 && x.CardId!=2).ToList();
+            
+            if(playersCards.Count == 0) return null;
+
+            GwentBoardCard randomCard = playersCards[rnd.Next(playersCards.Count)];
+            
+            playerSide.UsedCards.Remove(randomCard);
+
+            return randomCard;
         }
     }
 }

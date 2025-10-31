@@ -19,8 +19,8 @@ namespace GwentWebAssembly.Services.Interfaces
         int EnemyUsedCardsCount { get; set; }
         int PlayerDeckCount { get; set; }
 
-        GwentCard PlayerLeaderCard { get; set; }
-        GwentCard EnemyLeaderCard { get; set; }
+        GwentLeaderCard PlayerLeaderCard { get; set; }
+        GwentLeaderCard EnemyLeaderCard { get; set; }
 
         int PlayerHp { get; set; }
         int EnemyHp { get; set; }

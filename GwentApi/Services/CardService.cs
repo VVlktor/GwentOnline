@@ -98,15 +98,11 @@ namespace GwentApi.Services
             };
 
             GwentActionType gwentActionType = GwentActionType.NormalCardPlayed;
-            if (card.Abilities.HasFlag(Abilities.Medic))
-            {
-                gwentActionType = GwentActionType.MedicCardPlayed;
-            }
-            else if (card.Abilities.HasFlag(Abilities.Muster))
-            {
-                gwentActionType = GwentActionType.MusterCardPlayed;
 
-            }
+            if (card.Abilities.HasFlag(Abilities.Medic) && playerSide.UsedCards.Any(x => !x.Abilities.HasFlag(Abilities.Hero) && x.Placement != TroopPlacement.Weather && x.Placement != TroopPlacement.Special && x.CardId != 2 && x.CardId != 6))
+                gwentActionType = GwentActionType.MedicCardPlayed;
+            else if (card.Abilities.HasFlag(Abilities.Muster))
+                gwentActionType = GwentActionType.MusterCardPlayed;
             else if (card.Abilities.HasFlag(Abilities.Scorch) ||
                 card.Abilities.HasFlag(Abilities.ScorchMelee) ||
                 card.Abilities.HasFlag(Abilities.ScorchSiege) ||
@@ -136,6 +132,7 @@ namespace GwentApi.Services
                 else
                     actionResult.PlayedCards.AddRange(musterCards);
             }
+            
 
             playerSide.CardsInHand.Remove(card);
             game.CardsOnBoard.Add(boardCard);
@@ -450,10 +447,10 @@ namespace GwentApi.Services
                 };
             }
 
-            if(playerSide.LeaderCard.CardId == 25 || playerSide.LeaderCard.CardId == 141)
+            if(playerSide.LeaderCard.CardId == 25 || playerSide.LeaderCard.CardId == 141 || playerSide.LeaderCard.CardId == 94)
             {
-                TroopPlacement placement = playerSide.LeaderCard.CardId == 25 ? TroopPlacement.Siege : TroopPlacement.Range;
-                if (game.CardsOnBoard.Any(x => x.CardId == 6 && x.Placement == placement)) return null;
+                TroopPlacement placement = playerSide.LeaderCard.CardId == 25 ? TroopPlacement.Siege : playerSide.LeaderCard.CardId == 141 ? TroopPlacement.Range : TroopPlacement.Melee;
+                if (game.CardsOnBoard.Any(x => x.CardId == 6 && x.Placement == placement)) return null;//trzeba sprawdzic czy wtedy pozwala a abilitka sie nie marnuje, moze to jest overprotective z mojej strony
 
                 GwentCard hornCard = _cardsProvider.GetCardByCardId(6);
                 hornCard.PrimaryId = 200 + 30 + identityOffset;
@@ -491,12 +488,31 @@ namespace GwentApi.Services
                     }
                 }
 
+                playerSide.LeaderCard.LeaderAvailable = false;
+
+                await _gameRepository.UpdateGame(game);
+
                 return new()
                 {
                     ActionType=GwentActionType.ScorchCardPlayed,
                     RemovedCards=KilledCards
                 };
             }
+
+            if (playerSide.LeaderCard.CardId == 98)
+            {
+                playerSide.LeaderCard.LeaderActive = true;
+                playerSide.LeaderCard.LeaderAvailable = false;
+
+                return new()
+                {
+                    ActionType = GwentActionType.LeaderCardPlayed,
+                    RemovedCards = []
+                };
+            }
+
+            //todo: zablokowac mozliwosc zmiany leadera po wcisnieciu gotowy na deck.razor
+            //todo: wraz z startstatusem gry wysylac ilosc kart w rece
 
             throw new NotImplementedException($"{playerSide.LeaderCard.CardId}");
         }
