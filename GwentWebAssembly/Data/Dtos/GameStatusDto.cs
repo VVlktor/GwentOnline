@@ -15,5 +15,7 @@
         public bool EnemyLeaderAvailable { get; set; }
         public int PlayerHp { get; set; }
         public int EnemyHp { get; set; }
+        public bool PlayerPassed { get; set; }
+        public bool EnemyPassed { get; set; }
     }
 }

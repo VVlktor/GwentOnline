@@ -27,5 +27,8 @@ namespace GwentWebAssembly.Services.Interfaces
 
         int EnemyPoints { get; set; }
         int PlayerPoints { get; set; }
+
+        bool EnemyPassed { get; set; }
+        bool PlayerPassed { get; set; }
     }
 }

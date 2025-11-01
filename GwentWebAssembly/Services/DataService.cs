@@ -26,6 +26,9 @@ namespace GwentWebAssembly.Services
         public int EnemyPoints { get; set; } = 0;
         public int PlayerPoints { get; set; } = 0;
 
+        public bool EnemyPassed { get; set; } = false;
+        public bool PlayerPassed { get; set; } = false;
+
         public void SetStartData(StartStatusDto startStatusDto)
         {
             Turn = startStatusDto.Turn;
@@ -34,6 +37,7 @@ namespace GwentWebAssembly.Services
             EnemyLeaderCard = startStatusDto.EnemyLeaderCard;
             CardsInHand = startStatusDto.PlayerCards;
             EnemyDeckCount = startStatusDto.EnemyDeckCount;
+            EnemyCardsCount = startStatusDto.EnemyCardsInHandCount;
         }
 
         public void UpdateData(GameStatusDto gameStatusDto)
@@ -50,6 +54,8 @@ namespace GwentWebAssembly.Services
             EnemyHp = gameStatusDto.EnemyHp;
             PlayerLeaderCard.LeaderAvailable = gameStatusDto.PlayerLeaderAvailable;
             EnemyLeaderCard.LeaderAvailable = gameStatusDto.EnemyLeaderAvailable;
+            PlayerPassed = gameStatusDto.PlayerPassed;
+            EnemyPassed = gameStatusDto.EnemyPassed;
         }
     }
 }

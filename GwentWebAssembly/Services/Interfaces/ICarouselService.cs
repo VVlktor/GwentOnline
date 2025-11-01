@@ -6,7 +6,7 @@ namespace GwentWebAssembly.Services.Interfaces
     {
         void NextCard(int offset);
         List<CarouselSlot> GetSlots();
-        void ShowCarousel(List<GwentCard> playerUsedCards);
+        void ShowCarousel(List<GwentCard> cards);
         bool IsCarouselShown { get; }
         List<CarouselSlot> CarouselSlots { get; }
         void OnCardClick(CarouselSlot slot);

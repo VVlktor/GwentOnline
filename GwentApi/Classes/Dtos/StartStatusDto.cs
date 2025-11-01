@@ -8,5 +8,6 @@
         public GwentLeaderCard PlayerLeaderCard { get; set; }
         public GwentLeaderCard EnemyLeaderCard { get; set; }
         public int PlayerDeckCount { get; set; }
+        public int EnemyCardsInHandCount { get; set; }
     }
 }

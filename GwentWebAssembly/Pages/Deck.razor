@@ -5,6 +5,8 @@
 @inject ILobbySetupService lobbySetupService 
 @page "/Deck"
 
+<PageTitle>Deck</PageTitle>
+
 <div class="div-body">
     <div class="container-fluid mt-3">
 
@@ -141,6 +143,7 @@
 
     private void NextLeader()
     {
+        if (deckVerificationClicked) return;
         leaderIndex++;
         if (leaderIndex >= LeaderCards.Count) leaderIndex = 0;
         SelectedLeader = LeaderCards[leaderIndex];
@@ -148,6 +151,7 @@
 
     private void PreviousLeader()
     {
+        if (deckVerificationClicked) return;
         leaderIndex--;
         if (leaderIndex < 0) leaderIndex = LeaderCards.Count - 1;
         SelectedLeader = LeaderCards[leaderIndex];
@@ -178,18 +182,21 @@
 
     private void RemoveSelectedCard(GwentCard card)
     {
+        if (deckVerificationClicked) return;
         CardList.Add(card);
         SelectedCards.Remove(card);
     }
 
     private void AddSelectedCard(GwentCard card)
     {
+        if (deckVerificationClicked) return;
         SelectedCards.Add(card);
         CardList.Remove(card);
     }
 
     private void SetFaction(CardFaction faction)
     {
+        if (deckVerificationClicked) return;
         SelectedFaction = faction;
         CardList.AddRange(SelectedCards);
         SelectedCards.Clear();

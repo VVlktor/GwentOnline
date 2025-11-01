@@ -73,19 +73,26 @@ namespace GwentApi.Services
                 GwentCard card = playerSide.Deck[rnd.Next(playerSide.Deck.Count)];
                 playerSide.Deck.Remove(card);
                 playerSide.CardsInHand.Add(card);
+                playerSide.LeaderCard.LeaderAvailable = false;
             }
 
             _gameDataService.SetPlayerSide(game, playerSide, identity);
             _gameDataService.SetReady(game, identity);
 
+            game.Turn = rnd.Next(1, 3) == 1 ? PlayerIdentity.PlayerTwo : PlayerIdentity.PlayerOne;
+
             if (gameExists)
             {
-                if (game.PlayerOne.Faction == CardFaction.NilfgaardianEmpire && game.PlayerTwo.Faction == CardFaction.NilfgaardianEmpire)
-                    game.Turn = rnd.Next(1,3) == 1 ? PlayerIdentity.PlayerTwo : PlayerIdentity.PlayerOne;
                 if (game.PlayerOne.Faction == CardFaction.NilfgaardianEmpire && game.PlayerTwo.Faction != CardFaction.NilfgaardianEmpire)
                     game.Turn = PlayerIdentity.PlayerOne;
                 else if (game.PlayerOne.Faction != CardFaction.NilfgaardianEmpire && game.PlayerTwo.Faction == CardFaction.NilfgaardianEmpire)
                     game.Turn = PlayerIdentity.PlayerTwo;
+
+                if(game.PlayerOne.LeaderCard.CardId == 59 || game.PlayerTwo.LeaderCard.CardId == 59)
+                {
+                    game.PlayerOne.LeaderCard.LeaderAvailable = false;
+                    game.PlayerTwo.LeaderCard.LeaderAvailable = false;
+                }
             }
 
             if(gameExists)
@@ -106,9 +113,9 @@ namespace GwentApi.Services
         {
             Game game = await _gameRepository.GetGameByCode(code);
 
-            PlayerSide playerSide = identity == PlayerIdentity.PlayerOne ? game.PlayerOne : game.PlayerTwo;
+            PlayerSide playerSide = _gameDataService.GetPlayerSide(game, identity);//identity == PlayerIdentity.PlayerOne ? game.PlayerOne : game.PlayerTwo;
 
-            PlayerSide enemySide = identity == PlayerIdentity.PlayerOne ? game.PlayerTwo : game.PlayerOne;
+            PlayerSide enemySide = _gameDataService.GetEnemySide(game, identity);//identity == PlayerIdentity.PlayerOne ? game.PlayerTwo : game.PlayerOne;
 
             GwentAction action = game.Actions.Last();//potencjalnie bedzie sie wywalac jesli nie ma zadnej akcji - pytanie czy moze nie byc zadnej akcji na tym etapie. do sprawdzenia
 
@@ -125,7 +132,9 @@ namespace GwentApi.Services
                 EnemyHp=enemySide.Hp,
                 PlayerHp=playerSide.Hp,
                 PlayerLeaderAvailable=playerSide.LeaderCard.LeaderAvailable,
-                EnemyLeaderAvailable=enemySide.LeaderCard.LeaderAvailable
+                EnemyLeaderAvailable=enemySide.LeaderCard.LeaderAvailable,
+                PlayerPassed = identity == PlayerIdentity.PlayerOne ? game.HasPassed.PlayerOne : game.HasPassed.PlayerTwo,
+                EnemyPassed = identity == PlayerIdentity.PlayerOne ? game.HasPassed.PlayerTwo : game.HasPassed.PlayerOne,
             };
 
             return status;
@@ -145,7 +154,8 @@ namespace GwentApi.Services
                 Turn = game.Turn,
                 PlayerLeaderCard = playerSide.LeaderCard,
                 EnemyLeaderCard = enemySide.LeaderCard,
-                PlayerDeckCount = playerSide.Deck.Count
+                PlayerDeckCount = playerSide.Deck.Count,
+                EnemyCardsInHandCount=enemySide.CardsInHand.Count
             };
 
             return status;

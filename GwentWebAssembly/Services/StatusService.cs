@@ -56,7 +56,7 @@ namespace GwentWebAssembly.Services
             if (gameStatusDto.Action.ActionType == GwentActionType.MedicCardPlayed)
             {
                 if (gameStatusDto.Action.Issuer == _playerService.GetIdentity() && gameStatusDto.UsedCards.Count != 0)
-                    _carouselService.ShowCarousel(_dataService.PlayerUsedCards);
+                    _carouselService.ShowCarousel(_dataService.PlayerUsedCards.Where(x => !x.Abilities.HasFlag(Abilities.Hero) && x.Placement != TroopPlacement.Weather && x.Placement != TroopPlacement.Special && x.CardId != 2 && x.CardId != 6).ToList());
                 if (OnStateChanged is not null)
                     await OnStateChanged.Invoke();
                 return;

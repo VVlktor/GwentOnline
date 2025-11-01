@@ -6,6 +6,8 @@
 @inject ICarouselService carouselService
 @inject IDataService dataService
 
+<PageTitle>Board page</PageTitle>
+
 <main>
 	<section id="click-background" class="noclick"></section>
 
@@ -24,8 +26,8 @@
 		<section id="stats-op" class="stats @(dataService.Turn == playerService.GetIdentity() ? "" : "current-turn")">
 			<div class="profile-img">
 				<div>
-					<div style="background-image: url('img/icons/deck_shield_@(dataService.EnemyLeaderCard.Faction.ToString()).png');"></div><!-- dostosowac img-->
-					</div>
+					<div style="background-image: url('img/icons/deck_shield_@(dataService.EnemyLeaderCard.Faction.ToString()).png');"></div>
+				</div>
 			</div>
 
 			<div id="name-op" class="name">Player 2</div>
@@ -44,7 +46,7 @@
 				</div>
 			</div>
 
-			<div id="passed-op" class="">Passed</div><!-- sprawdzic czy enemy pasowal, class="@(passed ? "passed" : "")"-->
+			<div id="passed-op" class="@(dataService.EnemyPassed ? "passed" : "")">Passed</div>
 
 		</section>
 
@@ -59,7 +61,9 @@
 			<div class="profile-img">
 				<div><div style="background-image: url('img/icons/deck_shield_@(dataService.PlayerLeaderCard.Faction.ToString()).png');"></div></div>
 			</div> 
-			<div id="passed-me">Passed</div>
+
+			<div id="passed-me" class="@(dataService.PlayerPassed ? "passed" : "")">Passed</div>
+
 			<div id="hand-count-me" class="hand-count">
 				@dataService.CardsInHand.Count()
 			</div>
@@ -121,7 +125,7 @@
 								<div class="center" style="@(card.Abilities.HasFlag(Abilities.Hero) || card.CurrentStrength > card.Strength ? "color: goldenrod;" : card.CurrentStrength < card.Strength ? "color: red;" : "")">@card.CurrentStrength</div>
 							</div>
 							<div style="background-image: url('img/icons/card_row_siege.png');"></div>
-							<div style="background-image: url('img/icons/card_ability_@(card.Abilities.HasFlag(Abilities.Hero) ? $"{(card.Abilities & ~Abilities.Hero).ToString().ToLower()}" : $"{card.Abilities.ToString().ToLower()}").png');"></div> <!-- dostosować ikony abilitek -->
+							<div style="background-image: url('img/icons/card_ability_@(card.Abilities.HasFlag(Abilities.Hero) ? $"{(card.Abilities & ~Abilities.Hero).ToString().ToLower()}" : $"{card.Abilities.ToString().ToLower()}").png');"></div>
 							<div style="background-size: 40%;" class="hide"></div>
 						</div>
 					}

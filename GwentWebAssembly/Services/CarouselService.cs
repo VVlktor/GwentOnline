@@ -58,9 +58,9 @@ namespace GwentWebAssembly.Services
             return slots;
         }
 
-        public void ShowCarousel(List<GwentCard> playerUsedCards)
+        public void ShowCarousel(List<GwentCard> cards)
         {
-            var cardsForCarousel = playerUsedCards.Where(x => !x.Abilities.HasFlag(Abilities.Hero) && x.Placement != TroopPlacement.Weather && x.Placement != TroopPlacement.Special && x.CardId!=2 && x.CardId != 6);
+            var cardsForCarousel = cards;
             if (cardsForCarousel.Count() == 0) return;
             _items = cardsForCarousel.ToList();
             CarouselSlots = GetSlots();
