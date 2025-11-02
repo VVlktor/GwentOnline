@@ -1,8 +1,7 @@
 ﻿namespace GwentApi.Classes
 {
-    public class EnemyLaneClickedGwentActionResult
+    public class EnemyLaneClickedGwentActionResult : BaseGwentActionResult
     {
-        public GwentActionType ActionType { get; set; }
         public GwentBoardCard PlayedCard { get; set; }
     }
 }

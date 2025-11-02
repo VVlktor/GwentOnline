@@ -2,7 +2,6 @@
 using GwentWebAssembly.Data.Dtos;
 using GwentWebAssembly.Services.Interfaces;
 using Microsoft.JSInterop;
-using System.Security.Cryptography.X509Certificates;
 
 namespace GwentWebAssembly.Services
 {
@@ -32,16 +31,13 @@ namespace GwentWebAssembly.Services
             
         }
 
-        public async Task EndGameOverlayAnimation(bool playerWon)
+        public async Task EndGameOverlayAnimation(string message)
         {
-            string message = playerWon ? "Wygrywasz grę" : "Przegrywasz grę";
             await _jsRuntime.InvokeVoidAsync("showEndGameOverlay", message);
         }
 
         public async Task ProcessReceivedAnimation(GameStatusDto gameStatusDto)
         {
-            //if (gameStatusDto.Action.CardsPlayed.Count == 0) return;
-
             if (gameStatusDto.Action.LeaderUsed)
             {
                 string message = gameStatusDto.Action.Issuer == _playerService.GetIdentity() ? "Użyto umiejętności dowódcy" : "Przeciwnik używa umiejętności dowódcy";
@@ -160,15 +156,6 @@ namespace GwentWebAssembly.Services
 
             await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", startName, endName, $"img/cards/{boardCard.FileName}");
 
-            //dziwnie to troche wyglada, chyba obejdzie sie bez
-            //if (isPlayer)
-            //{
-            //    await Task.Delay(800);
-            //    return;
-            //}
-
-            //if (gameStatusDto.PlayerDeckCount != 0)//zamiast someOtherName dać tył karty z danej talii
-            //    await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", "deck-me", "hand-row", $"img/cards/someOtherName");//potencjalnie bedzie trzeba dodac jendak jakie karty zostaly dodane do eq gracza, ale wsm nie teraz, moze sie obejdzie
         }
 
         private async Task PlayWeatherCardAnimation(GameStatusDto gameStatusDto)
@@ -182,7 +169,7 @@ namespace GwentWebAssembly.Services
             await _jsRuntime.InvokeVoidAsync("moveCardByElementIds", startName, endName, $"img/cards/{boardCard.FileName}");
         }
 
-        private async Task PlayDecoyAnimation(GameStatusDto gameStatusDto)//chyba bedzie trzeba dac to wszystko na publiczne i wywolac czesc przed podmianą statusu i część po podmianie statusu
+        private async Task PlayDecoyAnimation(GameStatusDto gameStatusDto)
         {
             GwentBoardCard decoyCard = gameStatusDto.Action.CardsPlayed[0];
             GwentBoardCard swappedCard = gameStatusDto.Action.CardsKilled[0];

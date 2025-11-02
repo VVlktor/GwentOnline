@@ -11,12 +11,12 @@
 
         public string LobbyCode { get; set; }
         public byte PlayersCount { get; set; }
+
         public PlayerInfo PlayerOneInfo;
         public PlayerInfo PlayerTwoInfo;
+
         public int CurrentCardIndex {  get; set; }
-        public bool ArePlayersReady()
-        {
-            return (PlayerOneInfo is not null && PlayerTwoInfo is not null);
-        }
+
+        public bool ArePlayersReady() => PlayerOneInfo is not null && PlayerTwoInfo is not null;
     }
 }

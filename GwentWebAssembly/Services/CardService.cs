@@ -1,6 +1,5 @@
 ﻿using GwentWebAssembly.Data;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
 
 namespace GwentWebAssembly.Services
 {

@@ -1,4 +1,3 @@
-
 using GwentApi.Hubs;
 using GwentApi.Repository;
 using GwentApi.Repository.Interfaces;
@@ -34,6 +33,7 @@ namespace GwentApi
             builder.Services.AddTransient<ICardService, CardService>();
             builder.Services.AddTransient<IStatusService, StatusService>();
             builder.Services.AddTransient<IGameDataService, GameDataService>();
+            builder.Services.AddTransient<ICardServiceValidator, CardServiceValidator>();
 
             builder.Services.AddSingleton<CardsProvider>();
             builder.Services.AddSingleton<ILobbyRepository, LobbyRepository>();//potencjalnie do zmiany na transient w przyszlosci

@@ -1,8 +1,7 @@
 ﻿namespace GwentApi.Classes
 {
-    public class CarouselCardClickedGwentActionResult
+    public class CarouselCardClickedGwentActionResult : BaseGwentActionResult
     {
-        public GwentActionType ActionType { get; set; }
         public List<GwentBoardCard> PlayedCards { get; set; }
         public List<GwentBoardCard> KilledCards { get; set; }
     }

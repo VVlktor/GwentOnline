@@ -1,6 +1,5 @@
 ﻿using GwentWebAssembly.Data;
 using GwentWebAssembly.Data.Dtos;
-using System.Numerics;
 
 namespace GwentWebAssembly.Services.Interfaces
 {

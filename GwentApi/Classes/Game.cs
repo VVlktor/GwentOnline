@@ -13,7 +13,7 @@
         public List<GwentBoardCard> CardsOnBoard = new();
         public List<GwentAction> Actions = new();
 
-        public PlayerIdentity Turn = PlayerIdentity.PlayerOne;//do zmiany w zaleznosci od talii
+        public PlayerIdentity Turn = PlayerIdentity.PlayerOne;
 
         public string Code { get; set; }
         public DateTime LastUpdate = DateTime.Now;

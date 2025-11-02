@@ -1,9 +1,7 @@
 ﻿namespace GwentWebAssembly.Data.Dtos
 {
-    public class CarouselCardClickedDto
+    public class CarouselCardClickedDto : BaseClickedDto
     {
-        public PlayerIdentity Identity { get; set; }
-        public string Code { get; set; }
         public GwentCard Card { get; set; }
     }
 }

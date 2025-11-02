@@ -1,5 +1,4 @@
 ﻿using GwentApi.Classes;
-using GwentApi.Classes.Dtos;
 using GwentApi.Extensions;
 using GwentApi.Repository.Interfaces;
 using GwentApi.Services.Interfaces;
@@ -29,8 +28,8 @@ namespace GwentApi.Services
                 CardsPlayed = playedCards,
                 CardsOnBoard = game.CardsOnBoard,
                 CardsKilled = killedCards,
-                LeaderUsed = leaderUsed
-                //AbilitiyUsed = playedCards[0].Abilities//potencjalnie ability do wywalenia
+                LeaderUsed = leaderUsed,
+                AbilitiyUsed = playedCards.FirstOrDefault()?.Abilities ?? Abilities.None
             };
 
             game.Actions.Add(gwentAction);
@@ -48,9 +47,8 @@ namespace GwentApi.Services
             foreach (var card in game.CardsOnBoard)
                 card.CurrentStrength = card.Strength;
 
-
             //pogoda: sprawdzenie czy wystawione slonce, jesli tak to usuwam pogode, jak nie to nakladam efekt
-            if (game.CardsOnBoard.Any(x => x.Abilities.HasFlag(Abilities.Clear)))
+            if(game.CardsOnBoard.Any(x => x.Abilities.HasFlag(Abilities.Clear)))
                 game.CardsOnBoard.RemoveAll(x => (x.Abilities & (Abilities.Frost | Abilities.Fog | Abilities.Rain)) != 0);
             else
             {
@@ -80,12 +78,7 @@ namespace GwentApi.Services
             ApplyMonstersLeader(game.CardsOnBoard, game.PlayerOne.LeaderCard, game.PlayerTwo.LeaderCard);
 
             await _gameRepository.UpdateGame(game);
-            if (!game.CardsOnBoard.Any(x => x.CardId == 6)) return;
-
-            //string blad = "";
-            //foreach (var x in game.CardsOnBoard)
-            //    blad+=$"{x.Name} - {x.CurrentStrength}\n";
-            //throw new Exception($"{blad}");
+            if(!game.CardsOnBoard.Any(x => x.CardId == 6)) return;
         }
 
         private void ApplyMonstersLeader(IEnumerable<GwentBoardCard> cards, GwentLeaderCard leaderOne, GwentLeaderCard leaderTwo)
@@ -100,11 +93,11 @@ namespace GwentApi.Services
             var bondCards = cards.Where(x => x.Abilities.HasFlag(Abilities.Bond) && x.Placement == placement)
                                  .GroupBy(x => x.Name)
                                  .Where(g => g.Count() > 1);
-            foreach (var group in bondCards)
+            foreach(var group in bondCards)
             {
                 int multiplier = group.Count();
-                foreach (var card in group)
-                    if (!card.Abilities.HasFlag(Abilities.Hero))
+                foreach(var card in group)
+                    if(!card.Abilities.HasFlag(Abilities.Hero))
                         card.CurrentStrength *= multiplier;
             }
         }
@@ -112,32 +105,32 @@ namespace GwentApi.Services
         private void ApplyMorale(IEnumerable<GwentBoardCard> cards, TroopPlacement placement)
         {
             foreach(var moraleCard in cards.Where(x => x.Abilities.HasFlag(Abilities.Morale) && x.Placement == placement))
-                foreach(var card in cards.Where(x=>x.Placement == placement && !x.Abilities.HasFlag(Abilities.Hero) && x.PrimaryId!=moraleCard.PrimaryId))
+                foreach(var card in cards.Where(x => x.Placement == placement && !x.Abilities.HasFlag(Abilities.Hero) && x.PrimaryId != moraleCard.PrimaryId))
                     card.CurrentStrength += 1;
         }
 
         private void ApplyWeather(IEnumerable<GwentBoardCard> cards, Abilities ability, TroopPlacement placement)
         {
-            if (cards.Any(x => (x.Abilities.HasFlag(ability))))
-                foreach (var card in cards.Where(x => x.Placement == placement && !x.Abilities.HasFlag(Abilities.Hero)))
-                    if(card.Strength!=0)
+            if(cards.Any(x => (x.Abilities.HasFlag(ability))))
+                foreach(var card in cards.Where(x => x.Placement == placement && !x.Abilities.HasFlag(Abilities.Hero)))
+                    if(card.Strength != 0)
                         card.CurrentStrength = 1;
         }
 
         private void ApplyHorn(IEnumerable<GwentBoardCard> cards, TroopPlacement placement)
         {
-            if (cards.Any(x => x.CardId == 6 && x.Placement == placement))
-                foreach (var card in cards.Where(x => x.Placement == placement && !x.Abilities.HasFlag(Abilities.Hero)))
+            if(cards.Any(x => x.CardId == 6 && x.Placement == placement))
+                foreach(var card in cards.Where(x => x.Placement == placement && !x.Abilities.HasFlag(Abilities.Hero)))
                     card.CurrentStrength *= 2;
             else
             {
-                int hornCount = cards.Count(x => x.Placement==placement && x.Abilities.HasFlag(Abilities.Horn));
-                if (hornCount > 1)
+                int hornCount = cards.Count(x => x.Placement == placement && x.Abilities.HasFlag(Abilities.Horn));
+                if(hornCount > 1)
                 {
                     foreach (var card in cards.Where(x => x.Placement == placement && !x.Abilities.HasFlag(Abilities.Hero)))
                         card.CurrentStrength *= 2;
                 }
-                else if (hornCount == 1)
+                else if(hornCount == 1)
                 {
                     foreach (var card in cards.Where(x => x.Placement == placement && !x.Abilities.HasFlag(Abilities.Hero) && !x.Abilities.HasFlag(Abilities.Horn)))
                         card.CurrentStrength *= 2;
@@ -149,7 +142,7 @@ namespace GwentApi.Services
         {
             Game game = await _gameRepository.GetGameByCode(code);
 
-            if (game.HasPassed.PlayerOne && game.HasPassed.PlayerTwo)
+            if(game.HasPassed.PlayerOne && game.HasPassed.PlayerTwo)
                 return new()
                 {
                     EndRound = true,
@@ -162,7 +155,7 @@ namespace GwentApi.Services
 
             bool isMedic = game.Actions.Last().ActionType == GwentActionType.MedicCardPlayed && _gameDataService.GetPlayerSide(game, game.Actions.Last().Issuer).UsedCards.Any(x => !x.Abilities.HasFlag(Abilities.Hero) && x.Placement != TroopPlacement.Weather && x.Placement != TroopPlacement.Special);
 
-            if (!hasEnemyPassed && !isMedic)
+            if(!hasEnemyPassed && !isMedic)
                 game.Turn = lastTurn.GetEnemy();
 
             await _gameRepository.UpdateGame(game);
@@ -188,13 +181,13 @@ namespace GwentApi.Services
 
             Random rnd = new();
 
-            if (playerOneScore > playerTwoScore)
+            if(playerOneScore > playerTwoScore)
             {
                 playerTwo.Hp -= 1;
                 game.Turn = PlayerIdentity.PlayerOne;
                 HandleNorthern(playerOne, rnd);
             }
-            else if (playerTwoScore > playerOneScore)
+            else if(playerTwoScore > playerOneScore)
             {
                 playerOne.Hp -= 1;
                 game.Turn = PlayerIdentity.PlayerTwo;
@@ -202,9 +195,9 @@ namespace GwentApi.Services
             }
             else//remis
             {
-                if(playerOne.Faction != CardFaction.NilfgaardianEmpire)
+                if (playerOne.Faction != CardFaction.NilfgaardianEmpire)
                     playerOne.Hp -= 1;
-                if(playerTwo.Faction != CardFaction.NilfgaardianEmpire)
+                if (playerTwo.Faction != CardFaction.NilfgaardianEmpire)
                     playerTwo.Hp -= 1;
             }
 
@@ -216,9 +209,9 @@ namespace GwentApi.Services
 
             game.CardsOnBoard.Clear();
 
-            if (cardOne is not null)
+            if(cardOne is not null)
                 game.CardsOnBoard.Add(cardOne);
-            if (cardTwo is not null)
+            if(cardTwo is not null)
                 game.CardsOnBoard.Add(cardTwo);
 
             playerOne.LeaderCard.LeaderActive = false;//moze bedzie jakis ktory trwa cala gre, wtedy sie bede martwil
@@ -229,7 +222,7 @@ namespace GwentApi.Services
 
         private void HandleNorthern(PlayerSide playerSide, Random rnd)
         {
-            if (playerSide.Deck.Count == 0) return;
+            if(playerSide.Deck.Count == 0) return;
 
             GwentCard additionalCard = playerSide.Deck[rnd.Next(playerSide.Deck.Count)];
 
@@ -239,14 +232,14 @@ namespace GwentApi.Services
 
         private async Task<GwentBoardCard> HandleMonsters(Game game, PlayerSide playerSide, PlayerIdentity identity, Random rnd)
         {
-            if (playerSide.Faction != CardFaction.Monsters) return null;
-            
-            var playersCards = game.CardsOnBoard.Where(x => x.Owner == identity && (x.Placement == TroopPlacement.Melee || x.Placement==TroopPlacement.Siege || x.Placement == TroopPlacement.Range) && x.CardId!=6 && x.CardId!=2).ToList();
-            
+            if(playerSide.Faction != CardFaction.Monsters) return null;
+
+            var playersCards = game.CardsOnBoard.Where(x => x.Owner == identity && (x.Placement == TroopPlacement.Melee || x.Placement == TroopPlacement.Siege || x.Placement == TroopPlacement.Range) && x.CardId != 6 && x.CardId != 2).ToList();
+
             if(playersCards.Count == 0) return null;
 
             GwentBoardCard randomCard = playersCards[rnd.Next(playersCards.Count)];
-            
+
             playerSide.UsedCards.Remove(randomCard);
 
             return randomCard;

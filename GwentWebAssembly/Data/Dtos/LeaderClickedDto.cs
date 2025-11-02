@@ -1,8 +1,7 @@
 ﻿namespace GwentWebAssembly.Data.Dtos
 {
-    public class LeaderClickedDto
+    public class LeaderClickedDto : BaseClickedDto
     {
-        public PlayerIdentity Identity { get; set; }
-        public string Code { get; set; }
+        //zachowuje porzadek w kodzie, prawda...?
     }
 }

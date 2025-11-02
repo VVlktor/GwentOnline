@@ -11,26 +11,10 @@ namespace GwentApi.Controllers
     public class GameController : Controller
     {
         private IGameService _gameService;
-        private IGameRepository _gameRepository;//tylko na szybki test, repo nie bedzie w kontrolerze na stałe
 
-        public GameController(IGameService gameService, IGameRepository gameRepository)
+        public GameController(IGameService gameService)
         {
             _gameService = gameService;
-            _gameRepository = gameRepository;
-        }
-
-        [HttpGet("AllGames")]
-        public async Task<IActionResult> GetAllGames()
-        {
-            List<Game> games = await _gameRepository.GetAllGames();
-            return Ok(games.Select(x=>x.Actions).ToList());
-        }
-
-        [HttpGet("GameState/{code}")]
-        public async Task<IActionResult> GetGameState(string code)
-        {
-            Game game = await _gameRepository.GetGameByCode(code);
-            return Ok(game.CardsOnBoard);
         }
 
         [HttpGet("ReadyForGame/{code}/{player}")]
@@ -52,19 +36,6 @@ namespace GwentApi.Controllers
         {
             StartStatusDto status = await _gameService.StartStatus(code, player);
             return Ok(status);
-        }
-
-        [HttpGet("GameStatus/{code}/{player}/{lasstActionId}")]
-        public async Task<IActionResult> GameStatus(string code, PlayerIdentity player)//useless chyba...?
-        {
-            GameStatusDto gameStatus = await _gameService.GetStatus(code, player);
-            return Ok(gameStatus);
-        }
-
-        [HttpGet("GameAction/{code}/{player}")]
-        public async Task<IActionResult> GameAction(string code, PlayerIdentity player, [FromBody]GwentAction action)//nie gwentaction tylko jeszcze inny obiekt, zmienic.
-        {//pewnie useless as well. Poki co jednak zostawie
-            return Ok();
         }
     }
 }

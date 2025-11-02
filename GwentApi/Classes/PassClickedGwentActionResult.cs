@@ -1,8 +1,7 @@
 ﻿namespace GwentApi.Classes
 {
-    public class PassClickedGwentActionResult
+    public class PassClickedGwentActionResult : BaseGwentActionResult
     {
         public bool Passed { get; set; }
-        public GwentActionType ActionType { get; set; }
     }
 }

@@ -35,42 +35,28 @@ namespace GwentApi.Hubs
         {
             LaneClickedGwentActionResult actionResult = await _cardService.LaneClicked(laneClickedDto);
 
-            if(actionResult is null) return;
+            if(!actionResult.IsSuccess) return;
 
             await _statusService.UpdateBoardState(laneClickedDto.Code);
 
-            //dla mnie na przyszlosc: kiedy gracz zagra medyka, to bedzie jak normalna karta,
-            //z tym ze w action bedzie HealerCardPlayed, ktora sprawi,
-            //ze bedzie mogl wybrac u sibeie karte do revive. wtedy to bedzie druga akcja.
-            //Spy: wystawi karte, animacja przenoszenia do eq, ale karta juz jest w api, wiec spy jest jak normalna karta
-            //Scorch
-            //Muster: jeszcze nie wiem. do przemyslenia
-
             await _statusService.AddGwentAction(laneClickedDto.Identity, laneClickedDto.Code, actionResult.ActionType, actionResult.PlayedCards, actionResult.KilledCards);
 
-            TurnStatus turnStatus = await _statusService.UpdateTurn(laneClickedDto.Code);
-
-            //string methodName = "LaneClickedNormalCard";
-
-            //if (actionResult.ActionType == GwentActionType.MusterCardPlayed)
-            //    methodName = "LaneClickedMusterCard";
-            //else if (actionResult.ActionType == GwentActionType.MedicCardPlayed)
-            //    methodName = "LaneClickedMedicCard";
+            await _statusService.UpdateTurn(laneClickedDto.Code);
 
             await SendStatus(laneClickedDto.Identity, laneClickedDto.Code, "ActionReceived");
         }
 
         public async Task HornClicked(HornClickedDto hornClickedDto)
         {
-            GwentBoardCard gwentBoardCard = await _cardService.HornClicked(hornClickedDto);
+            HornClickedGwentActionResult actionResult = await _cardService.HornClicked(hornClickedDto);
             
-            if (gwentBoardCard is null) return;
+            if (!actionResult.IsSuccess) return;
 
             await _statusService.UpdateBoardState(hornClickedDto.Code);
-  //z SpawdzicCzyZmienicTure zabrac kogo jest next tura i dorzucic do AddGwentAction
-            await _statusService.AddGwentAction(hornClickedDto.Identity, hornClickedDto.Code, GwentActionType.CommandersHornCardPlayed, new() { gwentBoardCard }, new());
 
-            TurnStatus turnStatus = await _statusService.UpdateTurn(hornClickedDto.Code);
+            await _statusService.AddGwentAction(hornClickedDto.Identity, hornClickedDto.Code, GwentActionType.CommandersHornCardPlayed, new() { actionResult.GwentBoardCard }, new());
+
+            await _statusService.UpdateTurn(hornClickedDto.Code);
 
             await SendStatus(hornClickedDto.Identity, hornClickedDto.Code, "ActionReceived");
         }
@@ -79,30 +65,28 @@ namespace GwentApi.Hubs
         {
             LeaderClickedGwentActionResult actionResult = await _cardService.LeaderClicked(leaderClickedDto);
 
-            if (actionResult is null) return;
+            if (!actionResult.IsSuccess) return;
 
             await _statusService.UpdateBoardState(leaderClickedDto.Code);
 
             await _statusService.AddGwentAction(leaderClickedDto.Identity, leaderClickedDto.Code, actionResult.ActionType, [actionResult.PlayedCard], actionResult.RemovedCards, true);
 
-            TurnStatus turnStatus = await _statusService.UpdateTurn(leaderClickedDto.Code);
+            await _statusService.UpdateTurn(leaderClickedDto.Code);
 
             await SendStatus(leaderClickedDto.Identity, leaderClickedDto.Code, "ActionReceived");
         }
 
-        public async Task CardClicked(CardClickedDto cardClickedDto)//tylko decoy
+        public async Task CardClicked(CardClickedDto cardClickedDto)
         {
-            if (cardClickedDto.SelectedCard.CardId != 2) return;
-
             CardClickedGwentActionResult actionResult = await _cardService.CardClicked(cardClickedDto);
 
-            if (actionResult is null) return;
+            if (!actionResult.IsSuccess) return;
 
             await _statusService.UpdateBoardState(cardClickedDto.Code);
 
             await _statusService.AddGwentAction(cardClickedDto.Identity, cardClickedDto.Code, actionResult.ActionType, new() { actionResult.PlayedCard }, new() { actionResult.SwappedCard });
 
-            TurnStatus turnStatus = await _statusService.UpdateTurn(cardClickedDto.Code);
+            await _statusService.UpdateTurn(cardClickedDto.Code);
 
             await SendStatus(cardClickedDto.Identity, cardClickedDto.Code, "ActionReceived");
         }
@@ -111,13 +95,13 @@ namespace GwentApi.Hubs
         {
             WeatherClickedGwentActionResult actionResult = await _cardService.WeatherClicked(weatherClickedDto);
 
-            if (actionResult is null) return;
+            if (!actionResult.IsSuccess) return;
 
             await _statusService.UpdateBoardState(weatherClickedDto.Code);
 
             await _statusService.AddGwentAction(weatherClickedDto.Identity, weatherClickedDto.Code, actionResult.ActionType, new() { actionResult.PlayedCard }, actionResult.RemovedCards);
 
-            TurnStatus turnStatus = await _statusService.UpdateTurn(weatherClickedDto.Code);
+            await _statusService.UpdateTurn(weatherClickedDto.Code);
 
             await SendStatus(weatherClickedDto.Identity, weatherClickedDto.Code, "ActionReceived");
         }
@@ -126,13 +110,13 @@ namespace GwentApi.Hubs
         {
             EnemyLaneClickedGwentActionResult actionResult = await _cardService.EnemyLaneClicked(enemyLaneClickedDto);
 
-            if (actionResult is null) return;
+            if (!actionResult.IsSuccess) return;
 
             await _statusService.UpdateBoardState(enemyLaneClickedDto.Code);
 
             await _statusService.AddGwentAction(enemyLaneClickedDto.Identity, enemyLaneClickedDto.Code, actionResult.ActionType, new() { actionResult.PlayedCard }, new());
 
-            TurnStatus turnStatus = await _statusService.UpdateTurn(enemyLaneClickedDto.Code);
+            await _statusService.UpdateTurn(enemyLaneClickedDto.Code);
 
             await SendStatus(enemyLaneClickedDto.Identity, enemyLaneClickedDto.Code, "ActionReceived");
         }
@@ -141,7 +125,7 @@ namespace GwentApi.Hubs
         {
             PassClickedGwentActionResult actionResult = await _cardService.PassClicked(passClickedDto);
 
-            if (actionResult is null) return;
+            if (!actionResult.IsSuccess) return;
 
             await _statusService.AddGwentAction(passClickedDto.Identity, passClickedDto.Code, actionResult.ActionType, new(), new());
 
@@ -164,13 +148,13 @@ namespace GwentApi.Hubs
         {
             CarouselCardClickedGwentActionResult actionResult = await _cardService.CarouselCardClicked(carouselCardClickedDto);
 
-            if (actionResult is null) return;
+            if (!actionResult.IsSuccess) return;
 
             await _statusService.UpdateBoardState(carouselCardClickedDto.Code);
 
             await _statusService.AddGwentAction(carouselCardClickedDto.Identity, carouselCardClickedDto.Code, actionResult.ActionType, actionResult.PlayedCards, actionResult.KilledCards);
 
-            TurnStatus turnStatus = await _statusService.UpdateTurn(carouselCardClickedDto.Code);
+            await _statusService.UpdateTurn(carouselCardClickedDto.Code);
 
             await SendStatus(carouselCardClickedDto.Identity, carouselCardClickedDto.Code, "ActionReceived");
         }

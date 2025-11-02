@@ -4,7 +4,6 @@ using GwentWebAssembly.Services.Interfaces;
 
 namespace GwentWebAssembly.Services
 {
-    //tutaj przechowywac bede stan gry po stronie uzytkownika + wywolywac animacje
     public class StatusService : IStatusService
     {
         private IAnimationService _animationService;
@@ -69,7 +68,14 @@ namespace GwentWebAssembly.Services
 
             if (_dataService.PlayerHp == 0 || _dataService.EnemyHp == 0)
             {
-                await _animationService.EndGameOverlayAnimation(_dataService.EnemyHp == 0);//jak ostatnia runda bedzie remisem to obu graczom pokaze ze wygrali, malo wazne ale mozna poprawic
+                string endGameMessage = (_dataService.PlayerHp, _dataService.EnemyHp) switch
+                {
+                    (0, 0) => "Gra zakończona remisem",
+                    (_, 0) => "Wygrywasz grę",
+                    _ => "Przegrywasz grę"
+                };
+
+                await _animationService.EndGameOverlayAnimation(endGameMessage);
                 return;
             }
 

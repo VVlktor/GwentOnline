@@ -11,26 +11,11 @@ namespace GwentApi.Controllers
     {
         private ILobbyService _lobbyService;
         private IDeckService _deckService;
-        private CardsProvider _cardsService;
 
-        public LobbyController(ILobbyService lobbyService, IDeckService deckService, CardsProvider cardsService)
+        public LobbyController(ILobbyService lobbyService, IDeckService deckService)
         {
             _lobbyService = lobbyService;
             _deckService = deckService;
-            _cardsService = cardsService;
-        }
-
-        [HttpGet("Cards")]
-        public IActionResult GetCards()
-        {
-            var list = _cardsService.Cards.Where(c => HasMultipleFlags(c.Abilities));
-            return Ok(list.ToList());
-        }
-
-        bool HasMultipleFlags(Abilities value)
-        {
-            int v = (int)value;
-            return v != 0 && (v & (v - 1)) != 0;
         }
 
         [HttpGet("CreateLobby")]
@@ -77,12 +62,6 @@ namespace GwentApi.Controllers
         {
             PlayerInfo playerInfo = await _lobbyService.SwapCard(lobbyCode, identity, id);
             return Ok(playerInfo);
-        }
-
-        [HttpPost("ReadyForGame/{lobbyCode}/{identity}")]
-        public async Task<IActionResult> ReadyForGame(string lobbyCode, PlayerIdentity identity)
-        {
-            return Ok();//todo: kontynuowac CO TO KURWA ZNACZY KONTYNUOWAC, CO MAM TU ZROBIC?!?!?!
         }
     }
 }

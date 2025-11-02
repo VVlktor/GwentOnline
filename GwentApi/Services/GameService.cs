@@ -113,11 +113,10 @@ namespace GwentApi.Services
         {
             Game game = await _gameRepository.GetGameByCode(code);
 
-            PlayerSide playerSide = _gameDataService.GetPlayerSide(game, identity);//identity == PlayerIdentity.PlayerOne ? game.PlayerOne : game.PlayerTwo;
+            PlayerSide playerSide = _gameDataService.GetPlayerSide(game, identity);
+            PlayerSide enemySide = _gameDataService.GetEnemySide(game, identity);
 
-            PlayerSide enemySide = _gameDataService.GetEnemySide(game, identity);//identity == PlayerIdentity.PlayerOne ? game.PlayerTwo : game.PlayerOne;
-
-            GwentAction action = game.Actions.Last();//potencjalnie bedzie sie wywalac jesli nie ma zadnej akcji - pytanie czy moze nie byc zadnej akcji na tym etapie. do sprawdzenia
+            GwentAction action = game.Actions.Last();
 
             GameStatusDto status = new() {
                 CardsInHand= playerSide.CardsInHand,
@@ -143,9 +142,9 @@ namespace GwentApi.Services
         public async Task<StartStatusDto> StartStatus(string code, PlayerIdentity identity)
         {
             Game game = await _gameRepository.GetGameByCode(code);
-
-            PlayerSide playerSide = identity == PlayerIdentity.PlayerOne ? game.PlayerOne : game.PlayerTwo;
-            PlayerSide enemySide = identity == PlayerIdentity.PlayerOne ? game.PlayerTwo : game.PlayerOne;
+            
+            PlayerSide playerSide = _gameDataService.GetPlayerSide(game, identity);
+            PlayerSide enemySide = _gameDataService.GetEnemySide(game, identity);
 
             StartStatusDto status = new()
             {

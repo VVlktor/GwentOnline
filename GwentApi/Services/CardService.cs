@@ -3,8 +3,6 @@ using GwentApi.Classes.Dtos;
 using GwentApi.Extensions;
 using GwentApi.Repository.Interfaces;
 using GwentApi.Services.Interfaces;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Principal;
 
 namespace GwentApi.Services
 {
@@ -13,29 +11,27 @@ namespace GwentApi.Services
         private IGameRepository _gameRepository;
         private IGameDataService _gameDataService;
         private CardsProvider _cardsProvider;
+        private ICardServiceValidator _cardServiceValidator;
 
-        public CardService(IGameRepository gameRepository, IGameDataService gameDataService, CardsProvider cardsProvider)
+        public CardService(IGameRepository gameRepository, IGameDataService gameDataService, CardsProvider cardsProvider, ICardServiceValidator cardServiceValidator)
         {
             _cardsProvider = cardsProvider;
             _gameRepository = gameRepository;
             _gameDataService = gameDataService;
+            _cardServiceValidator = cardServiceValidator;
         }
 
-        public async Task<GwentBoardCard> HornClicked(HornClickedDto hornClickedDto)
+        public async Task<HornClickedGwentActionResult> HornClicked(HornClickedDto hornClickedDto)
         {
             Game game = await _gameRepository.GetGameByCode(hornClickedDto.Code);
-
-            if (game.Turn != hornClickedDto.Identity) return null;
-
             PlayerSide playerSide = _gameDataService.GetPlayerSide(game, hornClickedDto.Identity);
 
-            if (game.CardsOnBoard.Any(x => x.CardId == 6 && x.Placement == hornClickedDto.Placement)) return null;
-            if (!playerSide.CardsInHand.Any(x => x.PrimaryId == hornClickedDto.Card.PrimaryId)) return null;
+            if (!_cardServiceValidator.ValidateHorn(game, hornClickedDto)) return new();
 
             GwentCard card = playerSide.CardsInHand.Where(x => x.PrimaryId == hornClickedDto.Card.PrimaryId).First();
 
             card.Placement = hornClickedDto.Placement;
-            
+
             GwentBoardCard gwentBoardCard = _cardsProvider.CreateGwentBoardCard(card, hornClickedDto.Identity);
 
             playerSide.CardsInHand.Remove(card);
@@ -43,37 +39,27 @@ namespace GwentApi.Services
 
             await _gameRepository.UpdateGame(game);
 
-            return gwentBoardCard;
+            return new()
+            {
+                ActionType = GwentActionType.CommandersHornCardPlayed,
+                GwentBoardCard = gwentBoardCard,
+                IsSuccess= true
+            };
         }
 
         public async Task<LaneClickedGwentActionResult> LaneClicked(LaneClickedDto laneClickedDto)
         {
             Game game = await _gameRepository.GetGameByCode(laneClickedDto.Code);
-
-            if (game.Turn != laneClickedDto.Identity) return null;
-
             PlayerSide playerSide = _gameDataService.GetPlayerSide(game, laneClickedDto.Identity);
+
+            if (!_cardServiceValidator.ValidateLane(game, laneClickedDto)) return new();
+
             PlayerSide enemySide = _gameDataService.GetEnemySide(game, laneClickedDto.Identity);
-
-            if (!playerSide.CardsInHand.Any(x => x.PrimaryId == laneClickedDto.Card.PrimaryId)) return null;
-
             GwentCard card = playerSide.CardsInHand.First(x => x.PrimaryId == laneClickedDto.Card.PrimaryId);
-
-            if(card.Abilities.HasFlag(Abilities.Spy) ||
-                card.Placement == TroopPlacement.Weather ||
-                card.Placement == TroopPlacement.Special) return null;
-
-            bool canBePlaced = card.Placement == laneClickedDto.Placement
-                                                || (card.Placement == TroopPlacement.Agile && (laneClickedDto.Placement == TroopPlacement.Melee
-                                                || laneClickedDto.Placement == TroopPlacement.Range));
-
-            if(!canBePlaced) return null;
-
-            //koniec sprawdzania
 
             if (card.Placement == TroopPlacement.Agile)
                 card.Placement = laneClickedDto.Placement;
-            
+
             GwentBoardCard boardCard = _cardsProvider.CreateGwentBoardCard(card, laneClickedDto.Identity);
 
             GwentActionType gwentActionType = GwentActionType.NormalCardPlayed;
@@ -94,12 +80,13 @@ namespace GwentApi.Services
             {
                 ActionType = gwentActionType,
                 KilledCards = new(),
-                PlayedCards = new() { boardCard }
+                PlayedCards = new() { boardCard },
+                IsSuccess = true
             };
 
             Random rnd = new();
 
-            if(gwentActionType == GwentActionType.ScorchBoardCardPlayed)
+            if (gwentActionType == GwentActionType.ScorchBoardCardPlayed)
             {
                 var result = ScorchBoardCardPlayed(game, boardCard, laneClickedDto.Identity);
                 actionResult.KilledCards = result.Item1;
@@ -108,16 +95,16 @@ namespace GwentApi.Services
             else if (gwentActionType == GwentActionType.MusterCardPlayed)
             {
                 var musterCards = MusterCardPlayed(game, boardCard, laneClickedDto.Identity);
-                if(musterCards.Count() == 0)
+                if (musterCards.Count() == 0)
                     actionResult.ActionType = GwentActionType.NormalCardPlayed;
                 else
                     actionResult.PlayedCards.AddRange(musterCards);
             }
-            else if(gwentActionType == GwentActionType.MedicCardPlayed)//obecnie nie zaimplementowane do konca
+            else if (gwentActionType == GwentActionType.MedicCardPlayed)//obecnie nie zaimplementowane do konca
             {
-                if((playerSide.LeaderCard.CardId == 61 && playerSide.LeaderCard.LeaderActive) || (enemySide.LeaderCard.CardId == 61 && enemySide.LeaderCard.LeaderActive))
+                if ((playerSide.LeaderCard.CardId == 61 && playerSide.LeaderCard.LeaderActive) || (enemySide.LeaderCard.CardId == 61 && enemySide.LeaderCard.LeaderActive))
                 {
-                    GwentCard cardToRev = playerSide.UsedCards.Where(x=>!x.Abilities.HasFlag(Abilities.Hero) && x.Placement!=TroopPlacement.Weather).ToList()[rnd.Next(playerSide.UsedCards.Count)];
+                    GwentCard cardToRev = playerSide.UsedCards.Where(x => !x.Abilities.HasFlag(Abilities.Hero) && x.Placement != TroopPlacement.Weather).ToList()[rnd.Next(playerSide.UsedCards.Count)];
                     GwentBoardCard boardCardToRev = _cardsProvider.CreateGwentBoardCard(cardToRev, laneClickedDto.Identity);
                     actionResult.ActionType = GwentActionType.MusterCardPlayed;
                     actionResult.PlayedCards.Add(boardCardToRev);
@@ -136,23 +123,12 @@ namespace GwentApi.Services
         public async Task<CardClickedGwentActionResult> CardClicked(CardClickedDto cardClickedDto)
         {
             Game game = await _gameRepository.GetGameByCode(cardClickedDto.Code);
-
-            if (game.Turn != cardClickedDto.Identity) return null;
-
             PlayerSide playerSide = _gameDataService.GetPlayerSide(game, cardClickedDto.Identity);
 
-            if (!playerSide.CardsInHand.Any(x => x.PrimaryId == cardClickedDto.SelectedCard.PrimaryId)) return null;
+            if (!_cardServiceValidator.ValidateCard(game, cardClickedDto)) return new();
 
             GwentCard card = playerSide.CardsInHand.First(x => x.PrimaryId == cardClickedDto.SelectedCard.PrimaryId);
-
-            if (card.CardId != 2) return null;
-
-            if (!game.CardsOnBoard.Any(x => x.PrimaryId == cardClickedDto.ClickedCard.PrimaryId && cardClickedDto.ClickedCard.Owner == cardClickedDto.Identity)) return null;
-
             GwentBoardCard clickedCard = game.CardsOnBoard.First(x => x.PrimaryId == cardClickedDto.ClickedCard.PrimaryId);
-
-            if (clickedCard.Abilities.HasFlag(Abilities.Hero)) return null;
-            if(clickedCard.CardId==2) return null;
 
             card.Placement = clickedCard.Placement;
             GwentBoardCard decoyCard = _cardsProvider.CreateGwentBoardCard(card, cardClickedDto.Identity);
@@ -181,28 +157,22 @@ namespace GwentApi.Services
             {
                 ActionType = GwentActionType.DecoyCardPlayed,
                 SwappedCard = clickedCard,
-                PlayedCard =  decoyCard 
+                PlayedCard = decoyCard,
+                IsSuccess = true
             };
         }
 
         public async Task<WeatherClickedGwentActionResult> WeatherClicked(WeatherClickedDto weatherClickedDto)
         {
             Game game = await _gameRepository.GetGameByCode(weatherClickedDto.Code);
-
-            if (game.Turn != weatherClickedDto.Identity) return null;
-
             PlayerSide playerSide = _gameDataService.GetPlayerSide(game, weatherClickedDto.Identity);
 
-            if (!playerSide.CardsInHand.Any(x => x.PrimaryId == weatherClickedDto.Card.PrimaryId)) return null;
+            if (!_cardServiceValidator.ValidateWeather(game, weatherClickedDto)) return new();
 
             GwentCard card = playerSide.CardsInHand.First(x => x.PrimaryId == weatherClickedDto.Card.PrimaryId);
-
-            if (card.Placement != TroopPlacement.Weather) return null;
-            if (game.CardsOnBoard.Any(x => x.CardId == card.CardId)) return null;
-
             GwentBoardCard boardCard = _cardsProvider.CreateGwentBoardCard(card, weatherClickedDto.Identity);
 
-            if (card.CardId==11)//id karty Scorch
+            if (card.CardId == 11)//id karty Scorch
             {
                 var nonHeroes = game.CardsOnBoard.Where(x => !x.Abilities.HasFlag(Abilities.Hero));
 
@@ -210,14 +180,15 @@ namespace GwentApi.Services
                 {
                     ActionType = GwentActionType.ScorchCardPlayed,
                     RemovedCards = new(),
-                    PlayedCard = boardCard
+                    PlayedCard = boardCard,
+                    IsSuccess = true
                 };
 
                 if (nonHeroes.Any())
                 {
                     int maxCurrentSstrength = nonHeroes.Max(x => x.CurrentStrength);
                     var strongestCards = nonHeroes.Where(x => x.CurrentStrength == maxCurrentSstrength).ToList();
-                    
+
                     scorchActionResult.RemovedCards = strongestCards;
 
                     foreach (var strongCard in strongestCards)
@@ -225,7 +196,7 @@ namespace GwentApi.Services
                         game.CardsOnBoard.Remove(strongCard);
                         _gameDataService.GetPlayerSide(game, strongCard.Owner).UsedCards.Add(strongCard);
                     }
-                        
+
                 }
 
                 playerSide.CardsInHand.Remove(card);
@@ -252,7 +223,8 @@ namespace GwentApi.Services
                 {
                     ActionType = GwentActionType.WeatherCardPlayed,
                     RemovedCards = weatherCards,
-                    PlayedCard = boardCard
+                    PlayedCard = boardCard,
+                    IsSuccess = true
                 };
 
                 return clearWeatherActionResult;
@@ -267,7 +239,8 @@ namespace GwentApi.Services
             {
                 ActionType = GwentActionType.WeatherCardPlayed,
                 RemovedCards = new(),
-                PlayedCard = boardCard
+                PlayedCard = boardCard,
+                IsSuccess = true
             };
 
             return weatherActionResult;
@@ -277,18 +250,12 @@ namespace GwentApi.Services
         {
             Game game = await _gameRepository.GetGameByCode(enemyLaneClickedDto.Code);
 
-            if (game.Turn != enemyLaneClickedDto.Identity) return null;
-
             PlayerSide playerSide = _gameDataService.GetPlayerSide(game, enemyLaneClickedDto.Identity);
 
-            if(!playerSide.CardsInHand.Any(x => x.PrimaryId == enemyLaneClickedDto.Card.PrimaryId)) return null;
+            if (!_cardServiceValidator.ValidateEnemyLane(game, enemyLaneClickedDto)) return new();
 
             GwentCard card = playerSide.CardsInHand.First(x => x.PrimaryId == enemyLaneClickedDto.Card.PrimaryId);
 
-            if (!card.Abilities.HasFlag(Abilities.Spy)) return null;
-
-            if (card.Placement != enemyLaneClickedDto.Placement) return null;
-            
             GwentBoardCard boardCard = _cardsProvider.CreateGwentBoardCard(card, enemyLaneClickedDto.Identity.GetEnemy());
 
             playerSide.CardsInHand.Remove(card);
@@ -307,7 +274,7 @@ namespace GwentApi.Services
                     playerSide.Deck.RemoveAt(0);
                     break;
             }
-            
+
             playerSide.CardsInHand.AddRange(drawnCards);
 
             await _gameRepository.UpdateGame(game);
@@ -315,7 +282,8 @@ namespace GwentApi.Services
             EnemyLaneClickedGwentActionResult actionResult = new()
             {
                 ActionType = GwentActionType.SpyCardPlayed,
-                PlayedCard = boardCard
+                PlayedCard = boardCard,
+                IsSuccess = true
             };
 
             return actionResult;
@@ -325,7 +293,7 @@ namespace GwentApi.Services
         {
             Game game = await _gameRepository.GetGameByCode(passClickedDto.Code);
 
-            if (game.Turn != passClickedDto.Identity) return null;
+            if (_cardServiceValidator.ValidatePass(game, passClickedDto)) return null;
 
             if (passClickedDto.Identity == PlayerIdentity.PlayerOne)
                 game.HasPassed = (true, game.HasPassed.PlayerTwo);
@@ -335,7 +303,8 @@ namespace GwentApi.Services
             PassClickedGwentActionResult actionResult = new()
             {
                 ActionType = GwentActionType.Pass,
-                Passed = true
+                Passed = true,
+                IsSuccess = true
             };
 
             await _gameRepository.UpdateGame(game);
@@ -350,17 +319,13 @@ namespace GwentApi.Services
             PlayerSide playerSide = _gameDataService.GetPlayerSide(game, leaderClickedDto.Identity);
             PlayerSide enemySide = _gameDataService.GetEnemySide(game, leaderClickedDto.Identity);
 
-            if (game.Turn != leaderClickedDto.Identity) return null;
-
-            if (!playerSide.LeaderCard.LeaderAvailable) return null;
-
-            if(playerSide.LeaderCard.CardId == 59 || enemySide.LeaderCard.CardId == 59) return null;//Emhry White Flame - dowodcy nie dzialaja
+            if (!_cardServiceValidator.ValidateLeader(game, leaderClickedDto)) return new();
 
             int identityOffset = leaderClickedDto.Identity == PlayerIdentity.PlayerOne ? 1 : 2;
 
             if (playerSide.LeaderCard.CardId == 24)
             {
-                GwentCard clearCard = _cardsProvider.GetCardByCardId(12);
+                GwentCard clearCard = _cardsProvider.GetCardByCardId(5);
                 clearCard.PrimaryId = 200 + 10 + identityOffset;
 
                 GwentBoardCard clearBoardCard = _cardsProvider.CreateGwentBoardCard(clearCard, leaderClickedDto.Identity);
@@ -369,7 +334,7 @@ namespace GwentApi.Services
 
                 foreach (var weatherCard in weatherCards)
                     game.CardsOnBoard.Remove(weatherCard);
-               
+
                 playerSide.LeaderCard.LeaderAvailable = false;
 
                 await _gameRepository.UpdateGame(game);
@@ -377,12 +342,13 @@ namespace GwentApi.Services
                 return new()
                 {
                     RemovedCards = weatherCards,
-                    ActionType=GwentActionType.WeatherCardPlayed,
-                    PlayedCard=clearBoardCard
+                    ActionType = GwentActionType.WeatherCardPlayed,
+                    PlayedCard = clearBoardCard,
+                    IsSuccess = true
                 };
             }
 
-            if(playerSide.LeaderCard.CardId == 23 || playerSide.LeaderCard.CardId == 57 || playerSide.LeaderCard.CardId == 143)
+            if (playerSide.LeaderCard.CardId == 23 || playerSide.LeaderCard.CardId == 57 || playerSide.LeaderCard.CardId == 143)
             {
                 GwentCard weatherCard = _cardsProvider.GetCardByCardId(playerSide.LeaderCard.CardId == 23 ? 10 : playerSide.LeaderCard.CardId == 57 ? 12 : 3);
                 weatherCard.PrimaryId = 200 + 20 + identityOffset;
@@ -397,20 +363,21 @@ namespace GwentApi.Services
 
                 return new()
                 {
-                    ActionType =GwentActionType.WeatherCardPlayed,
-                    PlayedCard=weatherBoardCard,
-                    RemovedCards = []
+                    ActionType = GwentActionType.WeatherCardPlayed,
+                    PlayedCard = weatherBoardCard,
+                    RemovedCards = [],
+                    IsSuccess = true
                 };
             }
 
-            if(playerSide.LeaderCard.CardId == 25 || playerSide.LeaderCard.CardId == 141 || playerSide.LeaderCard.CardId == 94)
+            if (playerSide.LeaderCard.CardId == 25 || playerSide.LeaderCard.CardId == 141 || playerSide.LeaderCard.CardId == 94)
             {
                 TroopPlacement placement = playerSide.LeaderCard.CardId == 25 ? TroopPlacement.Siege : playerSide.LeaderCard.CardId == 141 ? TroopPlacement.Range : TroopPlacement.Melee;
                 if (game.CardsOnBoard.Any(x => x.CardId == 6 && x.Placement == placement)) return null;//trzeba sprawdzic czy wtedy pozwala a abilitka sie nie marnuje, moze to jest overprotective z mojej strony
 
                 GwentCard hornCard = _cardsProvider.GetCardByCardId(6);
                 hornCard.PrimaryId = 200 + 30 + identityOffset;
-                hornCard.Placement= placement;
+                hornCard.Placement = placement;
 
                 GwentBoardCard hornBoardCard = _cardsProvider.CreateGwentBoardCard(hornCard, leaderClickedDto.Identity);
 
@@ -423,11 +390,12 @@ namespace GwentApi.Services
                 {
                     ActionType = GwentActionType.CommandersHornCardPlayed,
                     PlayedCard = hornBoardCard,
-                    RemovedCards = []
+                    RemovedCards = [],
+                    IsSuccess = true
                 };
             }
 
-            if(playerSide.LeaderCard.CardId == 27 || playerSide.LeaderCard.CardId == 26 || playerSide.LeaderCard.CardId == 140)
+            if (playerSide.LeaderCard.CardId == 27 || playerSide.LeaderCard.CardId == 26 || playerSide.LeaderCard.CardId == 140)
             {
                 TroopPlacement placement = playerSide.LeaderCard.CardId == 26 ? TroopPlacement.Siege : playerSide.LeaderCard.CardId == 27 ? TroopPlacement.Range : TroopPlacement.Melee;
                 var rowCards = game.CardsOnBoard.Where(x => x.Placement == placement && x.Owner == leaderClickedDto.Identity.GetEnemy());
@@ -450,8 +418,9 @@ namespace GwentApi.Services
 
                 return new()
                 {
-                    ActionType=GwentActionType.ScorchCardPlayed,
-                    RemovedCards=KilledCards
+                    ActionType = GwentActionType.ScorchCardPlayed,
+                    RemovedCards = KilledCards,
+                    IsSuccess = true,
                 };
             }
 
@@ -465,7 +434,8 @@ namespace GwentApi.Services
                 return new()
                 {
                     ActionType = GwentActionType.LeaderCardPlayed,
-                    RemovedCards = []
+                    RemovedCards = [],
+                    IsSuccess = true
                 };
             }
 
@@ -476,8 +446,8 @@ namespace GwentApi.Services
         public async Task<CarouselCardClickedGwentActionResult> CarouselCardClicked(CarouselCardClickedDto carouselCardClickedDto)
         {
             Game game = await _gameRepository.GetGameByCode(carouselCardClickedDto.Code);
-            
-            if (game.Turn != carouselCardClickedDto.Identity) return null;
+
+            if (game.Turn != carouselCardClickedDto.Identity) return new();
 
             GwentAction lastGwentAction = game.Actions.Last();
 
@@ -485,16 +455,16 @@ namespace GwentApi.Services
 
             PlayerSide playerSide = _gameDataService.GetPlayerSide(game, carouselCardClickedDto.Identity);
 
-            if (!playerSide.UsedCards.Any(x => x.PrimaryId == carouselCardClickedDto.Card.PrimaryId)) return null;//wsm mozna zrobic firstordefalut i jesli default to zwrocic null, do poprawki
+            if (carouselCardClickedDto.Card.CardId == 2) return new();
 
-            if (carouselCardClickedDto.Card.CardId == 2) return null;
+            GwentCard? card = playerSide.UsedCards.FirstOrDefault(x => x.PrimaryId == carouselCardClickedDto.Card.PrimaryId);
 
-            GwentCard card = playerSide.UsedCards.First(x => x.PrimaryId == carouselCardClickedDto.Card.PrimaryId);
-            
+            if (card is null) return new();
+
             GwentBoardCard boardCard = _cardsProvider.CreateGwentBoardCard(card, carouselCardClickedDto.Identity);
 
             if (card.Placement == TroopPlacement.Agile)
-                card.Placement = TroopPlacement.Melee;//na wszelki wypadek
+                card.Placement = TroopPlacement.Melee;
 
             GwentActionType gwentActionType = GwentActionType.NormalCardPlayed;
 
@@ -527,8 +497,9 @@ namespace GwentApi.Services
                 CarouselCardClickedGwentActionResult spyActionResult = new()
                 {
                     ActionType = GwentActionType.SpyCardPlayed,
-                    PlayedCards = new(){ boardCard },
-                    KilledCards = new()
+                    PlayedCards = new() { boardCard },
+                    KilledCards = new(),
+                    IsSuccess = true
                 };
 
                 return spyActionResult;
@@ -549,7 +520,8 @@ namespace GwentApi.Services
             {
                 ActionType = gwentActionType,
                 KilledCards = new(),
-                PlayedCards = new() { boardCard }
+                PlayedCards = new() { boardCard },
+                IsSuccess = true
             };
 
             if (gwentActionType == GwentActionType.ScorchBoardCardPlayed)

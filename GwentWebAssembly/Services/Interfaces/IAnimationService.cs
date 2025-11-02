@@ -8,6 +8,6 @@ namespace GwentWebAssembly.Services.Interfaces
         Task ProcessReceivedAnimation(GameStatusDto gameStatusDto);
         Task OverlayAnimation(string text);
         Task OverlayAnimation(PlayerIdentity turn);
-        Task EndGameOverlayAnimation(bool playerWon);
+        Task EndGameOverlayAnimation(string message);
     }
 }

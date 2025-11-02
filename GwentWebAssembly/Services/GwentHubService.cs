@@ -26,45 +26,13 @@ namespace GwentWebAssembly.Services
                 await _statusService.ReceivedStatus(gameStatusDto);
             });
 
-            //_connection.On<GameStatusDto>("LaneClickedNormalCard", async gameStatusDto =>
-            //{
-            //   await _statusService.ReceivedStatus(gameStatusDto);
-            //});
-            ////LaneClickedMusterCard, medic etc.
-
-            //_connection.On<GameStatusDto>("CardClicked", async gameStatusDto =>
-            //{
-            //    await _statusService.ReceivedStatus(gameStatusDto);
-            //});
-
-            //_connection.On<GameStatusDto>("WeatherClicked", async gameStatusDto =>
-            //{
-            //    await _statusService.ReceivedStatus(gameStatusDto);
-            //});
-
-            //_connection.On<GameStatusDto>("EnemyLaneClicked", async gameStatusDto =>
-            //{
-            //    await _statusService.ReceivedStatus(gameStatusDto);
-            //});//skoro to wszystko jest to samo, moze wsadzic to do jednego syfu i fajrant?
-
-            //_connection.On<GameStatusDto>("PassClicked", async gameStatusDto =>
-            //{
-            //    await _statusService.ReceivedStatus(gameStatusDto);
-            //});
-
-            //_connection.On<GameStatusDto>("EndRound", async gameStatusDto =>
-            //{
-            //    await _statusService.ReceivedStatus(gameStatusDto);
-            //});
-
-
-            _connection.On<ReadyDto>("LobbyReady", async lobbyReady =>
+            _connection.On<ReadyDto>("LobbyReady", lobbyReady =>
             {
                 if(lobbyReady.Ready)
                     _navigationManager.NavigateTo("/CardSelection");
             });
 
-            _connection.On<ReadyDto>("CardsSelected", async cardsSelected =>
+            _connection.On<ReadyDto>("CardsSelected", cardsSelected =>
             {
                 if(cardsSelected.Ready)
                     _navigationManager.NavigateTo("/GwentBoard");
@@ -153,7 +121,7 @@ namespace GwentWebAssembly.Services
 
         public async Task SendLeaderClicked(PlayerIdentity identity, string code)
         {
-            LeaderClickedDto leaderClickedDto = new() //stworzyc BaseClickedDto
+            LeaderClickedDto leaderClickedDto = new()
             {
                 Identity=identity,
                 Code=code
