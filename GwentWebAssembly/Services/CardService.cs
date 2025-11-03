@@ -1,9 +1,10 @@
 ﻿using GwentWebAssembly.Data;
+using GwentWebAssembly.Services.Interfaces;
 using System.Net.Http.Json;
 
 namespace GwentWebAssembly.Services
 {
-    public class CardService
+    public class CardService : ICardService
     {
         private HttpClient _httpClient;
 

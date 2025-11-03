@@ -1,8 +1,9 @@
 ﻿using GwentWebAssembly.Data;
+using GwentWebAssembly.Services.Interfaces;
 
 namespace GwentWebAssembly.Services
 {
-    public class PlayerService
+    public class PlayerService : IPlayerService
     {
         private PlayerIdentity _identity;
         public string LobbyCode { get; set; }

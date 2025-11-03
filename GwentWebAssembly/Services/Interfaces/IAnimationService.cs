@@ -9,5 +9,6 @@ namespace GwentWebAssembly.Services.Interfaces
         Task OverlayAnimation(string text);
         Task OverlayAnimation(PlayerIdentity turn);
         Task EndGameOverlayAnimation(string message);
+        Task ResizeCardContainters(int cardInHandCount, List<GwentBoardCard> cardsOnBoard);
     }
 }

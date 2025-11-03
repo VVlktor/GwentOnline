@@ -97,3 +97,14 @@ async function moveCardByElementIds(cardElemId, destElemId, cardImage) {
     overlay.removeChild(card);
     return true;
 }
+
+function resizeCardContainer(containerId, overlap_count, gap, coef, cardCount) {
+    let param = (cardCount < overlap_count) ? "" + gap + "vw" : defineCardRowMargin(cardCount, coef);
+    let children = document.getElementById(containerId).children;
+    for (let x of children)
+        x.style.marginLeft = x.style.marginRight = param;
+
+    function defineCardRowMargin(n, coef = 0) {
+        return "calc((100% - (4.45vw * " + n + ")) / (2*" + n + ") - (" + coef + "vw * " + n + "))";
+    }
+}

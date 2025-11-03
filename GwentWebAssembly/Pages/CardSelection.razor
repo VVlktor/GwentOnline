@@ -1,5 +1,5 @@
 ﻿@page "/CardSelection"
-@inject PlayerService playerService
+@inject IPlayerService playerService
 @inject NavigationManager navigationManager
 @inject IDeckService deckService
 @inject ILobbySetupService lobbySetupService
@@ -69,24 +69,19 @@
     {
         IsReady = true;
         await deckService.SetReady();
-        // while (true)
-        // {
-        //     if (await deckService.GameReady()) break;
-        //     await Task.Delay(4000);
-        // }
-        // navigationManager.NavigateTo("/GwentBoard");
         await lobbySetupService.CardsSelected();
     }
 
     private async Task SwapCard(GwentCard card)
     {
         if (CardsSwapped >= 2) return;
+        if (IsReady) return;
         PlayerInfo playerInfo = await deckService.SwapCardInDeck(card.PrimaryId);
 
         CardsSwapped = playerInfo.CardsSwapped;
         AllCards = playerInfo.Cards;
         TenCards = playerInfo.Cards[..10];
-        StateHasChanged();//sprawdzic czy zadziala bez
+        StateHasChanged();
     }
 
     protected override async Task OnInitializedAsync()

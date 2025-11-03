@@ -7,7 +7,7 @@ namespace GwentWebAssembly.Services
     public class StatusService : IStatusService
     {
         private IAnimationService _animationService;
-        private PlayerService _playerService;
+        private IPlayerService _playerService;
         private ICarouselService _carouselService;
         private IDataService _dataService;
 
@@ -17,7 +17,7 @@ namespace GwentWebAssembly.Services
 
         public event Func<Task>? OnStateChanged;
 
-        public StatusService(IAnimationService animationService, PlayerService playerService, ICarouselService carouselService, IDataService dataService)
+        public StatusService(IAnimationService animationService, IPlayerService playerService, ICarouselService carouselService, IDataService dataService)
         {
             _playerService = playerService;
             _animationService = animationService;
@@ -78,6 +78,8 @@ namespace GwentWebAssembly.Services
                 await _animationService.EndGameOverlayAnimation(endGameMessage);
                 return;
             }
+
+            await _animationService.ResizeCardContainters(_dataService.CardsInHand.Count, _dataService.CardsOnBoard);
 
             if (!isSameTurn || message is not null)
                 await _animationService.OverlayAnimation(_dataService.Turn);

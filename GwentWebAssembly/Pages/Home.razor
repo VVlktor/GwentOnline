@@ -1,22 +1,49 @@
 ﻿@page "/"
 @inject IHomePageService homePageService
 @inject NavigationManager navigationManager
-@inject PlayerService playerService
+@inject IPlayerService playerService
 
 <PageTitle>Join lobby</PageTitle>
 
-<div class="container">
-    <div class="row">
-        <div class="col-4 offset-4">
-            <h2 class="text-center display-3">Gwent</h2>
-            <button class="btn btn-lg btn-primary text-center mb-4" @onclick="CreateLobby">Create lobby</button>
-            <hr />
-            <p class="text-center mt-4">Join lobby</p>
-            <input type="text" class="form-control" placeholder="lobby code" @bind-value="lobbyInput" />
-            <button class="btn text-center" @onclick="JoinLobby">Join</button>
+<div class="d-flex flex-column justify-content-between vh-100 bg-dark text-light">
+    <div class="d-flex justify-content-center align-items-center flex-grow-1">
+        <div class="card bg-secondary bg-opacity-25 border-warning shadow-lg p-4" style="max-width: 420px; width: 100%;">
+            <div class="card-body text-center">
+
+                <h1 class="display-4 fw-bold text-warning mb-3">Gwent</h1>
+
+                <div class="d-grid gap-3 my-5">
+                    <button class="btn btn-outline-warning btn-lg fw-semibold" @onclick="CreateLobby">
+                        <i class="bi bi-plus-circle me-2"></i>Create Lobby
+                    </button>
+                </div>
+
+                <hr class="border-warning opacity-50 mb-5" />
+
+                <div class="mb-3">
+                    <label style="font-size: 1.2rem !important;" class="form-label text-warning fw-semibold">Enter Lobby Code</label>
+                    
+                    <input type="text"
+                            class="form-control mb-3 bg-dark text-light border-warning text-center"
+                            placeholder="Paste your code here"
+                            @bind-value="lobbyInput" />
+                    
+                    <div class="d-grid">
+                        <button class="btn btn-outline-warning btn-lg fw-semibold" @onclick="JoinLobby">
+                            <i class="bi bi-people-fill me-2"></i>Join Lobby
+                        </button>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
+
+    <footer class="gwent-footer">
+        Created with passion. My <a href="https://github.com/VVlktor" target="_blank">github page</a>.
+    </footer>
 </div>
+
 
 @code{
     private string lobbyInput = "";
@@ -36,7 +63,6 @@
     {
         string lobbyCode = await homePageService.CreateLobby();
         if(string.IsNullOrEmpty(lobbyCode)) return;
-
 
         playerService.SetData(PlayerIdentity.PlayerOne, lobbyCode);
         navigationManager.NavigateTo($"/Deck");

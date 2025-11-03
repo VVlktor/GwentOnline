@@ -1,4 +1,4 @@
-﻿namespace GwentApi.Classes
+﻿namespace GwentApi.Classes.GwentActionResults
 {
     public class CardClickedGwentActionResult : BaseGwentActionResult
     {

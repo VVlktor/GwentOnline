@@ -15,7 +15,7 @@ namespace GwentWebAssembly
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
-            builder.Services.AddTransient<CardService>();
+            builder.Services.AddTransient<ICardService, CardService>();
             builder.Services.AddTransient<IHomePageService, HomePageService>();
             builder.Services.AddTransient<IDeckService, DeckService>();
             builder.Services.AddTransient<IGameService, GameService>();
@@ -24,7 +24,7 @@ namespace GwentWebAssembly
 
             builder.Services.AddSingleton<IDataService, DataService>();
             builder.Services.AddSingleton<IStatusService, StatusService>();
-            builder.Services.AddSingleton<PlayerService>();
+            builder.Services.AddSingleton<IPlayerService, PlayerService>();
             builder.Services.AddSingleton<IGwentHubService, GwentHubService>();
             builder.Services.AddSingleton<ICarouselService, CarouselService>();
 

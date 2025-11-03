@@ -1,0 +1,12 @@
+﻿.input-group .form-control {
+    background-color: #1c1c1c;
+    color: #f8f9fa;
+    border: 1px solid #d4af37;
+    text-align: center;
+}
+.gwent-footer {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #aaaaaa;
+    padding: 0.5rem 0;
+}

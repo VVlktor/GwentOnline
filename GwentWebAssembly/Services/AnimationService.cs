@@ -8,9 +8,9 @@ namespace GwentWebAssembly.Services
     public class AnimationService : IAnimationService
     {
         private readonly IJSRuntime _jsRuntime;
-        private PlayerService _playerService;
+        private IPlayerService _playerService;
 
-        public AnimationService(IJSRuntime js, PlayerService playerService)
+        public AnimationService(IJSRuntime js, IPlayerService playerService)
         {
             _jsRuntime = js;
             _playerService = playerService;
@@ -29,6 +29,23 @@ namespace GwentWebAssembly.Services
                 stringTurn = "Twój ruch!";
             await _jsRuntime.InvokeVoidAsync("showOverlay", stringTurn);
             
+        }
+
+        public async Task ResizeCardContainters(int cardInHandCount, List<GwentBoardCard> cardsOnBoard) {
+            await _jsRuntime.InvokeVoidAsync("resizeCardContainer", "hand-row", 11, 0.075, .00225, cardInHandCount);
+
+            TroopPlacement[] placements = [TroopPlacement.Melee, TroopPlacement.Range, TroopPlacement.Siege];
+            string[] sides = ["player", "enemy"];
+
+            foreach (var placement in placements)
+            {
+                foreach(var side in sides)
+                {
+                    PlayerIdentity identity = side == "player" ? _playerService.GetIdentity() : _playerService.EnemyIdentity();
+                    int cardCount = cardsOnBoard.Count(x => x.Placement == placement && x.Owner == identity);
+                    await _jsRuntime.InvokeVoidAsync("resizeCardContainer", $"{side}Lane{placement.ToString()}", 10, 0.075, .00325, cardCount);
+                }
+            }
         }
 
         public async Task EndGameOverlayAnimation(string message)

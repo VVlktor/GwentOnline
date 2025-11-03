@@ -8,11 +8,11 @@ namespace GwentWebAssembly.Services
     public class GameService : IGameService
     {
         private HttpClient _httpClient;
-        private PlayerService _playerService;
+        private IPlayerService _playerService;
         private IStatusService _statusService;
         private IGwentHubService _gwentHubService;
 
-        public GameService(HttpClient httpClient, PlayerService playerService, IGwentHubService gwentHubService, IStatusService statusService)
+        public GameService(HttpClient httpClient, IPlayerService playerService, IGwentHubService gwentHubService, IStatusService statusService)
         {
             _httpClient = httpClient;
             _playerService = playerService;

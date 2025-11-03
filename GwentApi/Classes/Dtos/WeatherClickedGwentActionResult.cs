@@ -1,4 +1,6 @@
-﻿namespace GwentApi.Classes.Dtos
+﻿using GwentApi.Classes.GwentActionResults;
+
+namespace GwentApi.Classes.Dtos
 {
     public class WeatherClickedGwentActionResult : BaseGwentActionResult
     {

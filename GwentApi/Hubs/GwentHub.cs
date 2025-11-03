@@ -1,5 +1,6 @@
 ﻿using GwentApi.Classes;
 using GwentApi.Classes.Dtos;
+using GwentApi.Classes.GwentActionResults;
 using GwentApi.Extensions;
 using GwentApi.Services.Interfaces;
 using Microsoft.AspNetCore.SignalR;

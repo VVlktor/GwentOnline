@@ -5,9 +5,9 @@ namespace GwentWebAssembly.Services
     public class LobbySetupService : ILobbySetupService
     {
         private IGwentHubService _gwentHubService;
-        private PlayerService _playerService;
+        private IPlayerService _playerService;
 
-        public LobbySetupService(IGwentHubService gwentHubService, PlayerService playerService)
+        public LobbySetupService(IGwentHubService gwentHubService, IPlayerService playerService)
         {
             _gwentHubService = gwentHubService;
             _playerService = playerService;

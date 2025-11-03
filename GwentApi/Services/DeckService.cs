@@ -5,11 +5,11 @@ namespace GwentApi.Services
 {
     public class DeckService : IDeckService
     {
-        private CardsProvider _cardsService;
+        private CardsProvider _cardsProvider;
 
         public DeckService(CardsProvider cardsProvider)
         {
-            _cardsService = cardsProvider;
+            _cardsProvider = cardsProvider;
         }
 
         public ResponseData VerifyDeck(PlayerDeckInfo playerInfo)
@@ -17,8 +17,8 @@ namespace GwentApi.Services
             if (playerInfo.CardsId.Count() > 30)
                 return new(false, "Card count exceeds 30.");
 
-            List<GwentCard> playerCards = _cardsService.GetCards(x => playerInfo.CardsId.Contains(x.PrimaryId)).ToList();
-            GwentCard leaderCard = _cardsService.GetCardByPrimaryId(playerInfo.LeaderCardId);
+            List<GwentCard> playerCards = _cardsProvider.GetCards(x => playerInfo.CardsId.Contains(x.PrimaryId)).ToList();
+            GwentCard leaderCard = _cardsProvider.GetCardByPrimaryId(playerInfo.LeaderCardId);
 
             if (leaderCard.Faction != playerInfo.Faction)
                 return new(false, "Leader cards is from other faction.");

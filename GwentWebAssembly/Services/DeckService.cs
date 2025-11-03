@@ -9,12 +9,14 @@ namespace GwentWebAssembly.Services
     public class DeckService : IDeckService
     {
         private readonly HttpClient _httpClient;
-        private PlayerService _playerService;
+        private IPlayerService _playerService;
+        private ILobbySetupService _lobbySetupService;
 
-        public DeckService(HttpClient client, PlayerService playerService)
+        public DeckService(HttpClient client, IPlayerService playerService, ILobbySetupService lobbySetupService)
         {
             _httpClient = client;
             _playerService = playerService;
+            _lobbySetupService = lobbySetupService;
         }
 
         public async Task<ResponseData> VerifyAndSetDeck(PlayerDeckInfo playerInfo)
@@ -24,8 +26,14 @@ namespace GwentWebAssembly.Services
             HttpResponseMessage response = await _httpClient.PostAsync($"http://localhost:5277/Lobby/VerifyAndSetDeck/{_playerService.LobbyCode}/{_playerService.GetIdentity()}", data);
             string stringResponse = await response.Content.ReadAsStringAsync();
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            ResponseData responeData = JsonSerializer.Deserialize<ResponseData>(stringResponse, options);
-            return responeData;
+            ResponseData responseData = JsonSerializer.Deserialize<ResponseData>(stringResponse, options);
+            if (!responseData.IsValid)
+                return responseData;
+
+            await _lobbySetupService.JoinBoardAsync();
+            await _lobbySetupService.SendLobbyReady();
+
+            return responseData;
         }
 
         public async Task<bool> PlayersReady(string lobbyCode)
