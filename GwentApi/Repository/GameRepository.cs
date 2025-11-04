@@ -41,5 +41,16 @@ namespace GwentApi.Repository
         {
             _games.Remove(game);
         }
+
+        public Task<Game> AddRange(IEnumerable<Game> games)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task RemoveRange(List<Game> games)
+        {
+            foreach (var game in games)
+                _games.Remove(game);
+        }
     }
 }

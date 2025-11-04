@@ -25,7 +25,10 @@ namespace GwentApi
                                       policy.WithOrigins("http://localhost:5140").AllowAnyMethod().AllowAnyHeader();
                                   });
             });
+            
             builder.Services.AddSignalR();
+
+            builder.Services.AddHostedService<GameHostedService>();
 
             builder.Services.AddTransient<ILobbyService, LobbyService>();
             builder.Services.AddTransient<IGameService, GameService>();

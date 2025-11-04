@@ -8,5 +8,9 @@ namespace GwentApi.Repository.Interfaces
         Task<bool> ExistsByCode(string lobbyCode);
         Task<Lobby> GetLobbyByCode(string lobbyCode);
         Task<Lobby> UpdateLobby(Lobby lobby);
+
+        Task<IEnumerable<Lobby>> GetAll();
+        Task AddRange(List<Lobby> lobbiesList);
+        Task RemoveRange(List<Lobby> lobbiesList);
     }
 }

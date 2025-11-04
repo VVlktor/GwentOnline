@@ -83,7 +83,7 @@ namespace GwentApi.Services
 
             if (gameExists)
             {
-                if (game.PlayerOne.Faction == CardFaction.NilfgaardianEmpire && game.PlayerTwo.Faction != CardFaction.NilfgaardianEmpire)
+                if (game.PlayerOne.Faction == CardFaction.NilfgaardianEmpire && game.PlayerTwo.Faction != CardFaction.NilfgaardianEmpire)//chwila, serio cos takiego bylo? do sprawdzenia
                     game.Turn = PlayerIdentity.PlayerOne;
                 else if (game.PlayerOne.Faction != CardFaction.NilfgaardianEmpire && game.PlayerTwo.Faction == CardFaction.NilfgaardianEmpire)
                     game.Turn = PlayerIdentity.PlayerTwo;

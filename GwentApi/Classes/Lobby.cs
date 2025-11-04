@@ -15,6 +15,8 @@
         public PlayerInfo PlayerOneInfo;
         public PlayerInfo PlayerTwoInfo;
 
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+
         public int CurrentCardIndex {  get; set; }
 
         public bool ArePlayersReady() => PlayerOneInfo is not null && PlayerTwoInfo is not null;

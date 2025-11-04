@@ -13,14 +13,30 @@ namespace GwentApi.Repository
             return lobby;
         }
 
+        public async Task AddRange(List<Lobby> lobbiesList)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<bool> ExistsByCode(string lobbyCode)
         {
             return lobbyList.Any(x => x.LobbyCode == lobbyCode);
         }
 
+        public async Task<IEnumerable<Lobby>> GetAll()
+        {
+            return lobbyList;
+        }
+
         public async Task<Lobby> GetLobbyByCode(string lobbyCode)
         {
             return lobbyList.FirstOrDefault(x => x.LobbyCode == lobbyCode);
+        }
+
+        public async Task RemoveRange(List<Lobby> lobbiesList)
+        {
+            foreach(var lobby in lobbiesList)
+                lobbyList.Remove(lobby);
         }
 
         public async Task<Lobby> UpdateLobby(Lobby lobby)

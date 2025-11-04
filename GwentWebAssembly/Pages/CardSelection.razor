@@ -48,6 +48,15 @@
                     <h4>Podmień karty</h4>
                     <div style="font-size:24px;">Licznik: <span id="swap-count" style="font-size:24px;">@CardsSwapped/2</span></div>
                     <button disabled="@IsReady" class="btn btn-success ready-btn" @onclick="ReadyClicked">Gotowy</button>
+                    @if (IsScoiatael && !IsReady)
+                    {
+                        <div class="col-12 mt-5">
+                            <p style="font-size: 16px;" class="text-light mb-2">Używasz talii Scoiatael. Możesz wybrać kto rozpocznie grę.</p>
+                            <button class="col-5 btn btn-outline-success">Zaczynaj</button>
+                            <button class="col-5 offset-2 btn btn-outline-danger">Przeciwnik</button>
+                            <p style="font-size:12px;" class="mt-1">Jezeli przeciwnik rowniez gra Scoiatael, kolejność zaczynania będzie losowa</p>
+                        </div>
+                    }
                     @if (IsReady)
                     {
                         <div style="font-size:24px;" class="mt-3">Oczekiwanie na przeciwnika</div>
@@ -64,6 +73,7 @@
     private byte CardsSwapped = 0;
 
     private bool IsReady = false;
+    private bool IsScoiatael = false;
 
     private async Task ReadyClicked()
     {
@@ -94,6 +104,7 @@
         PlayerInfo playerInfo = await deckService.GetPlayerInfo();
         AllCards = playerInfo.Cards;
         TenCards = playerInfo.Cards[..10];
+        IsScoiatael = playerInfo.Faction == CardFaction.Scoiatael;
     }
 
     protected override void OnInitialized()
