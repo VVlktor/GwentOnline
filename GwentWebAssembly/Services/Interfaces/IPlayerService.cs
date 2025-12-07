@@ -1,4 +1,4 @@
-﻿using GwentWebAssembly.Data;
+﻿using GwentShared.Classes;
 
 namespace GwentWebAssembly.Services.Interfaces
 {

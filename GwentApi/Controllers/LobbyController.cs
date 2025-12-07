@@ -1,6 +1,5 @@
-﻿using GwentApi.Classes;
-using GwentApi.Services;
-using GwentApi.Services.Interfaces;
+﻿using GwentApi.Services.Interfaces;
+using GwentShared.Classes;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GwentApi.Controllers

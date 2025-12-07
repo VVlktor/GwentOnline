@@ -1,9 +1,10 @@
 ﻿using GwentApi.Classes;
-using GwentApi.Classes.Dtos;
 using GwentApi.Classes.GwentActionResults;
 using GwentApi.Extensions;
 using GwentApi.Repository.Interfaces;
 using GwentApi.Services.Interfaces;
+using GwentShared.Classes;
+using GwentShared.Classes.Dtos;
 
 namespace GwentApi.Services
 {
@@ -452,7 +453,7 @@ namespace GwentApi.Services
 
             GwentAction lastGwentAction = game.Actions.Last();
 
-            if (lastGwentAction.AbilitiyUsed.HasFlag(Abilities.Medic) || lastGwentAction.Issuer != carouselCardClickedDto.Identity) return null;
+            if (!lastGwentAction.AbilitiyUsed.HasFlag(Abilities.Medic) || lastGwentAction.Issuer != carouselCardClickedDto.Identity) return new();
 
             PlayerSide playerSide = _gameDataService.GetPlayerSide(game, carouselCardClickedDto.Identity);
 

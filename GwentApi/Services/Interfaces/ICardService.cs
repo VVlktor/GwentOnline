@@ -1,5 +1,5 @@
-﻿using GwentApi.Classes.Dtos;
-using GwentApi.Classes.GwentActionResults;
+﻿using GwentApi.Classes.GwentActionResults;
+using GwentShared.Classes.Dtos;
 
 namespace GwentApi.Services.Interfaces
 {

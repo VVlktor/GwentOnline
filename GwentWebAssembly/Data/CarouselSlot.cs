@@ -1,4 +1,6 @@
-﻿namespace GwentWebAssembly.Data
+﻿using GwentShared.Classes;
+
+namespace GwentWebAssembly.Data
 {
     public class CarouselSlot
     {

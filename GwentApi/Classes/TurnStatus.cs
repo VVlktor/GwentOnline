@@ -1,4 +1,6 @@
-﻿namespace GwentApi.Classes
+﻿using GwentShared.Classes;
+
+namespace GwentApi.Classes
 {
     public class TurnStatus
     {

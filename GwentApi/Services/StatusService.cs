@@ -2,6 +2,7 @@
 using GwentApi.Extensions;
 using GwentApi.Repository.Interfaces;
 using GwentApi.Services.Interfaces;
+using GwentShared.Classes;
 
 namespace GwentApi.Services
 {

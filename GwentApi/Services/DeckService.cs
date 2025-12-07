@@ -1,5 +1,6 @@
-﻿using GwentApi.Classes;
+﻿using GwentShared.Classes;
 using GwentApi.Services.Interfaces;
+using GwentApi.Services;
 
 namespace GwentApi.Services
 {

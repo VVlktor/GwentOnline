@@ -1,4 +1,4 @@
-﻿using GwentWebAssembly.Data;
+﻿using GwentShared.Classes;
 using GwentWebAssembly.Services.Interfaces;
 using System.Net.Http.Json;
 

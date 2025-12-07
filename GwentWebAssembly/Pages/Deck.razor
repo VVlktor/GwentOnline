@@ -60,6 +60,10 @@
                     <img src="img/cards/@(SelectedLeader.FileName)" alt="Dowódca" class="center-card-img">
                     <div class="center-card-content">
                         <div class="center-card-name">@SelectedLeader.Name</div>
+                        @if (notImplementedLeaders.Contains(SelectedLeader.CardId))
+                        {
+                            <p style="font-size:15px; color: red;">Umiejętność dowódcy nie została jeszcze zaimplementowana (to pierwsza grywalna wersja, proszę o wyrozumiałość - czas goni)</p>
+                        }
                     </div>
                 </div>
 
@@ -128,6 +132,8 @@
 </div>
 
 @code{
+    private int[] notImplementedLeaders = [58, 61, 60, 95, 96, 97, 144];//tymczasowe, do wywalenia
+
     private List<GwentCard> CardList = new();
     private List<GwentCard> SelectedCards = new();
     private List<GwentCard> LeaderCards = new();
@@ -159,6 +165,7 @@
 
     private async Task ReadyClicked()
     {
+        if (notImplementedLeaders.Contains(SelectedLeader.CardId)) return;
         deckVerificationClicked = true;
         PlayerDeckInfo playerInfo = new(SelectedCards.Select(x=>x.PrimaryId).ToList(), SelectedLeader.PrimaryId, SelectedFaction);
         ResponseData responseData = await deckService.VerifyAndSetDeck(playerInfo);

@@ -1,8 +1,9 @@
 ﻿using GwentApi.Classes;
-using GwentApi.Classes.Dtos;
 using GwentApi.Classes.GwentActionResults;
 using GwentApi.Extensions;
 using GwentApi.Services.Interfaces;
+using GwentShared.Classes;
+using GwentShared.Classes.Dtos;
 using Microsoft.AspNetCore.SignalR;
 
 namespace GwentApi.Hubs

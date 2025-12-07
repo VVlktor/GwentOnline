@@ -1,4 +1,6 @@
-﻿namespace GwentApi.Classes.GwentActionResults
+﻿using GwentShared.Classes;
+
+namespace GwentApi.Classes.GwentActionResults
 {
     public class EnemyLaneClickedGwentActionResult : BaseGwentActionResult
     {

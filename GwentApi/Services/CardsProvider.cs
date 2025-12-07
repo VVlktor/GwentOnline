@@ -1,4 +1,5 @@
 ﻿using GwentApi.Classes;
+using GwentShared.Classes;
 using System.Text.Json;
 
 namespace GwentApi.Services

@@ -1,5 +1,5 @@
-﻿using GwentWebAssembly.Data;
-using GwentWebAssembly.Data.Dtos;
+﻿using GwentShared.Classes;
+using GwentShared.Classes.Dtos;
 using GwentWebAssembly.Services.Interfaces;
 using System.Text;
 using System.Text.Json;
