@@ -25,9 +25,7 @@ namespace GwentWebAssembly.Services
         public async Task<bool> JoinLobby(string lobbyCode)
         {
             var response = await _httpClient.GetAsync($"http://localhost:5277/lobby/JoinLobby/{lobbyCode}");
-            if (response.IsSuccessStatusCode)
-                return true;
-            return false;
+            return response.IsSuccessStatusCode;
         }
     }
 }

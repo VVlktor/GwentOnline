@@ -11,7 +11,7 @@ namespace GwentWebAssembly.Services.Interfaces
 
         GwentCard GetSelectedCard();
 
-        event Func<Task>? OnStateChanged;
+        event Action? OnStateChanged;
 
         GwentCard SelectedCard { get; set; }
     }

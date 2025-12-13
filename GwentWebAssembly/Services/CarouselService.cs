@@ -70,11 +70,10 @@ namespace GwentWebAssembly.Services
 
         public void OnCardClick(CarouselSlot slot)
         {
-            if (slot.Offset != 0)
-            {
-                NextCard(slot.Offset);
-                CarouselSlots = GetSlots();
-            }
+            if (slot.Offset == 0) return;
+            
+            NextCard(slot.Offset);
+            CarouselSlots = GetSlots();
         }
 
         public void HideCarousel() => IsCarouselShown = false;

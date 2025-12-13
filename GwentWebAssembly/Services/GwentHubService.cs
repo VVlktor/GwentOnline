@@ -140,23 +140,16 @@ namespace GwentWebAssembly.Services
             await _connection.SendAsync("CarouselCardClicked", carouselCardClickedDto);
         }
 
-        public async Task SendLobbyReady(string code)
-        {
-            await _connection.SendAsync("LobbyReady", code);
-        }
+        public async Task SendLobbyReady(string code) => await _connection.SendAsync("LobbyReady", code);
 
-        public async Task SendCardsSelected(string code)
-        {
-            await _connection.SendAsync("CardsSelected", code);
-        }
+        public async Task SendCardsSelected(string code) => await _connection.SendAsync("CardsSelected", code);
 
         public async ValueTask DisposeAsync()
         {
-            if (_connection is not null)
-            {
-                await _connection.StopAsync();
-                await _connection.DisposeAsync();
-            }
+            if (_connection is null) return;
+
+            await _connection.StopAsync();
+            await _connection.DisposeAsync();
         }
     }
 }

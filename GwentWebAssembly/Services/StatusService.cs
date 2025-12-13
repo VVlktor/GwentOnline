@@ -15,7 +15,7 @@ namespace GwentWebAssembly.Services
 
         private GwentCard DummyCard { get; } = new();
 
-        public event Func<Task>? OnStateChanged;
+        public event Action? OnStateChanged;
 
         public StatusService(IAnimationService animationService, IPlayerService playerService, ICarouselService carouselService, IDataService dataService)
         {
@@ -32,7 +32,7 @@ namespace GwentWebAssembly.Services
             _dataService.SetStartData(startStatus);
 
             if (OnStateChanged is not null)
-                await OnStateChanged.Invoke();
+                OnStateChanged.Invoke();
 
             await _animationService.OverlayAnimation(_dataService.Turn);
         }
@@ -57,12 +57,12 @@ namespace GwentWebAssembly.Services
                 if (gameStatusDto.Action.Issuer == _playerService.GetIdentity() && gameStatusDto.UsedCards.Count != 0)
                     _carouselService.ShowCarousel(_dataService.PlayerUsedCards.Where(x => !x.Abilities.HasFlag(Abilities.Hero) && x.Placement != TroopPlacement.Weather && x.Placement != TroopPlacement.Special && x.CardId != 2 && x.CardId != 6).ToList());
                 if (OnStateChanged is not null)
-                    await OnStateChanged.Invoke();
+                    OnStateChanged.Invoke();
                 return;
             }
 
             if (OnStateChanged is not null)
-                await OnStateChanged.Invoke();
+                OnStateChanged.Invoke();
 
             SelectedCard = DummyCard;
 
@@ -85,10 +85,6 @@ namespace GwentWebAssembly.Services
                 await _animationService.OverlayAnimation(_dataService.Turn);
         }
 
-        public void CardSelected(GwentCard card)
-        {
-            SelectedCard = card;
-        }
+        public void CardSelected(GwentCard card) => SelectedCard = card;
     }
-
 }

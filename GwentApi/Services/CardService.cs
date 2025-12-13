@@ -295,7 +295,7 @@ namespace GwentApi.Services
         {
             Game game = await _gameRepository.GetGameByCode(passClickedDto.Code);
 
-            if (_cardServiceValidator.ValidatePass(game, passClickedDto)) return null;
+            if (_cardServiceValidator.ValidatePass(game, passClickedDto)) return new();
 
             if (passClickedDto.Identity == PlayerIdentity.PlayerOne)
                 game.HasPassed = (true, game.HasPassed.PlayerTwo);
@@ -375,7 +375,7 @@ namespace GwentApi.Services
             if (playerSide.LeaderCard.CardId == 25 || playerSide.LeaderCard.CardId == 141 || playerSide.LeaderCard.CardId == 94)
             {
                 TroopPlacement placement = playerSide.LeaderCard.CardId == 25 ? TroopPlacement.Siege : playerSide.LeaderCard.CardId == 141 ? TroopPlacement.Range : TroopPlacement.Melee;
-                if (game.CardsOnBoard.Any(x => x.CardId == 6 && x.Placement == placement)) return null;//trzeba sprawdzic czy wtedy pozwala a abilitka sie nie marnuje, moze to jest overprotective z mojej strony
+                if (game.CardsOnBoard.Any(x => x.CardId == 6 && x.Placement == placement)) return new();//trzeba sprawdzic czy wtedy pozwala a abilitka sie nie marnuje, moze to jest overprotective z mojej strony
 
                 GwentCard hornCard = _cardsProvider.GetCardByCardId(6);
                 hornCard.PrimaryId = 200 + 30 + identityOffset;

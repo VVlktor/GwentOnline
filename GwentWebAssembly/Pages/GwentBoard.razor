@@ -386,11 +386,6 @@
         }
 
         await gameService.GetStartStatus();
-        statusService.OnStateChanged += RefreshState;
-    }
-
-    public async Task RefreshState()
-    {
-        StateHasChanged();
+        statusService.OnStateChanged += StateHasChanged;
     }
 }

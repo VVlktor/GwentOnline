@@ -23,15 +23,9 @@ namespace GwentApi.Hubs
             _lobbyService = lobbyService;
         }
 
-        public async Task JoinBoard(string code)
-        {
-            await Groups.AddToGroupAsync(Context.ConnectionId, code);
-        }
-
-        public async Task LeaveBoard(string code)
-        {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, code);
-        }
+        public async Task JoinBoard(string code) => await Groups.AddToGroupAsync(Context.ConnectionId, code);
+        
+        public async Task LeaveBoard(string code) => await Groups.RemoveFromGroupAsync(Context.ConnectionId, code);
 
         public async Task LaneClicked(LaneClickedDto laneClickedDto)
         {
@@ -56,7 +50,7 @@ namespace GwentApi.Hubs
 
             await _statusService.UpdateBoardState(hornClickedDto.Code);
 
-            await _statusService.AddGwentAction(hornClickedDto.Identity, hornClickedDto.Code, GwentActionType.CommandersHornCardPlayed, new() { actionResult.GwentBoardCard }, new());
+            await _statusService.AddGwentAction(hornClickedDto.Identity, hornClickedDto.Code, GwentActionType.CommandersHornCardPlayed, [actionResult.GwentBoardCard], []);
 
             await _statusService.UpdateTurn(hornClickedDto.Code);
 
@@ -86,7 +80,7 @@ namespace GwentApi.Hubs
 
             await _statusService.UpdateBoardState(cardClickedDto.Code);
 
-            await _statusService.AddGwentAction(cardClickedDto.Identity, cardClickedDto.Code, actionResult.ActionType, new() { actionResult.PlayedCard }, new() { actionResult.SwappedCard });
+            await _statusService.AddGwentAction(cardClickedDto.Identity, cardClickedDto.Code, actionResult.ActionType, [actionResult.PlayedCard], [actionResult.SwappedCard]);
 
             await _statusService.UpdateTurn(cardClickedDto.Code);
 
@@ -101,7 +95,7 @@ namespace GwentApi.Hubs
 
             await _statusService.UpdateBoardState(weatherClickedDto.Code);
 
-            await _statusService.AddGwentAction(weatherClickedDto.Identity, weatherClickedDto.Code, actionResult.ActionType, new() { actionResult.PlayedCard }, actionResult.RemovedCards);
+            await _statusService.AddGwentAction(weatherClickedDto.Identity, weatherClickedDto.Code, actionResult.ActionType, [actionResult.PlayedCard], actionResult.RemovedCards);
 
             await _statusService.UpdateTurn(weatherClickedDto.Code);
 
@@ -116,7 +110,7 @@ namespace GwentApi.Hubs
 
             await _statusService.UpdateBoardState(enemyLaneClickedDto.Code);
 
-            await _statusService.AddGwentAction(enemyLaneClickedDto.Identity, enemyLaneClickedDto.Code, actionResult.ActionType, new() { actionResult.PlayedCard }, new());
+            await _statusService.AddGwentAction(enemyLaneClickedDto.Identity, enemyLaneClickedDto.Code, actionResult.ActionType, [actionResult.PlayedCard], []);
 
             await _statusService.UpdateTurn(enemyLaneClickedDto.Code);
 
@@ -129,7 +123,7 @@ namespace GwentApi.Hubs
 
             if (!actionResult.IsSuccess) return;
 
-            await _statusService.AddGwentAction(passClickedDto.Identity, passClickedDto.Code, actionResult.ActionType, new(), new());
+            await _statusService.AddGwentAction(passClickedDto.Identity, passClickedDto.Code, actionResult.ActionType, [], []);
 
             TurnStatus turnStatus = await _statusService.UpdateTurn(passClickedDto.Code);
 
@@ -141,7 +135,7 @@ namespace GwentApi.Hubs
 
             await _statusService.EndRound(passClickedDto.Code);
 
-            await _statusService.AddGwentAction(passClickedDto.Identity, passClickedDto.Code, GwentActionType.EndRound, new(), new());
+            await _statusService.AddGwentAction(passClickedDto.Identity, passClickedDto.Code, GwentActionType.EndRound, [], []);
 
             await SendStatus(passClickedDto.Identity, passClickedDto.Code, "ActionReceived");
         }

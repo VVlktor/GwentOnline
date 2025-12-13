@@ -21,10 +21,7 @@ namespace GwentWebAssembly.Services
             _statusService = statusService;
         }
 
-        public async Task JoinBoardAsync()
-        {
-            await _gwentHubService.JoinBoardAsync(_playerService.LobbyCode);
-        }
+        public async Task JoinBoardAsync() => await _gwentHubService.JoinBoardAsync(_playerService.LobbyCode);
 
         public async Task<StartStatusDto> GetStartStatus()
         {
@@ -45,10 +42,7 @@ namespace GwentWebAssembly.Services
             await _gwentHubService.SendCardClicked(_playerService.GetIdentity(), _playerService.LobbyCode, clickedCard, card);
         }
 
-        public async Task LeaderClicked()
-        {
-            await _gwentHubService.SendLeaderClicked(_playerService.GetIdentity(), _playerService.LobbyCode);
-        }
+        public async Task LeaderClicked() => await _gwentHubService.SendLeaderClicked(_playerService.GetIdentity(), _playerService.LobbyCode);
 
         public async Task PlayerLaneClicked(TroopPlacement placement)
         {
@@ -85,11 +79,8 @@ namespace GwentWebAssembly.Services
             await _gwentHubService.SendEnemyLaneClicked(_playerService.GetIdentity(), _playerService.LobbyCode, placement, card);
         }
 
-        public async Task PassClicked()
-        {
-            await _gwentHubService.SendPassClicked(_playerService.GetIdentity(), _playerService.LobbyCode);
-        }
-
+        public async Task PassClicked() => await _gwentHubService.SendPassClicked(_playerService.GetIdentity(), _playerService.LobbyCode);
+        
         public async Task CarouselCardClicked(CarouselSlot slot)
         {
             if (slot.IsEmpty) return;

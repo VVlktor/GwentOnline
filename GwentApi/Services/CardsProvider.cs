@@ -1,14 +1,12 @@
-﻿using GwentApi.Classes;
-using GwentShared.Classes;
-using System.Text.Json;
+﻿using GwentShared.Classes;
+using GwentShared.Services;
 
 namespace GwentApi.Services
 {
     public class CardsProvider
     {
         public CardsProvider() {
-            string json = File.ReadAllText("jsons/cards.json");
-            Cards = JsonSerializer.Deserialize<List<GwentCard>>(json)!;
+            Cards = CardsJsonReader.LoadGwentCards();
         }
 
         public List<GwentCard> Cards { get; set; }
