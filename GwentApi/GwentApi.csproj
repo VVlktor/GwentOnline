@@ -15,8 +15,4 @@
     <ProjectReference Include="..\GwentShared\GwentShared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="jsons\" />
-  </ItemGroup>
-
 </Project>
