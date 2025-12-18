@@ -22,7 +22,7 @@
     <h2 id="card-deck-title" class="card-contianer-title">Cards in Deck</h2>
 
     <div id="card-bank" class="card-array">
-        @foreach (var card in CardList.Where(x => (x.Faction == SelectedFaction || x.Faction == CardFaction.Neutral || x.Faction == CardFaction.Weather || x.Faction == CardFaction.Special) && x.Placement != TroopPlacement.Leader))
+        @foreach (var card in CardList.Where(x => (x.Faction == SelectedFaction || x.Faction is CardFaction.Neutral or CardFaction.Weather or CardFaction.Special) && x.Placement is not TroopPlacement.Leader))
         {
             <div @onclick="() => AddSelectedCard(card)" class="card-lg" style="background-image: url('img/big/@card.FileName');"></div>
         }
@@ -44,7 +44,7 @@
         <p class="deck-stats-padding">Total cards in deck</p>
         <p class="deck-stats-padding">@SelectedCards.Count</p>
         <p class="deck-stats-padding">Number of Unit Cards</p>
-        <p class="deck-stats-padding">@SelectedCards.Count(x => x.Placement == TroopPlacement.Melee || x.Placement == TroopPlacement.Agile || x.Placement == TroopPlacement.Range || x.Placement == TroopPlacement.Siege)</p>
+        <p class="deck-stats-padding">@SelectedCards.Count(x => x.Placement is TroopPlacement.Melee or TroopPlacement.Agile or TroopPlacement.Range or TroopPlacement.Siege)</p>
         <p class="deck-stats-padding">Special Cards</p>
         <p class="deck-stats-padding">@SelectedCards.Count(x => x.Placement is TroopPlacement.Special or TroopPlacement.Weather)/10</p>
     </div>

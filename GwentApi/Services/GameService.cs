@@ -65,7 +65,7 @@ namespace GwentApi.Services
                 CardsInHand = playerInfo.Cards[..10],
                 Deck = playerInfo.Cards[10..],
                 Faction = playerInfo.Faction,
-                UsedCards = new(),
+                UsedCards = [],
                 Hp=2
             };
 

@@ -214,7 +214,7 @@
 						</div>
 					}
 				</div>
-				<div id="playerLaneMelee" class="row-cards card-container card-selectable @((statusService.SelectedCard.Placement == TroopPlacement.Melee || statusService.SelectedCard.Placement == TroopPlacement.Agile) && dataService.Turn == playerService.GetIdentity() && !statusService.SelectedCard.Abilities.HasFlag(Abilities.Spy) ? "row-selectable" : "")" @onclick="async () => await gameService.PlayerLaneClicked(TroopPlacement.Melee)">
+				<div id="playerLaneMelee" class="row-cards card-container card-selectable @((statusService.SelectedCard.Placement is TroopPlacement.Melee or TroopPlacement.Agile) && dataService.Turn == playerService.GetIdentity() && !statusService.SelectedCard.Abilities.HasFlag(Abilities.Spy) ? "row-selectable" : "")" @onclick="async () => await gameService.PlayerLaneClicked(TroopPlacement.Melee)">
 					@foreach (var card in dataService.CardsOnBoard.Where(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.GetIdentity() && x.CardId != 6).OrderBy(x => x.Strength))
 					{
 						<div id="@($"card-on-board-{card.PrimaryId}")" @onclick="async () => await gameService.CardClicked(card)" class="card" style="background-image: url('img/cards/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">
@@ -348,11 +348,11 @@
 				{
 					if (slot.Offset == 0)
 					{
-						<div class="card-lg" @onclick="@(async() => await CenterCarouselCardClicked(slot))" style="background-image: url('img/cards/@(slot.Item.FileName)');"></div>
+						<div class="card-lg" @onclick="@(async() => await CenterCarouselCardClicked(slot))" style="background-image: url('img/big/@(slot.Item.FileName)');"></div>
 					}
 					else
 					{
-						<div class="card-lg" @onclick="@(() => carouselService.OnCardClick(slot))" style="background-image: url('img/cards/@(slot.Item.FileName)');"></div>
+						<div class="card-lg" @onclick="@(() => carouselService.OnCardClick(slot))" style="background-image: url('img/big/@(slot.Item.FileName)');"></div>
 					}
 				}
 			}

@@ -13,31 +13,8 @@
                 <div class="cards-container d-flex flex-wrap justify-content-between">
                     @foreach(var card in TenCards)
                     {
-                        <div class="card-item mt-4" style="width: 18%;" @onclick="async()=>await SwapCard(card)">
-                            <img src="img/cards/@(card.FileName)" alt="Deyna" class="card-img">
-                            <div class="card-content">
-                                <div class="card-name">@card.Name</div>
-                                <div class="card-description">@card.Faction</div>
-                                <div class="card-meta">
-                                    @if (card.Placement != TroopPlacement.Special && card.Placement != TroopPlacement.Weather)
-                                    {
-                                        <label>Siła: @card.Strength | @card.Placement</label>
-                                
-                                        <br />
-                                    }
-                                    @if (card.Abilities != Abilities.None)
-                                    {
-                                        <label>Abilities: &nbsp</label>
-                                        @foreach (Abilities ability in Enum.GetValues(typeof(Abilities)))
-                                        {
-                                            if (ability != Abilities.None && card.Abilities.HasFlag(ability))
-                                            {
-                                                <label>@ability, &nbsp</label>
-                                            }
-                                        }
-                                    }
-                                </div>
-                            </div>
+                        <div class="card-item mt-4" style="width: 19%;" @onclick="async()=>await SwapCard(card)">
+                            <img src="img/big/@(card.FileName)" alt="gwentCard" class="card-img">
                         </div>                        
                     }
                 </div>

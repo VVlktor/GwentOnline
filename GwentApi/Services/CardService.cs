@@ -81,8 +81,8 @@ namespace GwentApi.Services
             LaneClickedGwentActionResult actionResult = new()
             {
                 ActionType = gwentActionType,
-                KilledCards = new(),
-                PlayedCards = new() { boardCard },
+                KilledCards = [],
+                PlayedCards = [ boardCard ],
                 IsSuccess = true
             };
 
@@ -181,7 +181,7 @@ namespace GwentApi.Services
                 WeatherClickedGwentActionResult scorchActionResult = new()
                 {
                     ActionType = GwentActionType.ScorchCardPlayed,
-                    RemovedCards = new(),
+                    RemovedCards = [],
                     PlayedCard = boardCard,
                     IsSuccess = true
                 };
@@ -240,7 +240,7 @@ namespace GwentApi.Services
             WeatherClickedGwentActionResult weatherActionResult = new()
             {
                 ActionType = GwentActionType.WeatherCardPlayed,
-                RemovedCards = new(),
+                RemovedCards = [],
                 PlayedCard = boardCard,
                 IsSuccess = true
             };
@@ -263,7 +263,7 @@ namespace GwentApi.Services
             playerSide.CardsInHand.Remove(card);
             game.CardsOnBoard.Add(boardCard);
 
-            List<GwentCard> drawnCards = new();
+            List<GwentCard> drawnCards = [];
             switch (playerSide.Deck.Count)
             {
                 case >= 2:
@@ -401,7 +401,7 @@ namespace GwentApi.Services
             {
                 TroopPlacement placement = playerSide.LeaderCard.CardId == 26 ? TroopPlacement.Siege : playerSide.LeaderCard.CardId == 27 ? TroopPlacement.Range : TroopPlacement.Melee;
                 var rowCards = game.CardsOnBoard.Where(x => x.Placement == placement && x.Owner == leaderClickedDto.Identity.GetEnemy());
-                List<GwentBoardCard> KilledCards = new();
+                List<GwentBoardCard> KilledCards = [];
                 if (rowCards.Sum(x => x.CurrentStrength) >= 10 && rowCards.Any(x => !x.Abilities.HasFlag(Abilities.Hero)))
                 {
                     int maxCurrentSstrength = rowCards.Where(x => !x.Abilities.HasFlag(Abilities.Hero)).Max(x => x.CurrentStrength);
@@ -499,8 +499,8 @@ namespace GwentApi.Services
                 CarouselCardClickedGwentActionResult spyActionResult = new()
                 {
                     ActionType = GwentActionType.SpyCardPlayed,
-                    PlayedCards = new() { boardCard },
-                    KilledCards = new(),
+                    PlayedCards = [ boardCard ],
+                    KilledCards = [],
                     IsSuccess = true
                 };
 
@@ -521,8 +521,8 @@ namespace GwentApi.Services
             CarouselCardClickedGwentActionResult actionResult = new()
             {
                 ActionType = gwentActionType,
-                KilledCards = new(),
-                PlayedCards = new() { boardCard },
+                KilledCards = [],
+                PlayedCards = [boardCard],
                 IsSuccess = true
             };
 
@@ -588,7 +588,7 @@ namespace GwentApi.Services
 
         private List<GwentBoardCard> MusterCardPlayed(Game game, GwentBoardCard boardCard, PlayerIdentity identity)
         {
-            List<GwentBoardCard> playedCards = new();
+            List<GwentBoardCard> playedCards = [];
             PlayerSide playerSide = _gameDataService.GetPlayerSide(game, identity);
 
             string musterName = boardCard.Name.Split(' ')[0];
