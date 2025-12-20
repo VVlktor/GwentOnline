@@ -297,7 +297,7 @@
 				@foreach (var card in dataService.CardsInHand.OrderBy(x => x.Strength))
 				{
 					<div class="card" id="@($"card-in-hand-{card.PrimaryId}")" @onclick="() => statusService.CardSelected(card)" style="background-image: url('img/cards/@(card.FileName)'); margin-right: 0.075vw; margin-left: 0.075vw;">
-						<div style="background-image: url('img/icons/@(card.Abilities.HasFlag(Abilities.Hero) ? "power_hero" : "power_normal").png');" class="@(card.Placement == TroopPlacement.Weather ? "hidden-invisible" : "")">
+						<div style="background-image: url('img/icons/@(card.Abilities.HasFlag(Abilities.Hero) ? "power_hero" : "power_normal").png');" class="@(card.Placement == TroopPlacement.Weather || card.CardId==6 || card.CardId==2 ? "hidden-invisible" : "")">
 							<div class="center" style="@(card.Abilities.HasFlag(Abilities.Hero) ? "color: goldenrod;" : "")">@card.Strength</div>
 						</div>
 						<div class="@(card.Placement == TroopPlacement.Weather ? "hidden-invisible" : "")" style="background-image: url('img/icons/card_row_@(card.Placement.ToString().ToLower()).png');"></div>

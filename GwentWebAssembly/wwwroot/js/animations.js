@@ -54,25 +54,21 @@ async function showEndGameOverlay(message) {
     document.body.appendChild(overlay);
 }
 
-async function moveCardByElementIds(cardElemId, destElemId, cardImage) {
+async function moveCardByElementIdsWithInfo(cardElemId, destElemId, data) {
     const startElem = document.getElementById(cardElemId);
     const destElem = document.getElementById(destElemId);
     const overlay = document.getElementById("card-overlay");
 
     if (!startElem || !destElem || !overlay) return false;
 
-    const card = document.createElement("div");
-    card.className = "card noclick";
-    card.style.backgroundImage = `url('${cardImage}')`;
-    card.style.backgroundSize = "cover";
-    card.style.backgroundPosition = "center";
-    card.style.height = "6.35vw";
-    card.style.width = "4.45vw";
-    card.style.position = "absolute";
-    card.style.transition = "transform 0.8s ease-in-out";
-    card.style.zIndex = "99999";
-    card.style.pointerEvents = "none";
+    const card = CreateCard(data);
 
+    await moveCard(startElem, destElem, overlay, card);
+
+    return true;
+}
+
+async function moveCard(startElem, destElem, overlay, card) {
     overlay.appendChild(card);
 
     const startRect = startElem.getBoundingClientRect();
@@ -96,6 +92,72 @@ async function moveCardByElementIds(cardElemId, destElemId, cardImage) {
     await new Promise(r => setTimeout(r, 800));
     overlay.removeChild(card);
     return true;
+}
+
+async function moveCardByElementIdsNoInfo(cardElemId, destElemId, cardImage) {
+    const startElem = document.getElementById(cardElemId);
+    const destElem = document.getElementById(destElemId);
+    const overlay = document.getElementById("card-overlay");
+
+    if (!startElem || !destElem || !overlay) return false;
+
+    const card = document.createElement("div");
+    card.className = "card noclick";
+    card.style.backgroundImage = `url('${cardImage}')`;
+    card.style.backgroundSize = "cover";
+    card.style.backgroundPosition = "center";
+    card.style.height = "6.35vw";
+    card.style.width = "4.45vw";
+    card.style.position = "absolute";
+    card.style.transition = "transform 0.8s ease-in-out";
+    card.style.zIndex = "99999";
+    card.style.pointerEvents = "none";
+
+    await moveCard(startElem, destElem, overlay, card);
+
+    return true;
+}
+
+function CreateCard(data) {
+    const card = document.createElement("div");
+    card.className = "card noclick";
+    card.style.backgroundImage = `url('${data.imagePath}')`;
+    card.style.backgroundSize = "cover";
+    card.style.backgroundPosition = "center";
+    card.style.height = "6.35vw";
+    card.style.width = "4.45vw";
+    card.style.position = "absolute";
+    card.style.transition = "transform 0.8s ease-in-out";
+    card.style.zIndex = "99999";
+    card.style.pointerEvents = "none";
+
+    const div1 = document.createElement("div");
+    div1.style.backgroundImage = `url('img/icons/power_normal.png')`
+    if (data.isHero) {
+        div1.style.backgroundImage = `url('img/icons/power_hero.png')`
+    }
+
+    const div2 = document.createElement("div");
+    div2.className = "center";
+    div2.textContent = `${data.strength}`;
+
+    const div3 = document.createElement("div");
+    div3.style.backgroundImage = `url('img/icons/card_row_${data.placementName}.png')`;
+
+    const div4 = document.createElement("div");
+    div4.style.backgroundImage = `url('img/icons/card_ability_${data.abilityName}.png')`;
+
+    const div5 = document.createElement("div");
+    div5.backgroundSize = "40%";
+    div5.className = "hide";
+
+    card.appendChild(div1);
+    div1.appendChild(div2);
+    card.appendChild(div3);
+    card.appendChild(div4);
+    card.appendChild(div5);
+
+    return card;
 }
 
 function resizeCardContainer(containerId, overlap_count, gap, coef, cardCount) {
