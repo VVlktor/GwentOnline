@@ -31,8 +31,7 @@ namespace GwentWebAssembly.Services
         {
             _dataService.SetStartData(startStatus);
 
-            if (OnStateChanged is not null)
-                OnStateChanged.Invoke();
+            OnStateChanged?.Invoke();
 
             await _animationService.OverlayAnimation(_dataService.Turn);
         }
@@ -52,17 +51,16 @@ namespace GwentWebAssembly.Services
 
             _dataService.UpdateData(gameStatusDto);
 
-            if (gameStatusDto.Action.ActionType == GwentActionType.MedicCardPlayed)
+            if (gameStatusDto.Action.ActionType == GwentActionType.MedicCardPlayed && gameStatusDto.Action.Issuer == _playerService.GetIdentity() && gameStatusDto.UsedCards.Count != 0)
             {
-                if (gameStatusDto.Action.Issuer == _playerService.GetIdentity() && gameStatusDto.UsedCards.Count != 0)
-                    _carouselService.ShowCarousel(_dataService.PlayerUsedCards.Where(x => !x.Abilities.HasFlag(Abilities.Hero) && x.Placement != TroopPlacement.Weather && x.Placement != TroopPlacement.Special && x.CardId != 2 && x.CardId != 6).ToList());
-                if (OnStateChanged is not null)
-                    OnStateChanged.Invoke();
+                OnStateChanged?.Invoke();
+                await _animationService.ProcessPostAnimation(gameStatusDto);
+                _carouselService.ShowCarousel(_dataService.PlayerUsedCards.Where(x => !x.Abilities.HasFlag(Abilities.Hero) && x.Placement != TroopPlacement.Weather && x.Placement != TroopPlacement.Special && x.CardId != 2 && x.CardId != 6).ToList());
+                OnStateChanged?.Invoke();
                 return;
             }
 
-            if (OnStateChanged is not null)
-                OnStateChanged.Invoke();
+            OnStateChanged?.Invoke();
 
             SelectedCard = DummyCard;
 
@@ -80,6 +78,8 @@ namespace GwentWebAssembly.Services
             }
 
             await _animationService.ResizeCardContainters(_dataService.CardsInHand.Count, _dataService.CardsOnBoard);
+
+            await _animationService.ProcessPostAnimation(gameStatusDto);
 
             if (!isSameTurn || message is not null)
                 await _animationService.OverlayAnimation(_dataService.Turn);

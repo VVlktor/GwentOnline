@@ -6,6 +6,7 @@ namespace GwentWebAssembly.Services.Interfaces
     public interface IAnimationService
     {
         Task ProcessReceivedAnimation(GameStatusDto gameStatusDto);
+        Task ProcessPostAnimation(GameStatusDto gameStatusDto);
         Task OverlayAnimation(string text);
         Task OverlayAnimation(PlayerIdentity turn);
         Task EndGameOverlayAnimation(string message);

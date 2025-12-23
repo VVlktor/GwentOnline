@@ -45,7 +45,19 @@ namespace GwentWebAssembly.Services
         }
 
         public async Task EndGameOverlayAnimation(string message) => await _jsRuntime.InvokeVoidAsync("showEndGameOverlay", message);
-       
+
+        public async Task ProcessPostAnimation(GameStatusDto gameStatusDto)
+        {
+            //gameStatusDto.Action.CardsPlayed[0].Abilities
+            switch (gameStatusDto.Action.ActionType)// dodac morale boost, muster, tight bond i tak dalej
+            {
+                case GwentActionType.SpyCardPlayed:
+                case GwentActionType.MedicCardPlayed:
+                    await PlayPostBasicAnimation(gameStatusDto);
+                    break;
+            }
+        }
+
         public async Task ProcessReceivedAnimation(GameStatusDto gameStatusDto)
         {
             if (gameStatusDto.Action.LeaderUsed)
@@ -236,6 +248,13 @@ namespace GwentWebAssembly.Services
 
             CardJsInfo data = GetData(boardCard);
             await _jsRuntime.InvokeVoidAsync("moveCardByElementIdsWithInfo", startName, endName, data);
+        }
+
+        private async Task PlayPostBasicAnimation(GameStatusDto gameStatusDto)
+        {
+            GwentBoardCard boardCard = gameStatusDto.Action.CardsPlayed[0];
+            CardJsInfo jsInfo = GetData(boardCard);
+            await _jsRuntime.InvokeVoidAsync("playPostAnimation", boardCard.PrimaryId, jsInfo.AbilityName);
         }
 
         private CardJsInfo GetData(GwentBoardCard boardCard)

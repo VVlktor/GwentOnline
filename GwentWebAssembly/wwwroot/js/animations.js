@@ -94,6 +94,36 @@ async function moveCard(startElem, destElem, overlay, card) {
     return true;
 }
 
+async function playPostAnimation(cardId, abilityName) {
+    const card = document.getElementById(`card-on-board-${cardId}`);
+
+    if (!card) return false;
+
+    const lastChild = card.lastElementChild;
+    
+    lastChild.className = "";
+    lastChild.style.backgroundImage = `url('img/icons/anim_${abilityName}.png')`;
+    lastChild.style.opacity = "0";
+
+    lastChild.style.backgroundSize = "0%";
+    lastChild.style.transition = "opacity 0.7s, background-size 0.7s ease";
+
+    await new Promise(r => setTimeout(r, 10));
+
+    lastChild.style.opacity = "1";
+    lastChild.style.backgroundSize = "80%";
+
+    await new Promise(r => setTimeout(r, 710));
+
+    lastChild.style.opacity = "0";
+    lastChild.style.backgroundSize = "0%";
+
+    await new Promise(r => setTimeout(r, 710));
+
+    lastChild.className = "hide";
+    return true;
+}
+
 async function moveCardByElementIdsNoInfo(cardElemId, destElemId, cardImage) {
     const startElem = document.getElementById(cardElemId);
     const destElem = document.getElementById(destElemId);
