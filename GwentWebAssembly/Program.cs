@@ -13,6 +13,8 @@ namespace GwentWebAssembly
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
+            builder.Services.AddLocalStorageServices();
+
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
             builder.Services.AddTransient<ICardService, CardService>();
@@ -21,6 +23,7 @@ namespace GwentWebAssembly
             builder.Services.AddTransient<IGameService, GameService>();
             builder.Services.AddTransient<IAnimationService, AnimationService>();
             builder.Services.AddTransient<ILobbySetupService, LobbySetupService>();
+            builder.Services.AddTransient<IClipboardService, ClipboardService>();
 
             builder.Services.AddSingleton<IDataService, DataService>();
             builder.Services.AddSingleton<IStatusService, StatusService>();
