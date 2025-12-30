@@ -1,0 +1,35 @@
+﻿@inject NavigationManager navigationManager
+@inject ILobbyInitializationService lobbyInitService
+@inject IPlayerService playerService
+
+@page "/invite/{LobbyCode?}"
+
+<h3>Provided lobby code ( @LobbyCode ) is invalid.</h3>
+
+<button @onclick="NavigateToHomePage">Go back to home page</button>
+
+@code {
+    [Parameter]
+    public string? LobbyCode { get; set; } = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (string.IsNullOrEmpty(LobbyCode))
+        {
+            NavigateToHomePage();
+            return;
+        }
+
+        bool lobbyExists = await lobbyInitService.JoinLobby(LobbyCode);
+        if (!lobbyExists)
+        {
+            NavigateToHomePage();
+            return;
+        }
+
+        playerService.SetData(PlayerIdentity.PlayerTwo, LobbyCode);
+        navigationManager.NavigateTo($"/Deck");
+    }
+
+    private void NavigateToHomePage() => navigationManager.NavigateTo("/");
+}

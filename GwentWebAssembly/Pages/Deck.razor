@@ -52,7 +52,8 @@
     </div>
 
     <div class="start-panel">
-        <p class="lobby-code" title="Click to copy" @onclick="CopyLobbyCode">Kod lobby: @playerService.LobbyCode</p>
+        <p class="lobby-code" title="Click to copy invite link" @onclick='async() => await clipboardService.CopyToClipboard($"{navigationManager.BaseUri}invite/{playerService.LobbyCode}")'>Copy invite link</p>
+        <p class="lobby-code" title="Click to copy code" @onclick="async () => await clipboardService.CopyToClipboard(playerService.LobbyCode)">Kod lobby: @playerService.LobbyCode</p>
         <p class="lobby-code">@responseMessage</p>
     </div>
 
@@ -84,7 +85,6 @@
     private string responseMessage = "";
     private bool deckVerificationClicked = false;
 
-    private async Task CopyLobbyCode() => await clipboardService.CopyToClipboard(playerService.LobbyCode);
 
     private void NextLeader()
     {

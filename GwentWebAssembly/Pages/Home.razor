@@ -1,5 +1,5 @@
 ﻿@page "/"
-@inject IHomePageService homePageService
+@inject ILobbyInitializationService lobbyInitService
 @inject NavigationManager navigationManager
 @inject IPlayerService playerService
 
@@ -52,7 +52,7 @@
     {
         if (string.IsNullOrEmpty(lobbyInput)) return;
 
-        bool lobbyExists = await homePageService.JoinLobby(lobbyInput);
+        bool lobbyExists = await lobbyInitService.JoinLobby(lobbyInput);
         if (!lobbyExists) return;
 
         playerService.SetData(PlayerIdentity.PlayerTwo, lobbyInput);
@@ -61,7 +61,7 @@
 
     private async Task CreateLobby()
     {
-        string lobbyCode = await homePageService.CreateLobby();
+        string lobbyCode = await lobbyInitService.CreateLobby();
         if(string.IsNullOrEmpty(lobbyCode)) return;
 
         playerService.SetData(PlayerIdentity.PlayerOne, lobbyCode);

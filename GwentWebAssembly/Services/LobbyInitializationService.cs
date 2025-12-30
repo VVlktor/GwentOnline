@@ -2,11 +2,11 @@
 
 namespace GwentWebAssembly.Services
 {
-    public class HomePageService : IHomePageService
+    public class LobbyInitializationService : ILobbyInitializationService
     {
         private HttpClient _httpClient;
 
-        public HomePageService(HttpClient httpClient)
+        public LobbyInitializationService(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
