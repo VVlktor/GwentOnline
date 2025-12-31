@@ -24,6 +24,7 @@ namespace GwentWebAssembly
             builder.Services.AddTransient<IAnimationService, AnimationService>();
             builder.Services.AddTransient<ILobbySetupService, LobbySetupService>();
             builder.Services.AddTransient<IClipboardService, ClipboardService>();
+            builder.Services.AddTransient<IDeckBuilderService, DeckBuilderService>();
 
             builder.Services.AddSingleton<IDataService, DataService>();
             builder.Services.AddSingleton<IStatusService, StatusService>();

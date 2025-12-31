@@ -1,64 +1,64 @@
-﻿@inject IPlayerService playerService
+﻿@implements IDisposable
+
+@inject IPlayerService playerService
 @inject NavigationManager navigationManager
-@inject ICardService cardService
-@inject IDeckService deckService
-@inject ILobbySetupService lobbySetupService
-@inject ILocalStorageService localStorageService
 @inject IClipboardService clipboardService
+@inject IDeckBuilderService deckBuilderService
+
 @page "/Deck"
 
 <section id="deck-customization">
     <div id="faction-title" class="center">
-        <h1 style="background-image: url('img/icons/deck_@(SelectedLeader.Faction).png');">@SelectedLeader.Faction</h1>
+        <h1 style="background-image: url('img/icons/deck_@(deckBuilderService.SelectedLeader.Faction).png');">@deckBuilderService.SelectedLeader.Faction</h1>
     </div>
 
     <p id="faction-description">Select your faction and deck.</p>
 
-    <a @onclick="() => SetFaction(CardFaction.NorthernRealms)" style="left: 30%;" class="deck-options">Northern Realms</a>
-    <a @onclick="() => SetFaction(CardFaction.NilfgaardianEmpire)" style="left: 40%;" class="deck-options">Nilfgaard</a>
-    <a @onclick="() => SetFaction(CardFaction.Monsters)" style="left: 47%;" class="deck-options">Monsters</a>
-    <a @onclick="() => SetFaction(CardFaction.Scoiatael)" style="left: 55%;" class="deck-options">Scoiatael</a>
-    <a @onclick="() => SetFaction(CardFaction.Skellige)" style="left: 63%;" class="deck-options text-danger" title="Skellige deck in development">Skellige</a>
+    <a @onclick="() => deckBuilderService.SetFaction(CardFaction.NorthernRealms)" style="left: 30%;" class="deck-options">Northern Realms</a>
+    <a @onclick="() => deckBuilderService.SetFaction(CardFaction.NilfgaardianEmpire)" style="left: 40%;" class="deck-options">Nilfgaard</a>
+    <a @onclick="() => deckBuilderService.SetFaction(CardFaction.Monsters)" style="left: 47%;" class="deck-options">Monsters</a>
+    <a @onclick="() => deckBuilderService.SetFaction(CardFaction.Scoiatael)" style="left: 55%;" class="deck-options">Scoiatael</a>
+    <a @onclick="() => deckBuilderService.SetFaction(CardFaction.Skellige)" style="left: 63%;" class="deck-options text-danger" title="Skellige deck in development">Skellige</a>
 
     <h2 id="card-bank-title" class="card-contianer-title">Card Collection</h2>
     <h2 id="card-deck-title" class="card-contianer-title">Cards in Deck</h2>
 
     <div id="card-bank" class="card-array">
-        @foreach (var card in CardList.Where(x => (x.Faction == SelectedFaction || x.Faction is CardFaction.Neutral or CardFaction.Weather or CardFaction.Special) && x.Placement is not TroopPlacement.Leader))
+        @foreach (var card in deckBuilderService.CardList.Where(x => (x.Faction == deckBuilderService.SelectedFaction || x.Faction is CardFaction.Neutral or CardFaction.Weather or CardFaction.Special) && x.Placement is not TroopPlacement.Leader))
         {
-            <div @onclick="() => AddSelectedCard(card)" class="card-lg" style="background-image: url('img/big/@card.FileName');"></div>
+            <div @onclick="() => deckBuilderService.AddSelectedCard(card)" class="card-lg" style="background-image: url('img/big/@card.FileName');"></div>
         }
     </div>
 
     <div id="card-deck" class="card-array">
-        @foreach (var card in SelectedCards)
+        @foreach (var card in deckBuilderService.SelectedCards)
         {
-            <div @onclick="() => RemoveSelectedCard(card)" class="card-lg" style="background-image: url('img/big/@card.FileName');"></div>
+            <div @onclick="() => deckBuilderService.RemoveSelectedCard(card)" class="card-lg" style="background-image: url('img/big/@card.FileName');"></div>
         }
     </div>
 
-    <div @onclick="NextLeader" id="card-leader-panel">
+    <div @onclick="deckBuilderService.NextLeader" id="card-leader-panel">
         <p>Leader</p>
-        <div style="background-image: url('img/big/@SelectedLeader.FileName');"></div>
+        <div style="background-image: url('img/big/@deckBuilderService.SelectedLeader.FileName');"></div>
     </div>
 
     <div id="deck-stats">
         <p class="deck-stats-padding">Total cards in deck</p>
-        <p class="deck-stats-padding">@SelectedCards.Count</p>
+        <p class="deck-stats-padding">@deckBuilderService.SelectedCards.Count</p>
         <p class="deck-stats-padding">Number of Unit Cards</p>
-        <p class="deck-stats-padding">@SelectedCards.Count(x => x.Placement is TroopPlacement.Melee or TroopPlacement.Agile or TroopPlacement.Range or TroopPlacement.Siege)</p>
+        <p class="deck-stats-padding">@deckBuilderService.SelectedCards.Count(x => x.Placement is TroopPlacement.Melee or TroopPlacement.Agile or TroopPlacement.Range or TroopPlacement.Siege)</p>
         <p class="deck-stats-padding">Special Cards</p>
-        <p class="deck-stats-padding">@SelectedCards.Count(x => x.Placement is TroopPlacement.Special or TroopPlacement.Weather)/10</p>
+        <p class="deck-stats-padding">@deckBuilderService.SelectedCards.Count(x => x.Placement is TroopPlacement.Special or TroopPlacement.Weather)/10</p>
     </div>
 
     <div class="start-panel">
         <p class="lobby-code" title="Click to copy invite link" @onclick='async() => await clipboardService.CopyToClipboard($"{navigationManager.BaseUri}invite/{playerService.LobbyCode}")'>Copy invite link</p>
         <p class="lobby-code" title="Click to copy code" @onclick="async () => await clipboardService.CopyToClipboard(playerService.LobbyCode)">Kod lobby: @playerService.LobbyCode</p>
-        <p class="lobby-code">@responseMessage</p>
+        <p class="lobby-code">@deckBuilderService.ResponseMessage</p>
     </div>
 
-    <button id="start-game-new" class="btn-success btn" disabled="@deckVerificationClicked" @onclick="ReadyClicked">
-        @if (deckVerificationClicked)
+    <button id="start-game-new" class="btn-success btn" disabled="@deckBuilderService.IsPrepared" @onclick="deckBuilderService.DeckPrepared">
+        @if (deckBuilderService.IsPrepared)
         {
             <p>Oczekiwanie na przeciwnika...</p>
         }
@@ -69,93 +69,23 @@
     </button>
 </section>
 
+
 @code {
-    private int[] notImplementedLeaders = [58, 61, 60, 95, 96, 97, 144];//tymczasowe, do wywalenia
-
-    private List<GwentCard> CardList = [];
-    private List<GwentCard> SelectedCards = [];
-    private List<GwentCard> LeaderCards = [];
-
-    private int leaderIndex = 0;
-
-    private GwentCard SelectedLeader = new() { Name = "" };
-
-    private CardFaction SelectedFaction = CardFaction.NorthernRealms;
-
-    private string responseMessage = "";
-    private bool deckVerificationClicked = false;
-
-
-    private void NextLeader()
-    {
-        if (deckVerificationClicked) return;
-        leaderIndex++;
-        if (leaderIndex >= LeaderCards.Count) leaderIndex = 0;
-        SelectedLeader = LeaderCards[leaderIndex];
-    }
-
-    private async Task ReadyClicked()
-    {
-        if (notImplementedLeaders.Contains(SelectedLeader.CardId)) return;
-        deckVerificationClicked = true;
-        PlayerDeckInfo playerInfo = new(SelectedCards.Select(x => x.PrimaryId).ToList(), SelectedLeader.PrimaryId, SelectedFaction);
-        ResponseData responseData = await deckService.VerifyAndSetDeck(playerInfo);
-        responseMessage = responseData.Message;
-        StateHasChanged();
-        deckVerificationClicked = responseData.IsValid;
-        if(responseData.IsValid)
-            localStorageService.SetItem("deck", playerInfo);
-    }
-
-    private void RemoveSelectedCard(GwentCard card)
-    {
-        if (deckVerificationClicked) return;
-        CardList.Add(card);
-        SelectedCards.Remove(card);
-    }
-
-    private void AddSelectedCard(GwentCard card)
-    {
-        if (deckVerificationClicked) return;
-        SelectedCards.Add(card);
-        CardList.Remove(card);
-    }
-
-    private void SetFaction(CardFaction faction)
-    {
-        if (deckVerificationClicked) return;
-        if (faction == CardFaction.Skellige) return;
-        SelectedFaction = faction;
-        CardList.AddRange(SelectedCards);
-        SelectedCards.Clear();
-        LeaderCards = CardList.Where(x => x.Placement == TroopPlacement.Leader && x.Faction == SelectedFaction).ToList();
-        SelectedLeader = LeaderCards.First();
-        leaderIndex = 0;
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        CardList = await cardService.GetCardData();
-        LeaderCards = CardList.Where(x => x.Placement == TroopPlacement.Leader && x.Faction == SelectedFaction).Where(x => !notImplementedLeaders.Contains(x.CardId)).ToList();
-        SelectedLeader = LeaderCards.First();
-    }
+    protected override async Task OnInitializedAsync() => await deckBuilderService.InitializeAsync();
 
     protected override void OnInitialized()
     {
+        deckBuilderService.OnChange += StateHasChanged;
+
         if (!playerService.IsDataValid())
             navigationManager.NavigateTo("/");
     }
 
     protected override void OnAfterRender(bool firstRender)
     {
-        if(!firstRender) return;
-        PlayerDeckInfo? data = localStorageService.GetItem<PlayerDeckInfo>("deck");
-        if (data is null) return;
-        SetFaction(data.Faction);
-        SelectedCards = CardList.Where(x => data.CardsId.Contains(x.PrimaryId) && (x.Faction is CardFaction.Special or CardFaction.Neutral or CardFaction.Weather || x.Faction == data.Faction)).ToList();
-        foreach (var card in SelectedCards)
-            CardList.Remove(card);
-        SelectedLeader = LeaderCards.FirstOrDefault(x => x.PrimaryId == data.LeaderCardId) ?? LeaderCards.First();
-        StateHasChanged();
+        if (!firstRender) return;
+        deckBuilderService.PostInitialization();
     }
+
+    public void Dispose() => deckBuilderService.OnChange -= StateHasChanged;
 }

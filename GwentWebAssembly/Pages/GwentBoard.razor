@@ -1,4 +1,7 @@
-﻿@page "/GwentBoard"
+﻿@implements IDisposable
+
+@page "/GwentBoard"
+
 @inject IPlayerService playerService
 @inject NavigationManager navigationManager
 @inject IGameService gameService
@@ -368,15 +371,17 @@
 
 
 @code {
-	int enemyTotalScore => dataService.CardsOnBoard.Sum(x => x.Owner == playerService.EnemyIdentity() ? x.CurrentStrength : 0);
-	int playerTotalScore => dataService.CardsOnBoard.Sum(x => x.Owner == playerService.GetIdentity() ? x.CurrentStrength : 0);
+    int enemyTotalScore => dataService.CardsOnBoard.Sum(x => x.Owner == playerService.EnemyIdentity() ? x.CurrentStrength : 0);
+    int playerTotalScore => dataService.CardsOnBoard.Sum(x => x.Owner == playerService.GetIdentity() ? x.CurrentStrength : 0);
 
-	private async Task CenterCarouselCardClicked(CarouselSlot slot)
-	{
-		carouselService.HideCarousel();
-		await gameService.CarouselCardClicked(slot);
-	}
+    private async Task CenterCarouselCardClicked(CarouselSlot slot)
+    {
+        carouselService.HideCarousel();
+        await gameService.CarouselCardClicked(slot);
+    }
 
+    public void Dispose() => statusService.OnStateChanged -= StateHasChanged;
+    
     protected override async Task OnInitializedAsync()
     {
         if (!playerService.IsDataValid())
