@@ -42,9 +42,9 @@ namespace GwentWebAssembly.Services
 
             bool isSameTurn = _dataService.Turn == gameStatusDto.Turn;
 
-            string? message = _dataService.PlayerHp > gameStatusDto.PlayerHp && _dataService.EnemyHp > gameStatusDto.EnemyHp ? "Remis" :
-                              _dataService.PlayerHp > gameStatusDto.PlayerHp ? "Przeciwnik wygrał rundę" :
-                              _dataService.EnemyHp > gameStatusDto.EnemyHp ? "Wygrałeś rundę" : null;
+            string? message = _dataService.PlayerHp > gameStatusDto.PlayerHp && _dataService.EnemyHp > gameStatusDto.EnemyHp ? "The round ended in a draw!" :
+                              _dataService.PlayerHp > gameStatusDto.PlayerHp ? "Your opponent won the round!" :
+                              _dataService.EnemyHp > gameStatusDto.EnemyHp ? "You won the round!" : null;
 
             if (message is not null)
                 await _animationService.OverlayAnimation(message);
@@ -60,17 +60,17 @@ namespace GwentWebAssembly.Services
                 return;
             }
 
-            OnStateChanged?.Invoke();
-
             SelectedCard = DummyCard;
+
+            OnStateChanged?.Invoke();
 
             if (_dataService.PlayerHp == 0 || _dataService.EnemyHp == 0)
             {
                 string endGameMessage = (_dataService.PlayerHp, _dataService.EnemyHp) switch
                 {
-                    (0, 0) => "Gra zakończona remisem",
-                    (_, 0) => "Wygrywasz grę",
-                    _ => "Przegrywasz grę"
+                    (0, 0) => "Draw",
+                    (_, 0) => "Victory!",
+                    _ => "Defeat"
                 };
 
                 await _animationService.EndGameOverlayAnimation(endGameMessage);

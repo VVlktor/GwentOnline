@@ -21,9 +21,9 @@ namespace GwentWebAssembly.Services
 
         public async Task OverlayAnimation(PlayerIdentity turn)
         {
-            string stringTurn = "Ruch przeciwnika!";
+            string stringTurn = "Opponent's turn!";
             if (_playerService.GetIdentity() == turn)
-                stringTurn = "Twój ruch!";
+                stringTurn = "Your turn!";
             await _jsRuntime.InvokeVoidAsync("showOverlay", stringTurn);
         }
 
@@ -62,7 +62,7 @@ namespace GwentWebAssembly.Services
         {
             if (gameStatusDto.Action.LeaderUsed)
             {
-                string message = gameStatusDto.Action.Issuer == _playerService.GetIdentity() ? "Użyto umiejętności dowódcy" : "Przeciwnik używa umiejętności dowódcy";
+                string message = gameStatusDto.Action.Issuer == _playerService.GetIdentity() ? "You used leader ability" : "Enemy used leader ability";
                 await OverlayAnimation(message);
             }
 
@@ -97,7 +97,7 @@ namespace GwentWebAssembly.Services
                     await PlayPassAnimation(gameStatusDto);
                     break;
                 case GwentActionType.EndRound:
-                    await OverlayAnimation("Koniec rundy!");//moze cos wiecej, np. zmiatanie kart z planszy
+                    await OverlayAnimation("End of round!");//moze cos wiecej, np. zmiatanie kart z planszy
                     break;
             }
         }
@@ -159,9 +159,9 @@ namespace GwentWebAssembly.Services
 
         private async Task PlayPassAnimation(GameStatusDto gameStatusDto)
         {
-            string text = "Przeciwnik spasował!";
+            string text = "Your opponent has passed!";
             if (gameStatusDto.Action.Issuer == _playerService.GetIdentity())
-                text = "Spasowałeś!";
+                text = "Round passed!";
 
             await OverlayAnimation(text);
         }
