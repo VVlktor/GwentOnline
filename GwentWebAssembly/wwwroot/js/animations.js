@@ -54,7 +54,7 @@ async function showEndGameOverlay(message) {
     document.body.appendChild(overlay);
 }
 
-async function moveCardByElementIdsWithInfo(cardElemId, destElemId, data) {
+async function moveCardByElementIdsWithInfo(cardElemId, destElemId, data, deleteAfter) {
     const startElem = document.getElementById(cardElemId);
     const destElem = document.getElementById(destElemId);
     const overlay = document.getElementById("card-overlay");
@@ -63,12 +63,12 @@ async function moveCardByElementIdsWithInfo(cardElemId, destElemId, data) {
 
     const card = CreateCard(data);
 
-    await moveCard(startElem, destElem, overlay, card);
+    await moveCard(startElem, destElem, overlay, card, deleteAfter);
 
     return true;
 }
 
-async function moveCard(startElem, destElem, overlay, card) {
+async function moveCard(startElem, destElem, overlay, card, deleteAfter) {
     overlay.appendChild(card);
 
     const startRect = startElem.getBoundingClientRect();
@@ -90,17 +90,17 @@ async function moveCard(startElem, destElem, overlay, card) {
     });
 
     await new Promise(r => setTimeout(r, 800));
-    overlay.removeChild(card);
+
+    if (deleteAfter) {
+        overlay.removeChild(card);
+    }
+
     return true;
 }
 
-async function playPostAnimation(cardId, abilityName) {
-    const card = document.getElementById(`card-on-board-${cardId}`);
-
-    if (!card) return false;
-
+async function abilityAnimation(card, abilityName) {
     const lastChild = card.lastElementChild;
-    
+
     lastChild.className = "";
     lastChild.style.backgroundImage = `url('img/icons/anim_${abilityName}.png')`;
     lastChild.style.opacity = "0";
@@ -121,10 +121,31 @@ async function playPostAnimation(cardId, abilityName) {
     await new Promise(r => setTimeout(r, 710));
 
     lastChild.className = "hide";
+}
+
+async function playAbilityAnimation(data){
+    const card = document.getElementById(`animation-card-on-board-${data.primaryId}`);
+    if (!card) return false;
+
+    await abilityAnimation(card, data.abilityName);
     return true;
 }
 
-async function moveCardByElementIdsNoInfo(cardElemId, destElemId, cardImage) {
+async function playPostAnimation(cardId, abilityName) {
+    const card = document.getElementById(`card-on-board-${cardId}`);
+    if (!card) return false;
+
+    await abilityAnimation(card, abilityName);
+    return true;
+}
+
+async function removeCardsOverlays() {
+    const cards = document.querySelectorAll(".animation-card-overlay");
+    cards.forEach(card => card.remove());
+    return true;
+}
+
+async function moveCardByElementIdsNoInfo(cardElemId, destElemId, cardImage, deleteAfter) {
     const startElem = document.getElementById(cardElemId);
     const destElem = document.getElementById(destElemId);
     const overlay = document.getElementById("card-overlay");
@@ -132,7 +153,7 @@ async function moveCardByElementIdsNoInfo(cardElemId, destElemId, cardImage) {
     if (!startElem || !destElem || !overlay) return false;
 
     const card = document.createElement("div");
-    card.className = "card noclick";
+    card.className = "card noclick animation-card-overlay";
     card.style.backgroundImage = `url('${cardImage}')`;
     card.style.backgroundSize = "cover";
     card.style.backgroundPosition = "center";
@@ -142,15 +163,16 @@ async function moveCardByElementIdsNoInfo(cardElemId, destElemId, cardImage) {
     card.style.transition = "transform 0.8s ease-in-out";
     card.style.zIndex = "99999";
     card.style.pointerEvents = "none";
+    card.id=`animation-card-on-board-${data.primaryId}`;
 
-    await moveCard(startElem, destElem, overlay, card);
+    await moveCard(startElem, destElem, overlay, card, deleteAfter);
 
     return true;
 }
 
 function CreateCard(data) {
     const card = document.createElement("div");
-    card.className = "card noclick";
+    card.className = "card noclick animation-card-overlay";
     card.style.backgroundImage = `url('${data.imagePath}')`;
     card.style.backgroundSize = "cover";
     card.style.backgroundPosition = "center";
@@ -160,6 +182,7 @@ function CreateCard(data) {
     card.style.transition = "transform 0.8s ease-in-out";
     card.style.zIndex = "99999";
     card.style.pointerEvents = "none";
+    card.id = `animation-card-on-board-${data.primaryId}`;
 
     const div1 = document.createElement("div");
     div1.style.backgroundImage = `url('img/icons/power_normal.png')`
