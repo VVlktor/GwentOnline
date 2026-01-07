@@ -285,6 +285,7 @@ namespace GwentApi.Services
             {
                 ActionType = GwentActionType.SpyCardPlayed,
                 PlayedCard = boardCard,
+                DrawnCards = drawnCards,
                 IsSuccess = true
             };
 

@@ -53,12 +53,24 @@ namespace GwentWebAssembly.Services
             switch (gameStatusDto.Action.ActionType)// dodac morale boost, muster, tight bond i tak dalej
             {
                 case GwentActionType.SpyCardPlayed:
+                    await PlayPostSpyAnimation(gameStatusDto);
+                    break;
                 case GwentActionType.MedicCardPlayed:
                     await PlayPostBasicAnimation(gameStatusDto);
                     break;
             }
         }
 
+        private async Task PlayPostSpyAnimation(GameStatusDto gameStatusDto)
+        {
+            if (gameStatusDto.Action.CardsDrawn.Count == 0 || gameStatusDto.Action.Issuer == _playerService.EnemyIdentity()) return;
+
+            List<CardJsInfo> drawnCardsIds = gameStatusDto.Action.CardsDrawn.Select(GetData).ToList();
+            await _jsRuntime.InvokeVoidAsync("playPostSpyAnimation", drawnCardsIds);
+            
+        }
+
+        //kiedy wystawiam karte, to moglaby znikac z dolu (z reki gracza)
         public async Task ProcessReceivedAnimation(GameStatusDto gameStatusDto)
         {
             if (gameStatusDto.Action.LeaderUsed)
@@ -113,6 +125,7 @@ namespace GwentWebAssembly.Services
                 startName = $"card-in-hand-{boardCard.PrimaryId}";
                 endName = $"playerLane{boardCard.Placement.ToString()}";
                 CardJsInfo data = GetData(boardCard);
+                //await _jsRuntime.InvokeVoidAsync("hideElementById", startName);
                 await _jsRuntime.InvokeVoidAsync("moveCardByElementIdsWithInfo", startName, endName, data, false);
                 await _jsRuntime.InvokeVoidAsync("playAbilityAnimation", data);
                 await _jsRuntime.InvokeVoidAsync("removeCardsOverlays");//todo: dokonczyc animacje dla wroga i dla pozostalych kart
@@ -136,6 +149,7 @@ namespace GwentWebAssembly.Services
             {
                 startName = $"card-in-hand-{boardCard.PrimaryId}";
                 endName = $"playerLane{boardCard.Placement.ToString()}";
+                await _jsRuntime.InvokeVoidAsync("hideElementById", startName);
             }
 
             CardJsInfo data = GetData(boardCard);
@@ -154,7 +168,10 @@ namespace GwentWebAssembly.Services
             string startName = "deck-name-op", endName = "weather";
 
             if (gameStatusDto.Action.Issuer == _playerService.GetIdentity())
+            {
                 startName = $"card-in-hand-{boardCard.PrimaryId}";
+                await _jsRuntime.InvokeVoidAsync("hideElementById", startName);
+            }
 
             await _jsRuntime.InvokeVoidAsync("moveCardByElementIdsNoInfo", startName, endName, $"img/cards/{boardCard.FileName}", false);
             
@@ -176,17 +193,18 @@ namespace GwentWebAssembly.Services
         {
             GwentBoardCard boardCard = gameStatusDto.Action.CardsPlayed[0];
 
-            string startName = $"card-in-hand-{boardCard.PrimaryId}";
-            string endName = $"enemyLane{boardCard.Placement.ToString()}";
-            bool isPlayer = gameStatusDto.Action.Issuer != _playerService.GetIdentity();
+            string startName = "deck-name-op", endName = $"playerLane{boardCard.Placement.ToString()}";
+
+            bool isPlayer = gameStatusDto.Action.Issuer == _playerService.GetIdentity();
             if (isPlayer){
-                startName = "deck-name-op";
-                endName = $"playerLane{boardCard.Placement.ToString()}";
+
+                startName = $"card-in-hand-{boardCard.PrimaryId}";
+                endName = $"enemyLane{boardCard.Placement.ToString()}";
+                await _jsRuntime.InvokeVoidAsync("hideElementById", startName);
             }
 
             CardJsInfo data = GetData(boardCard);
             await _jsRuntime.InvokeVoidAsync("moveCardByElementIdsWithInfo", startName, endName, data, true);
-
         }
 
         private async Task PlayWeatherCardAnimation(GameStatusDto gameStatusDto)
@@ -195,7 +213,10 @@ namespace GwentWebAssembly.Services
             string startName = "deck-name-op", endName = "weather";
 
             if (gameStatusDto.Action.Issuer == _playerService.GetIdentity())
+            {
                 startName = $"card-in-hand-{boardCard.PrimaryId}";
+                await _jsRuntime.InvokeVoidAsync("hideElementById", startName);
+            }
 
             await _jsRuntime.InvokeVoidAsync("moveCardByElementIdsNoInfo", startName, endName, $"img/cards/{boardCard.FileName}", true);
         }
@@ -208,7 +229,10 @@ namespace GwentWebAssembly.Services
             string startName = "", endName = $"card-on-board-{swappedCard.PrimaryId}";
 
             if (gameStatusDto.Action.Issuer == _playerService.GetIdentity())
+            {
                 startName = $"card-in-hand-{decoyCard.PrimaryId}";
+                await _jsRuntime.InvokeVoidAsync("hideElementById", startName);
+            }
             else
                 startName = "deck-name-op";
 
@@ -216,7 +240,7 @@ namespace GwentWebAssembly.Services
 
             startName = endName;
             if (gameStatusDto.Action.Issuer == _playerService.GetIdentity())
-                endName = "hand-row";
+                endName = $"card-in-hand-{decoyCard.PrimaryId}";
             else
                 endName = "deck-name-op";
 
@@ -251,9 +275,11 @@ namespace GwentWebAssembly.Services
             {
                 startName = $"card-in-hand-{boardCard.PrimaryId}";
                 endName = $"playerLane{boardCard.Placement.ToString()}";
+                await _jsRuntime.InvokeVoidAsync("hideElementById", startName);
             }
 
             CardJsInfo data = GetData(boardCard);
+
             await _jsRuntime.InvokeVoidAsync("moveCardByElementIdsWithInfo", startName, endName, data, true);
         }
 
@@ -266,13 +292,20 @@ namespace GwentWebAssembly.Services
 
         private CardJsInfo GetData(GwentBoardCard boardCard)
         {
-            CardJsInfo jsInfo = new();
-            jsInfo.ImagePath = $"img/cards/{boardCard.FileName}";
+            CardJsInfo jsInfo = GetData((GwentCard)boardCard);
             jsInfo.Strength = boardCard.CurrentStrength;
-            jsInfo.IsHero = boardCard.Abilities.HasFlag(Abilities.Hero);
-            jsInfo.PlacementName = boardCard.Placement.ToString().ToLower();
-            jsInfo.AbilityName = boardCard.Abilities.GetAbilityName();
-            jsInfo.PrimaryId = boardCard.PrimaryId;
+            return jsInfo;
+        }
+
+        private CardJsInfo GetData(GwentCard card)
+        {
+            CardJsInfo jsInfo = new();
+            jsInfo.ImagePath = $"img/cards/{card.FileName}";
+            jsInfo.IsHero = card.Abilities.HasFlag(Abilities.Hero);
+            jsInfo.PlacementName = card.Placement.ToString().ToLower();
+            jsInfo.AbilityName = card.Abilities.GetAbilityName();
+            jsInfo.PrimaryId = card.PrimaryId;
+            jsInfo.Strength = card.Strength;
             return jsInfo;
         }
     }

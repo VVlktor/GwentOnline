@@ -52,6 +52,34 @@ async function showEndGameOverlay(message) {
     overlay.style.opacity = "1";
 
     document.body.appendChild(overlay);
+    return true;
+}
+
+async function playPostSpyAnimation(data) {
+    data.forEach(elem => {
+        const el = document.getElementById(`card-in-hand-${elem.primaryId}`);
+        if (el) el.classList.add("hidden");
+    });
+
+    await playPostAnimation(data.primaryId, data.abilityName);
+
+    for (const elem of data) {
+        const card = CreateCard(elem);
+        const deckMe = document.getElementById("deck-me");
+        const cardInHand = document.getElementById(`card-in-hand-${elem.primaryId}`);
+        const overlay = document.getElementById("card-overlay");
+        await moveCard(deckMe, cardInHand, overlay, card, false, false);
+        await new Promise(r => setTimeout(r, 800));
+    }
+
+    data.forEach(elem => {
+        const el = document.getElementById(`card-in-hand-${elem.primaryId}`);
+        if (el) el.classList.remove("hidden");
+    });
+
+    await removeCardsOverlays();
+
+    return true;
 }
 
 async function moveCardByElementIdsWithInfo(cardElemId, destElemId, data, deleteAfter) {
@@ -63,12 +91,12 @@ async function moveCardByElementIdsWithInfo(cardElemId, destElemId, data, delete
 
     const card = CreateCard(data);
 
-    await moveCard(startElem, destElem, overlay, card, deleteAfter);
+    await moveCard(startElem, destElem, overlay, card, deleteAfter, true);
 
     return true;
 }
 
-async function moveCard(startElem, destElem, overlay, card, deleteAfter) {
+async function moveCard(startElem, destElem, overlay, card, deleteAfter, awaiting) {
     overlay.appendChild(card);
 
     const startRect = startElem.getBoundingClientRect();
@@ -89,7 +117,9 @@ async function moveCard(startElem, destElem, overlay, card, deleteAfter) {
         card.style.transform = `translate(${dx}px, ${dy}px)`;
     });
 
-    await new Promise(r => setTimeout(r, 800));
+    if (awaiting) {
+        await new Promise(r => setTimeout(r, 800));
+    }
 
     if (deleteAfter) {
         overlay.removeChild(card);
@@ -163,9 +193,9 @@ async function moveCardByElementIdsNoInfo(cardElemId, destElemId, cardImage, del
     card.style.transition = "transform 0.8s ease-in-out";
     card.style.zIndex = "99999";
     card.style.pointerEvents = "none";
-    card.id=`animation-card-on-board-${data.primaryId}`;
+    //card.id=`animation-card-on-board-${data.primaryId}`;
 
-    await moveCard(startElem, destElem, overlay, card, deleteAfter);
+    await moveCard(startElem, destElem, overlay, card, deleteAfter, true);
 
     return true;
 }
@@ -222,4 +252,11 @@ function resizeCardContainer(containerId, overlap_count, gap, coef, cardCount) {
     function defineCardRowMargin(n, coef = 0) {
         return "calc((100% - (4.45vw * " + n + ")) / (2*" + n + ") - (" + coef + "vw * " + n + "))";
     }
+}
+
+async function hideElementById(elementId) {
+    const elem = document.getElementById(elementId);
+    if (!elem) return false;
+    elem.classList.add("hidden");
+    return true;
 }

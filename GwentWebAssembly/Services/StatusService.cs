@@ -36,7 +36,7 @@ namespace GwentWebAssembly.Services
             await _animationService.OverlayAnimation(_dataService.Turn);
         }
 
-        public async Task ReceivedStatus(GameStatusDto gameStatusDto)
+        public async Task ReceivedStatus(GameStatusDto gameStatusDto)//a moze dodac do gameStatusDto.Action message, wtedy zamista ponizej message to bylby odgornie + np. info o tym ze karta po rundzie zostaje albo ze k.polnocy dobieraja etc. przemyslec
         {
             await _animationService.ProcessReceivedAnimation(gameStatusDto);
 

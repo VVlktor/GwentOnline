@@ -188,7 +188,9 @@ code {
     display: none;
 }
 
-
+.hidden{
+    visibility:hidden;
+}
 
 
 .center {

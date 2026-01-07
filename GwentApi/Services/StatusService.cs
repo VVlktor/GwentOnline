@@ -17,7 +17,7 @@ namespace GwentApi.Services
             _gameDataService = gameDataService;
         }
 
-        public async Task<GwentAction> AddGwentAction(PlayerIdentity identity, string code, GwentActionType actionType, List<GwentBoardCard> playedCards, List<GwentBoardCard> killedCards, bool leaderUsed = false)
+        public async Task<GwentAction> AddGwentAction(PlayerIdentity identity, string code, GwentActionType actionType, List<GwentBoardCard> playedCards, List<GwentBoardCard> killedCards, List<GwentCard> drawnCards, bool leaderUsed = false)
         {
             Game game = await _gameRepository.GetGameByCode(code);
 
@@ -29,6 +29,7 @@ namespace GwentApi.Services
                 CardsPlayed = playedCards,
                 CardsOnBoard = game.CardsOnBoard,
                 CardsKilled = killedCards,
+                CardsDrawn = drawnCards,
                 LeaderUsed = leaderUsed,
                 AbilitiyUsed = playedCards.FirstOrDefault()?.Abilities ?? Abilities.None
             };

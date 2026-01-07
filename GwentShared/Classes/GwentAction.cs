@@ -8,6 +8,7 @@ public class GwentAction
     public List<GwentBoardCard> CardsPlayed { get; set; }
     public List<GwentBoardCard> CardsOnBoard { get; set; }
     public List<GwentBoardCard> CardsKilled { get; set; }
+    public List<GwentCard> CardsDrawn { get; set; }
     public Abilities AbilitiyUsed { get; set; }
     public bool LeaderUsed { get; set; }
 }
