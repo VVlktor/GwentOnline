@@ -1,4 +1,5 @@
-﻿async function showOverlay(message) {
+﻿//overlays
+async function showOverlay(message) {
     return new Promise(resolve => {
         const overlay = document.createElement("div");
         overlay.className = "main-black-gwent-overlay";
@@ -22,6 +23,25 @@
     });
 };
 
+async function showEndGameOverlay(message) {
+    const overlay = document.createElement("div");
+    overlay.className = "main-black-gwent-overlay";
+    overlay.style.fontSize = "48px";
+    overlay.textContent = message;
+    overlay.style.opacity = "1";
+
+    document.body.appendChild(overlay);
+    return true;
+}
+
+async function removeCardsOverlays() {
+    const cards = document.querySelectorAll(".animation-card-overlay");
+    cards.forEach(card => card.remove());
+    return true;
+}
+
+//animations
+
 async function showScorchAnimation(listOfIds) {
     const elements = listOfIds.map(id => document.querySelector(`#${id} > div:nth-child(4)`));
 
@@ -44,14 +64,44 @@ async function showScorchAnimation(listOfIds) {
     return true;
 }
 
-async function showEndGameOverlay(message) {
-    const overlay = document.createElement("div");
-    overlay.className = "main-black-gwent-overlay";
-    overlay.style.fontSize = "48px";
-    overlay.textContent = message;
-    overlay.style.opacity = "1";
+async function abilityAnimation(card, abilityName) {
+    const lastChild = card.lastElementChild;
 
-    document.body.appendChild(overlay);
+    lastChild.className = "";
+    lastChild.style.backgroundImage = `url('img/icons/anim_${abilityName}.png')`;
+    lastChild.style.opacity = "0";
+
+    lastChild.style.backgroundSize = "0%";
+    lastChild.style.transition = "opacity 0.7s, background-size 0.7s ease";
+
+    await new Promise(r => setTimeout(r, 10));
+
+    lastChild.style.opacity = "1";
+    lastChild.style.backgroundSize = "80%";
+
+    await new Promise(r => setTimeout(r, 710));
+
+    lastChild.style.opacity = "0";
+    lastChild.style.backgroundSize = "0%";
+
+    await new Promise(r => setTimeout(r, 710));
+
+    lastChild.className = "hide";
+}
+
+async function playAbilityAnimation(data) {
+    const card = document.getElementById(`animation-card-on-board-${data.primaryId}`);
+    if (!card) return false;
+
+    await abilityAnimation(card, data.abilityName);
+    return true;
+}
+
+async function playPostAnimation(cardId, abilityName) {
+    const card = document.getElementById(`card-on-board-${cardId}`);
+    if (!card) return false;
+
+    await abilityAnimation(card, abilityName);
     return true;
 }
 
@@ -81,6 +131,8 @@ async function playPostSpyAnimation(data) {
 
     return true;
 }
+
+//movement
 
 async function moveCardByElementIdsWithInfo(cardElemId, destElemId, data, deleteAfter) {
     const startElem = document.getElementById(cardElemId);
@@ -128,53 +180,6 @@ async function moveCard(startElem, destElem, overlay, card, deleteAfter, awaitin
     return true;
 }
 
-async function abilityAnimation(card, abilityName) {
-    const lastChild = card.lastElementChild;
-
-    lastChild.className = "";
-    lastChild.style.backgroundImage = `url('img/icons/anim_${abilityName}.png')`;
-    lastChild.style.opacity = "0";
-
-    lastChild.style.backgroundSize = "0%";
-    lastChild.style.transition = "opacity 0.7s, background-size 0.7s ease";
-
-    await new Promise(r => setTimeout(r, 10));
-
-    lastChild.style.opacity = "1";
-    lastChild.style.backgroundSize = "80%";
-
-    await new Promise(r => setTimeout(r, 710));
-
-    lastChild.style.opacity = "0";
-    lastChild.style.backgroundSize = "0%";
-
-    await new Promise(r => setTimeout(r, 710));
-
-    lastChild.className = "hide";
-}
-
-async function playAbilityAnimation(data){
-    const card = document.getElementById(`animation-card-on-board-${data.primaryId}`);
-    if (!card) return false;
-
-    await abilityAnimation(card, data.abilityName);
-    return true;
-}
-
-async function playPostAnimation(cardId, abilityName) {
-    const card = document.getElementById(`card-on-board-${cardId}`);
-    if (!card) return false;
-
-    await abilityAnimation(card, abilityName);
-    return true;
-}
-
-async function removeCardsOverlays() {
-    const cards = document.querySelectorAll(".animation-card-overlay");
-    cards.forEach(card => card.remove());
-    return true;
-}
-
 async function moveCardByElementIdsNoInfo(cardElemId, destElemId, cardImage, deleteAfter) {
     const startElem = document.getElementById(cardElemId);
     const destElem = document.getElementById(destElemId);
@@ -193,12 +198,13 @@ async function moveCardByElementIdsNoInfo(cardElemId, destElemId, cardImage, del
     card.style.transition = "transform 0.8s ease-in-out";
     card.style.zIndex = "99999";
     card.style.pointerEvents = "none";
-    //card.id=`animation-card-on-board-${data.primaryId}`;
 
     await moveCard(startElem, destElem, overlay, card, deleteAfter, true);
 
     return true;
 }
+
+//cards
 
 function CreateCard(data) {
     const card = document.createElement("div");
@@ -243,6 +249,8 @@ function CreateCard(data) {
     return card;
 }
 
+//utility
+
 function resizeCardContainer(containerId, overlap_count, gap, coef, cardCount) {
     let param = (cardCount < overlap_count) ? "" + gap + "vw" : defineCardRowMargin(cardCount, coef);
     let children = document.getElementById(containerId).children;
@@ -254,9 +262,35 @@ function resizeCardContainer(containerId, overlap_count, gap, coef, cardCount) {
     }
 }
 
-async function hideElementById(elementId) {
+function changeHidenessById(elementId, shouldHide){
     const elem = document.getElementById(elementId);
+
     if (!elem) return false;
-    elem.classList.add("hidden");
+
+    if(shouldHide)
+        elem.classList.add("hidden");
+    else
+        elem.classList.remove("hidden");
+
+    return true;
+}
+
+async function hideElementById(elementId) {
+    changeHidenessById(elementId, true);
+    return true;
+}
+
+async function showElementById(elementId) {
+    changeHidenessById(elementId, false);
+    return true;
+}
+
+async function showElementsById(elementsId) {
+    for (const elem of elementsId) await showElementById(elem);
+    return true;
+}
+
+async function hideElementsById(elementsId) {
+    for (const elem of elementsId) await hideElementById(elem);
     return true;
 }

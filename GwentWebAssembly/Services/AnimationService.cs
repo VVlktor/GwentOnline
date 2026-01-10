@@ -58,17 +58,27 @@ namespace GwentWebAssembly.Services
                 case GwentActionType.MedicCardPlayed:
                     await PlayPostBasicAnimation(gameStatusDto);
                     break;
+                case GwentActionType.MusterCardPlayed:
+                    await PlayPostMusterAnimation(gameStatusDto);
+                    break;
+
             }
         }
 
         private async Task PlayPostSpyAnimation(GameStatusDto gameStatusDto)
         {
-            if (gameStatusDto.Action.CardsDrawn.Count == 0 || gameStatusDto.Action.Issuer == _playerService.EnemyIdentity()) return;
+            if (gameStatusDto.Action.CardsDrawn.Count == 0) return;
 
+            CardJsInfo jsInfo = GetData(gameStatusDto.Action.CardsPlayed[0]);
             List<CardJsInfo> drawnCardsIds = gameStatusDto.Action.CardsDrawn.Select(GetData).ToList();
+
+            await _jsRuntime.InvokeVoidAsync("playPostAnimation", jsInfo.PrimaryId, jsInfo.AbilityName);
+
+            if (gameStatusDto.Action.Issuer == _playerService.EnemyIdentity()) return;
+
             await _jsRuntime.InvokeVoidAsync("playPostSpyAnimation", drawnCardsIds);
-            
         }
+
 
         //kiedy wystawiam karte, to moglaby znikac z dolu (z reki gracza)
         public async Task ProcessReceivedAnimation(GameStatusDto gameStatusDto)
@@ -115,31 +125,49 @@ namespace GwentWebAssembly.Services
             }
         }
 
+        private async Task PlayPostMusterAnimation(GameStatusDto gameStatusDto)
+        {
+            GwentBoardCard boardCard = gameStatusDto.Action.CardsPlayed[0];
+
+            bool isPlayer = gameStatusDto.Action.Issuer == _playerService.GetIdentity();
+
+            string startName = isPlayer ? "deck-me" : "deck-op";
+            string endNamePart = isPlayer ? "playerLane" : "enemyLane";
+
+            var cardsId = gameStatusDto.Action.CardsPlayed[1..].Select(x => $"card-on-board-{x.PrimaryId}").ToList();
+
+            await _jsRuntime.InvokeVoidAsync("hideElementsById", cardsId);
+            await _jsRuntime.InvokeVoidAsync("removeCardsOverlays");
+
+            foreach (var card in gameStatusDto.Action.CardsPlayed[1..])
+            {
+                CardJsInfo cardData = GetData(card);
+                //string endName = $"{endNamePart}{card.Placement.ToString()}";
+                string endName = $"card-on-board-{card.PrimaryId}";
+                await _jsRuntime.InvokeVoidAsync("moveCardByElementIdsWithInfo", startName, endName, cardData, false);
+            }
+
+            await _jsRuntime.InvokeVoidAsync("showElementsById", cardsId);
+            await _jsRuntime.InvokeVoidAsync("removeCardsOverlays");
+        }
+
         private async Task PlayMusterAnimation(GameStatusDto gameStatusDto)
         {
             GwentBoardCard boardCard = gameStatusDto.Action.CardsPlayed[0];
             string startName = "deck-name-op", endName = $"enemyLane{boardCard.Placement.ToString()}";
-            
+
             if (gameStatusDto.Action.Issuer == _playerService.GetIdentity())
             {
                 startName = $"card-in-hand-{boardCard.PrimaryId}";
                 endName = $"playerLane{boardCard.Placement.ToString()}";
-                CardJsInfo data = GetData(boardCard);
-                //await _jsRuntime.InvokeVoidAsync("hideElementById", startName);
-                await _jsRuntime.InvokeVoidAsync("moveCardByElementIdsWithInfo", startName, endName, data, false);
-                await _jsRuntime.InvokeVoidAsync("playAbilityAnimation", data);
-                await _jsRuntime.InvokeVoidAsync("removeCardsOverlays");//todo: dokonczyc animacje dla wroga i dla pozostalych kart
-                return;
+                await _jsRuntime.InvokeVoidAsync("hideElementById", startName);
             }
 
-            foreach (var card in gameStatusDto.Action.CardsPlayed)
-            {
-                CardJsInfo data = GetData(card);
-                endName = $"enemyLane{card.Placement.ToString()}";
-                await _jsRuntime.InvokeVoidAsync("moveCardByElementIdsWithInfo", startName, endName, data, true);
-            }
-            await _jsRuntime.InvokeVoidAsync("removeCardsOverlays");
+            CardJsInfo data = GetData(boardCard);
+            await _jsRuntime.InvokeVoidAsync("moveCardByElementIdsWithInfo", startName, endName, data, false);
+            await _jsRuntime.InvokeVoidAsync("playAbilityAnimation", data);//niedokonczone
         }
+
 
         private async Task PlayScorchBoardCardAnimation(GameStatusDto gameStatusDto)
         {
