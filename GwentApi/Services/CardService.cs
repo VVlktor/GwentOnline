@@ -555,7 +555,7 @@ namespace GwentApi.Services
                 if (rowCards.Sum(x => x.CurrentStrength) >= 10 && rowCards.Any(x => !x.Abilities.HasFlag(Abilities.Hero)))
                 {
                     int maxCurrentSstrength = rowCards.Where(x => !x.Abilities.HasFlag(Abilities.Hero)).Max(x => x.CurrentStrength);
-                    var strongestCards = rowCards.Where(x => x.CurrentStrength == maxCurrentSstrength).ToList();
+                    var strongestCards = rowCards.Where(x => x.CurrentStrength == maxCurrentSstrength && !x.Abilities.HasFlag(Abilities.Hero)).ToList();
                     KilledCards = strongestCards;
                     foreach (var strongCard in strongestCards)
                     {

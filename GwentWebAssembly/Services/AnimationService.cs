@@ -12,10 +12,35 @@ namespace GwentWebAssembly.Services
         private readonly IJSRuntime _jsRuntime;
         private IPlayerService _playerService;
 
+        private Dictionary<GwentActionType, Func<GameStatusDto, Task>> receivedAnimationHandlers;
+        private Dictionary<GwentActionType, Func<GameStatusDto, Task>> postAnimationHandlers;
+
         public AnimationService(IJSRuntime js, IPlayerService playerService)
         {
             _jsRuntime = js;
             _playerService = playerService;
+
+            receivedAnimationHandlers = new()
+            {
+                { GwentActionType.NormalCardPlayed, PlayNormalCardAnimation },
+                { GwentActionType.MedicCardPlayed, PlayNormalCardAnimation },
+                { GwentActionType.CommandersHornCardPlayed, PlayCommandersHornAnimation },
+                { GwentActionType.DecoyCardPlayed, PlayDecoyAnimation },
+                { GwentActionType.WeatherCardPlayed, PlayWeatherCardAnimation },
+                { GwentActionType.SpyCardPlayed, PlaySpyCardAnimation },
+                { GwentActionType.ScorchCardPlayed, PlayScorchCardAnimation },
+                { GwentActionType.MusterCardPlayed, PlayMusterAnimation },
+                { GwentActionType.ScorchBoardCardPlayed, PlayScorchBoardCardAnimation },
+                { GwentActionType.Pass, PlayPassAnimation },
+                { GwentActionType.EndRound, (x) => OverlayAnimation("End of round!") }
+            };
+
+            postAnimationHandlers = new()
+            {
+                { GwentActionType.SpyCardPlayed, PlayPostSpyAnimation },
+                { GwentActionType.MedicCardPlayed, PlayPostBasicAnimation },
+                { GwentActionType.MusterCardPlayed, PlayPostMusterAnimation },
+            };
         }
 
         public async Task OverlayAnimation(string text) => await _jsRuntime.InvokeVoidAsync("showOverlay", text);
@@ -49,38 +74,47 @@ namespace GwentWebAssembly.Services
 
         public async Task ProcessPostAnimation(GameStatusDto gameStatusDto)
         {
-            //gameStatusDto.Action.CardsPlayed[0].Abilities
-            switch (gameStatusDto.Action.ActionType)// dodac morale boost, muster, tight bond i tak dalej
-            {
-                case GwentActionType.SpyCardPlayed:
-                    await PlayPostSpyAnimation(gameStatusDto);
-                    break;
-                case GwentActionType.MedicCardPlayed:
-                    await PlayPostBasicAnimation(gameStatusDto);
-                    break;
-                case GwentActionType.MusterCardPlayed:
-                    await PlayPostMusterAnimation(gameStatusDto);
-                    break;
+            if(postAnimationHandlers.TryGetValue(gameStatusDto.Action.ActionType, out var postAnimation))
+                await postAnimation(gameStatusDto);
+            else
+                await PlayPostUnknownAnimation(gameStatusDto);
+        }
 
-            }
+        private async Task PlayPostUnknownAnimation(GameStatusDto gameStatusDto)
+        {
+            if (gameStatusDto.Action.CardsPlayed.Count == 0) return;
+
+            Abilities abilities = gameStatusDto.Action.CardsPlayed[0].Abilities;
+
+            if (abilities.HasFlag(Abilities.Morale))
+                await PlayPostBasicAnimation(gameStatusDto);
+            else if (abilities.HasFlag(Abilities.Bond))
+                await PlayPostBondAnimation(gameStatusDto);
+        }
+
+        private async Task PlayPostBondAnimation(GameStatusDto gameStatusDto)
+        {
+            List<string> cardsIds = gameStatusDto.CardsOnBoard.Where(x => x.Owner == gameStatusDto.Action.Issuer && x.CardId == gameStatusDto.Action.CardsPlayed[0].CardId).Select(x=>$"card-on-board-{x.PrimaryId}").ToList();
+            if (cardsIds.Count < 2) return;
+            await _jsRuntime.InvokeVoidAsync("multipleAbilityAnimation", cardsIds, Abilities.Bond.GetAbilityName());
         }
 
         private async Task PlayPostSpyAnimation(GameStatusDto gameStatusDto)
         {
             if (gameStatusDto.Action.CardsDrawn.Count == 0) return;
 
-            CardJsInfo jsInfo = GetData(gameStatusDto.Action.CardsPlayed[0]);
-            List<CardJsInfo> drawnCardsIds = gameStatusDto.Action.CardsDrawn.Select(GetData).ToList();
+            CardJsInfo jsInfo = gameStatusDto.Action.CardsPlayed[0].GetData();
+            List<CardJsInfo> drawnCardsIds = gameStatusDto.Action.CardsDrawn.Select(x=>x.GetData()).ToList();
+            
+            if (gameStatusDto.Action.Issuer == _playerService.GetIdentity()) await _jsRuntime.InvokeVoidAsync("hideElementsById", drawnCardsIds.Select(x=>$"card-in-hand-{x.PrimaryId}").ToList());
 
             await _jsRuntime.InvokeVoidAsync("playPostAnimation", jsInfo.PrimaryId, jsInfo.AbilityName);
-
+            
             if (gameStatusDto.Action.Issuer == _playerService.EnemyIdentity()) return;
 
             await _jsRuntime.InvokeVoidAsync("playPostSpyAnimation", drawnCardsIds);
         }
 
-
-        //kiedy wystawiam karte, to moglaby znikac z dolu (z reki gracza)
         public async Task ProcessReceivedAnimation(GameStatusDto gameStatusDto)
         {
             if (gameStatusDto.Action.LeaderUsed)
@@ -89,40 +123,8 @@ namespace GwentWebAssembly.Services
                 await OverlayAnimation(message);
             }
 
-            switch (gameStatusDto.Action.ActionType)
-            {
-                case GwentActionType.NormalCardPlayed:
-                case GwentActionType.MedicCardPlayed:
-                    await PlayNormalCardAnimation(gameStatusDto);
-                    break;
-                case GwentActionType.CommandersHornCardPlayed:
-                    await PlayCommandersHornAnimation(gameStatusDto);
-                    break;
-                case GwentActionType.DecoyCardPlayed:
-                    await PlayDecoyAnimation(gameStatusDto);
-                    break;
-                case GwentActionType.WeatherCardPlayed:
-                    await PlayWeatherCardAnimation(gameStatusDto);
-                    break;
-                case GwentActionType.SpyCardPlayed:
-                    await PlaySpyCardAnimation(gameStatusDto);
-                    break;
-                case GwentActionType.ScorchCardPlayed:
-                    await PlayScorchCardAnimation(gameStatusDto);
-                    break;
-                case GwentActionType.MusterCardPlayed:
-                    await PlayMusterAnimation(gameStatusDto);
-                    break;
-                case GwentActionType.ScorchBoardCardPlayed:
-                    await PlayScorchBoardCardAnimation(gameStatusDto);
-                    break;
-                case GwentActionType.Pass:
-                    await PlayPassAnimation(gameStatusDto);
-                    break;
-                case GwentActionType.EndRound:
-                    await OverlayAnimation("End of round!");//moze cos wiecej, np. zmiatanie kart z planszy
-                    break;
-            }
+            if (receivedAnimationHandlers.TryGetValue(gameStatusDto.Action.ActionType, out var animationHandler))
+                await animationHandler(gameStatusDto);
         }
 
         private async Task PlayPostMusterAnimation(GameStatusDto gameStatusDto)
@@ -141,8 +143,7 @@ namespace GwentWebAssembly.Services
 
             foreach (var card in gameStatusDto.Action.CardsPlayed[1..])
             {
-                CardJsInfo cardData = GetData(card);
-                //string endName = $"{endNamePart}{card.Placement.ToString()}";
+                CardJsInfo cardData = card.GetData();
                 string endName = $"card-on-board-{card.PrimaryId}";
                 await _jsRuntime.InvokeVoidAsync("moveCardByElementIdsWithInfo", startName, endName, cardData, false);
             }
@@ -163,7 +164,7 @@ namespace GwentWebAssembly.Services
                 await _jsRuntime.InvokeVoidAsync("hideElementById", startName);
             }
 
-            CardJsInfo data = GetData(boardCard);
+            CardJsInfo data = boardCard.GetData();
             await _jsRuntime.InvokeVoidAsync("moveCardByElementIdsWithInfo", startName, endName, data, false);
             await _jsRuntime.InvokeVoidAsync("playAbilityAnimation", data);//niedokonczone
         }
@@ -180,7 +181,7 @@ namespace GwentWebAssembly.Services
                 await _jsRuntime.InvokeVoidAsync("hideElementById", startName);
             }
 
-            CardJsInfo data = GetData(boardCard);
+            CardJsInfo data = boardCard.GetData();
             await _jsRuntime.InvokeVoidAsync("moveCardByElementIdsWithInfo", startName, endName, data, false);
 
             List<string> killedCardsIds = gameStatusDto.Action.CardsKilled.Select(x => $"card-on-board-{x.PrimaryId}").ToList();
@@ -231,7 +232,7 @@ namespace GwentWebAssembly.Services
                 await _jsRuntime.InvokeVoidAsync("hideElementById", startName);
             }
 
-            CardJsInfo data = GetData(boardCard);
+            CardJsInfo data = boardCard.GetData();
             await _jsRuntime.InvokeVoidAsync("moveCardByElementIdsWithInfo", startName, endName, data, true);
         }
 
@@ -272,7 +273,7 @@ namespace GwentWebAssembly.Services
             else
                 endName = "deck-name-op";
 
-            CardJsInfo data = GetData(swappedCard);
+            CardJsInfo data = swappedCard.GetData();
             await _jsRuntime.InvokeVoidAsync("moveCardByElementIdsWithInfo", startName, endName, data, true);
             await _jsRuntime.InvokeVoidAsync("removeCardsOverlays");
         }
@@ -306,7 +307,7 @@ namespace GwentWebAssembly.Services
                 await _jsRuntime.InvokeVoidAsync("hideElementById", startName);
             }
 
-            CardJsInfo data = GetData(boardCard);
+            CardJsInfo data = boardCard.GetData();
 
             await _jsRuntime.InvokeVoidAsync("moveCardByElementIdsWithInfo", startName, endName, data, true);
         }
@@ -314,27 +315,8 @@ namespace GwentWebAssembly.Services
         private async Task PlayPostBasicAnimation(GameStatusDto gameStatusDto)
         {
             GwentBoardCard boardCard = gameStatusDto.Action.CardsPlayed[0];
-            CardJsInfo jsInfo = GetData(boardCard);
+            CardJsInfo jsInfo = boardCard.GetData();
             await _jsRuntime.InvokeVoidAsync("playPostAnimation", boardCard.PrimaryId, jsInfo.AbilityName);
-        }
-
-        private CardJsInfo GetData(GwentBoardCard boardCard)
-        {
-            CardJsInfo jsInfo = GetData((GwentCard)boardCard);
-            jsInfo.Strength = boardCard.CurrentStrength;
-            return jsInfo;
-        }
-
-        private CardJsInfo GetData(GwentCard card)
-        {
-            CardJsInfo jsInfo = new();
-            jsInfo.ImagePath = $"img/cards/{card.FileName}";
-            jsInfo.IsHero = card.Abilities.HasFlag(Abilities.Hero);
-            jsInfo.PlacementName = card.Placement.ToString().ToLower();
-            jsInfo.AbilityName = card.Abilities.GetAbilityName();
-            jsInfo.PrimaryId = card.PrimaryId;
-            jsInfo.Strength = card.Strength;
-            return jsInfo;
         }
     }
 }

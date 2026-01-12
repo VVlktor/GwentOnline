@@ -2468,15 +2468,5 @@
     "Strength": 8,
     "Abilities": 32768,
     "FileName": "scoiatael_schirru.jpg"
-  },
-  {
-    "Name": "Roach",
-    "PrimaryId": 248,
-    "CardId": 215,
-    "Faction": 0,
-    "Placement": 1,
-    "Strength": 3,
-    "Abilities": 0,
-    "FileName": "neutral_roach.jpg"
   }
 ]

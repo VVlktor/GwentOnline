@@ -89,6 +89,43 @@ async function abilityAnimation(card, abilityName) {
     lastChild.className = "hide";
 }
 
+async function multipleAbilityAnimation(ids, abilityName) {
+    for (const elemId of ids) {
+        const lastChild = document.getElementById(elemId).lastElementChild;
+
+        lastChild.className = "";
+        lastChild.style.backgroundImage = `url('img/icons/anim_${abilityName}.png')`;
+        lastChild.style.opacity = "0";
+
+        lastChild.style.backgroundSize = "0%";
+        lastChild.style.transition = "opacity 0.7s, background-size 0.7s ease";
+    }
+    await new Promise(r => setTimeout(r, 10));
+
+    for (const elemId of ids) {
+        const lastChild = document.getElementById(elemId).lastElementChild;
+        lastChild.style.opacity = "1";
+        lastChild.style.backgroundSize = "80%";
+    }
+
+    await new Promise(r => setTimeout(r, 710));
+
+    for (const elemId of ids) {
+        const lastChild = document.getElementById(elemId).lastElementChild;
+        lastChild.style.opacity = "0";
+        lastChild.style.backgroundSize = "0%";
+    }
+
+    await new Promise(r => setTimeout(r, 710));
+
+    for (const elemId of ids) {
+        const lastChild = document.getElementById(elemId).lastElementChild;
+        lastChild.className = "hide";
+    }
+
+    return true;
+}
+
 async function playAbilityAnimation(data) {
     const card = document.getElementById(`animation-card-on-board-${data.primaryId}`);
     if (!card) return false;
@@ -106,11 +143,6 @@ async function playPostAnimation(cardId, abilityName) {
 }
 
 async function playPostSpyAnimation(data) {
-    data.forEach(elem => {
-        const el = document.getElementById(`card-in-hand-${elem.primaryId}`);
-        if (el) el.classList.add("hidden");
-    });
-
     await playPostAnimation(data.primaryId, data.abilityName);
 
     for (const elem of data) {
