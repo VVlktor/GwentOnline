@@ -76,6 +76,9 @@ namespace GwentWebAssembly.Services
             CarouselSlots = GetSlots();
         }
 
-        public void HideCarousel() => IsCarouselShown = false;
+        public void HideCarousel() {
+            IsCarouselShown = false;
+            CurrentIndex = 0;
+        }
     }
 }

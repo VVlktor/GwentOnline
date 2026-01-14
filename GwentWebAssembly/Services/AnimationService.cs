@@ -41,7 +41,7 @@ namespace GwentWebAssembly.Services
                 { GwentActionType.MedicCardPlayed, PlayPostBasicAnimation },
                 { GwentActionType.MusterCardPlayed, PlayPostMusterAnimation },
             };
-        }
+        }//jak medyk revive robi to karty powinny isc ze stosu zurzytych
 
         public async Task OverlayAnimation(string text) => await _jsRuntime.InvokeVoidAsync("showOverlay", text);
 
