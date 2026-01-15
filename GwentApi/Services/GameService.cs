@@ -19,7 +19,7 @@ namespace GwentApi.Services
             _gameDataService = gameDataService;
         }
 
-        public async Task<ReadyDto> ReadyForGame(string code, PlayerIdentity identity)
+        public async Task<ReadyDto> ReadyForGame(string code, PlayerIdentity identity, bool wantsToStart)
         {
             Random rnd = new();
 
@@ -36,7 +36,9 @@ namespace GwentApi.Services
 
             Lobby lobby = await _lobbyRepository.GetLobbyByCode(code);
             PlayerInfo playerInfo = identity == PlayerIdentity.PlayerOne ? lobby.PlayerOneInfo : lobby.PlayerTwoInfo;
-
+            
+            playerInfo.WantsToStartAsScoiatael = wantsToStart;
+            
             foreach(var card in playerInfo.Cards)
             {
                 card.PrimaryId = lobby.CurrentCardIndex;
@@ -84,12 +86,25 @@ namespace GwentApi.Services
 
             if (gameExists)
             {
-                if (game.PlayerOne.Faction == CardFaction.NilfgaardianEmpire && game.PlayerTwo.Faction != CardFaction.NilfgaardianEmpire)//chwila, serio cos takiego bylo? do sprawdzenia
-                    game.Turn = PlayerIdentity.PlayerOne;
-                else if (game.PlayerOne.Faction != CardFaction.NilfgaardianEmpire && game.PlayerTwo.Faction == CardFaction.NilfgaardianEmpire)
-                    game.Turn = PlayerIdentity.PlayerTwo;
+                //if (game.PlayerOne.Faction == CardFaction.NilfgaardianEmpire && game.PlayerTwo.Faction != CardFaction.NilfgaardianEmpire)//chwila, serio cos takiego bylo? do sprawdzenia
+                //    game.Turn = PlayerIdentity.PlayerOne;
+                //else if (game.PlayerOne.Faction != CardFaction.NilfgaardianEmpire && game.PlayerTwo.Faction == CardFaction.NilfgaardianEmpire)
+                //    game.Turn = PlayerIdentity.PlayerTwo;
 
-                if(game.PlayerOne.LeaderCard.CardId == 59 || game.PlayerTwo.LeaderCard.CardId == 59)
+                game.Turn = (lobby.PlayerOneInfo, lobby.PlayerTwoInfo) switch
+                {
+                    ({ Faction: CardFaction.Scoiatael }, { Faction: CardFaction.Scoiatael }) => game.Turn,
+
+                    ({ Faction: CardFaction.Scoiatael, WantsToStartAsScoiatael: var wants }, _) =>
+                        wants ? PlayerIdentity.PlayerOne : PlayerIdentity.PlayerTwo,
+
+                    (_, { Faction: CardFaction.Scoiatael, WantsToStartAsScoiatael: var wants }) =>
+                        wants ? PlayerIdentity.PlayerTwo : PlayerIdentity.PlayerOne,
+
+                    _ => game.Turn
+                };
+
+                if (game.PlayerOne.LeaderCard.CardId == 59 || game.PlayerTwo.LeaderCard.CardId == 59)
                 {
                     game.PlayerOne.LeaderCard.LeaderAvailable = false;
                     game.PlayerTwo.LeaderCard.LeaderAvailable = false;

@@ -1,3 +1,4 @@
+using GwentShared.Classes.Dtos;
 using GwentWebAssembly.Services;
 using GwentWebAssembly.Services.Interfaces;
 using Microsoft.AspNetCore.Components.Web;

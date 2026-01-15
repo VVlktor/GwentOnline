@@ -64,9 +64,9 @@ namespace GwentWebAssembly.Services
             return playerInfo;
         }
 
-        public async Task<bool> SetReady()
+        public async Task<bool> SetReady(SetReadyDto setReadyDto)
         {
-            var response = await _httpClient.GetAsync($"http://localhost:5277/Game/ReadyForGame/{_playerService.LobbyCode}/{_playerService.GetIdentity()}");
+            var response = await _httpClient.GetAsync($"http://localhost:5277/Game/ReadyForGame/{_playerService.LobbyCode}/{_playerService.GetIdentity()}/{setReadyDto.WantsToStartWhenScoiatael}");
             if (!response.IsSuccessStatusCode) return false;
             string stringResponse = await response.Content.ReadAsStringAsync();
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, IncludeFields = true };

@@ -129,3 +129,16 @@ main {
     height: 5%;
     z-index:9999;
 }
+
+
+.scoiatael-turn-selection {
+    z-index: 9999;
+    top: 76%;
+    left: 64%;
+    width: 20%;
+    height: 10%;
+    position: absolute;
+    text-align:center;
+    background-color: rgba(10,10,10,.95);
+    box-shadow: 0 0 1vw #ffffff54;
+}

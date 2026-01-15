@@ -19,4 +19,5 @@ public class PlayerInfo
     public List<GwentCard> Cards { get; set; }
     public GwentCard LeaderCard { get; set; }
     public byte CardsSwapped { get; set; }
+    public bool WantsToStartAsScoiatael { get; set; }
 }

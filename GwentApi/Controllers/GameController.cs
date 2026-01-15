@@ -16,10 +16,10 @@ namespace GwentApi.Controllers
             _gameService = gameService;
         }
 
-        [HttpGet("ReadyForGame/{code}/{player}")]
-        public async Task<IActionResult> ReadyForGame(string code, PlayerIdentity player)
+        [HttpGet("ReadyForGame/{code}/{player}/{wantsToStart}")]
+        public async Task<IActionResult> ReadyForGame(string code, PlayerIdentity player, bool wantsToStart)
         {
-            ReadyDto result = await _gameService.ReadyForGame(code, player);
+            ReadyDto result = await _gameService.ReadyForGame(code, player, wantsToStart);
             return Ok(result);
         }
 

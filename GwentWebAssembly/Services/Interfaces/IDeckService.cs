@@ -1,4 +1,5 @@
 ﻿using GwentShared.Classes;
+using GwentShared.Classes.Dtos;
 
 namespace GwentWebAssembly.Services.Interfaces
 {
@@ -8,7 +9,7 @@ namespace GwentWebAssembly.Services.Interfaces
         Task<bool> PlayersReady(string lobbyCode);
         Task<PlayerInfo> GetPlayerInfo();
         Task<PlayerInfo> SwapCardInDeck(int id);
-        Task<bool> SetReady();
+        Task<bool> SetReady(SetReadyDto setReadyDto);
         Task<bool> GameReady();
     }
 }

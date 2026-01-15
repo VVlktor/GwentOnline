@@ -36,21 +36,17 @@
         </div>
         <div>Choose up to 2 cards to redraw (@(CardsSwapped)/2)</div>
     </section>
-    <!--
+    
     @if (IsScoiatael && !IsReady)
     {
-        <div class="col-12 mt-5">
+        <div class="scoiatael-turn-selection">
             <p style="font-size: 16px;" class="text-light mb-2">You are using the Scoiatael deck. You can choose who starts the game.</p>
-            <button class="col-5 btn btn-outline-success">You</button>
-            <button class="col-5 offset-2 btn btn-outline-danger">Enemy</button>
+            <button class="col-5 btn btn-outline-success" @onclick="()=>{wantsToStartAsScoiatael=true;}">You</button>
+            <button class="col-5 offset-2 btn btn-outline-danger" @onclick="() => { wantsToStartAsScoiatael = false; }">Enemy</button>
             <p style="font-size:12px;" class="mt-1">If your opponent is also playing Scoiatael, the starting order will be random.</p>
         </div>
     }
-    @if (IsReady)
-    {
-        <div style="font-size:24px;" class="mt-3">Waiting for the opponent</div>
-    }
-    -->
+
 </main>
 
 
@@ -62,11 +58,14 @@
     private bool IsReady = false;
     private bool IsScoiatael = false;
 
+    private bool wantsToStartAsScoiatael=false;
+
     private async Task ReadyClicked()
     {
         IsReady = true;
         carouselService.HideCarousel();
-        await deckService.SetReady();
+        SetReadyDto setReadyDto = new() { WantsToStartWhenScoiatael = wantsToStartAsScoiatael };
+        await deckService.SetReady(setReadyDto);
         await lobbySetupService.CardsSelected();
     }
 
