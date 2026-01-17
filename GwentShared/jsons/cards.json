@@ -339,16 +339,7 @@
     "Abilities": 8,
     "FileName": "neutral_gaunter_odimm_darkness.jpg"
   },
-  {
-    "Name": "Cow",
-    "PrimaryId": 35,
-    "CardId": 21,
-    "Faction": 0,
-    "Placement": 2,
-    "Strength": 0,
-    "Abilities": 16,
-    "FileName": "neutral_cow.jpg"
-  },
+  
   {
     "Name": "Foltest - King of Temeria",
     "PrimaryId": 36,

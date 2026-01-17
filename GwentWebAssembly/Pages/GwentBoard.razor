@@ -109,9 +109,9 @@
 				</div>
 
 				<div id="enemyHornLaneSiege" class="row-special card-container">
-					@if (dataService.CardsOnBoard.Any(x => x.Owner == playerService.EnemyIdentity() && x.Placement == TroopPlacement.Siege && x.CardId == 6))
+					@foreach (var card in dataService.CardsOnBoard.Where(x => x.Owner == playerService.EnemyIdentity() && x.Placement == TroopPlacement.Siege && x.CardId == 6))
                     {
-						<div class="card special noclick" style="background-image: url('img/cards/special_horn.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
+						<div id="@($"card-on-board-{card.PrimaryId}")" class="card special noclick" style="background-image: url('img/cards/special_horn.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
 							<div style="background-image: url('img/icons/power_horn.png');">
 							</div><div></div><div></div>
 							<div style="background-size: 40%;" class="hide">
@@ -142,9 +142,9 @@
 					@dataService.CardsOnBoard.Sum(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.EnemyIdentity() ? x.CurrentStrength : 0)
 				</div>
 				<div id="enemyHornLaneRange" class="row-special card-container">
-					@if (dataService.CardsOnBoard.Any(x => x.Owner == playerService.EnemyIdentity() && x.Placement == TroopPlacement.Range && x.CardId == 6))
+					@foreach (var card in dataService.CardsOnBoard.Where(x => x.Owner == playerService.EnemyIdentity() && x.Placement == TroopPlacement.Range && x.CardId == 6))
 					{
-						<div class="card special noclick" style="background-image: url('img/cards/special_horn.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
+						<div id="@($"card-on-board-{card.PrimaryId}")" class="card special noclick" style="background-image: url('img/cards/special_horn.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
 							<div style="background-image: url('img/icons/power_horn.png');">
 							</div><div></div><div></div>
 							<div style="background-size: 40%;" class="hide">
@@ -172,9 +172,9 @@
 			<div class="field-row">
 				<div class="row-score center">@dataService.CardsOnBoard.Sum(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.EnemyIdentity() ? x.CurrentStrength : 0)</div>
 				<div id="enemyHornLaneMelee" class="row-special card-container">
-					@if (dataService.CardsOnBoard.Any(x => x.Owner == playerService.EnemyIdentity() && x.Placement == TroopPlacement.Melee && x.CardId == 6))
+					@foreach (var card in dataService.CardsOnBoard.Where(x => x.Owner == playerService.EnemyIdentity() && x.Placement == TroopPlacement.Melee && x.CardId == 6))
 					{
-						<div class="card special noclick" style="background-image: url('img/cards/special_horn.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
+						<div id="@($"card-on-board-{card.PrimaryId}")" class="card special noclick" style="background-image: url('img/cards/special_horn.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
 							<div style="background-image: url('img/icons/power_horn.png');">
 							</div><div></div><div></div>
 							<div style="background-size: 40%;" class="hide">
@@ -207,9 +207,9 @@
 					@dataService.CardsOnBoard.Sum(x => x.Placement == TroopPlacement.Melee && x.Owner == playerService.GetIdentity() ? x.CurrentStrength : 0)
 				</div>
 				<div id="playerHornLaneMelee" class="row-special card-container @(statusService.SelectedCard.CardId == 6 && dataService.Turn == playerService.GetIdentity() ? "row-selectable" : "")" @onclick="async () => await gameService.HornClicked(TroopPlacement.Melee)">
-					@if (dataService.CardsOnBoard.Any(x => x.Owner == playerService.GetIdentity() && x.Placement == TroopPlacement.Melee && x.CardId == 6))
+					@foreach (var card in dataService.CardsOnBoard.Where(x => x.Owner == playerService.GetIdentity() && x.Placement == TroopPlacement.Melee && x.CardId == 6))
 					{
-						<div class="card special " style="background-image: url('img/cards/special_horn.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
+						<div id="@($"card-on-board-{card.PrimaryId}")" class="card special " style="background-image: url('img/cards/special_horn.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
 							<div style="background-image: url('img/icons/power_horn.png');">
 							</div><div></div><div></div>
 							<div style="background-size: 40%;" class="hide">
@@ -238,9 +238,9 @@
 					@dataService.CardsOnBoard.Sum(x => x.Placement == TroopPlacement.Range && x.Owner == playerService.GetIdentity() ? x.CurrentStrength : 0)
 				</div>
 				<div id="playerHornLaneRange" class="row-special card-container @(statusService.SelectedCard.CardId == 6 && dataService.Turn == playerService.GetIdentity() ? "row-selectable" : "")" @onclick="async () => await gameService.HornClicked(TroopPlacement.Range)">
-					@if (dataService.CardsOnBoard.Any(x => x.Owner == playerService.GetIdentity() && x.Placement == TroopPlacement.Range && x.CardId == 6))
+					@foreach (var card in dataService.CardsOnBoard.Where(x => x.Owner == playerService.GetIdentity() && x.Placement == TroopPlacement.Range && x.CardId == 6))
 					{
-						<div class="card special noclick" style="background-image: url('img/cards/special_horn.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
+						<div id="@($"card-on-board-{card.PrimaryId}")" class="card special noclick" style="background-image: url('img/cards/special_horn.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
 							<div style="background-image: url('img/icons/power_horn.png');">
 							</div><div></div><div></div>
 							<div style="background-size: 40%;" class="hide">
@@ -268,13 +268,13 @@
 					@dataService.CardsOnBoard.Sum(x => x.Placement == TroopPlacement.Siege && x.Owner == playerService.GetIdentity() ? x.CurrentStrength : 0)
 				</div>
 				<div id="playerHornLaneSiege" class="row-special card-container @(statusService.SelectedCard.CardId == 6 && dataService.Turn == playerService.GetIdentity() ? "row-selectable" : "")" @onclick="async () => await gameService.HornClicked(TroopPlacement.Siege)">
-					@if (dataService.CardsOnBoard.Any(x => x.Owner == playerService.GetIdentity() && x.Placement == TroopPlacement.Siege && x.CardId == 6))
+					@foreach (var card in dataService.CardsOnBoard.Where(x => x.Owner == playerService.GetIdentity() && x.Placement == TroopPlacement.Siege && x.CardId == 6))
 					{
-						<div class="card special noclick" style="background-image: url('img/cards/special_horn.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
-							<div style="background-image: url('img/icons/power_horn.png');">
-							</div><div></div><div></div>
-							<div style="background-size: 40%;" class="hide">
-							</div>
+						<div id="@($"card-on-board-{card.PrimaryId}")" class="card special noclick" style="background-image: url('img/cards/special_horn.jpg'); margin-right: 0.075vw; margin-left: 0.075vw;">
+							<div style="background-image: url('img/icons/power_horn.png');"></div>
+							<div></div>
+							<div></div>
+							<div style="background-size: 40%;" class="hide"></div>
 						</div>
 					}
 				</div>

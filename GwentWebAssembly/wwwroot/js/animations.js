@@ -65,6 +65,7 @@ async function showScorchAnimation(listOfIds) {
 }
 
 async function abilityAnimation(card, abilityName) {
+    console.log(abilityName);
     const lastChild = card.lastElementChild;
 
     lastChild.className = "";

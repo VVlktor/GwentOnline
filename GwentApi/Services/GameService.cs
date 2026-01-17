@@ -114,7 +114,7 @@ namespace GwentApi.Services
             if(gameExists)
                 await _gameRepository.UpdateGame(game);
             else
-                await _gameRepository.AddGame(game);//tworze gre ale nigdy nie usuwam - dodac jakiegos background workera
+                await _gameRepository.AddGame(game);
 
             return new() { Ready=true };
         }

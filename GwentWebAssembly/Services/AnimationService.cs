@@ -23,6 +23,7 @@ namespace GwentWebAssembly.Services
             receivedAnimationHandlers = new()
             {
                 { GwentActionType.NormalCardPlayed, PlayNormalCardAnimation },
+                { GwentActionType.HornCardPlayed, PlayNormalCardAnimation },
                 { GwentActionType.MedicCardPlayed, PlayNormalCardAnimation },
                 { GwentActionType.CommandersHornCardPlayed, PlayCommandersHornAnimation },
                 { GwentActionType.DecoyCardPlayed, PlayDecoyAnimation },
@@ -40,18 +41,15 @@ namespace GwentWebAssembly.Services
                 { GwentActionType.SpyCardPlayed, PlayPostSpyAnimation },
                 { GwentActionType.MedicCardPlayed, PlayPostBasicAnimation },
                 { GwentActionType.MusterCardPlayed, PlayPostMusterAnimation },
+                { GwentActionType.CommandersHornCardPlayed, PlayPostBasicAnimation },
+                { GwentActionType.HornCardPlayed, PlayPostBasicAnimation }
             };
         }//jak medyk revive robi to karty powinny isc ze stosu zurzytych
 
         public async Task OverlayAnimation(string text) => await _jsRuntime.InvokeVoidAsync("showOverlay", text);
 
-        public async Task OverlayAnimation(PlayerIdentity turn)
-        {
-            string stringTurn = "Opponent's turn!";
-            if (_playerService.GetIdentity() == turn)
-                stringTurn = "Your turn!";
-            await _jsRuntime.InvokeVoidAsync("showOverlay", stringTurn);
-        }
+        public async Task OverlayAnimation(PlayerIdentity turn) =>
+            await _jsRuntime.InvokeVoidAsync("showOverlay", _playerService.GetIdentity() == turn ? "Your turn!" : "Opponent's turn!");
 
         public async Task ResizeCardContainters(int cardInHandCount, List<GwentBoardCard> cardsOnBoard) {
             await _jsRuntime.InvokeVoidAsync("resizeCardContainer", "hand-row", 11, 0.075, .00225, cardInHandCount);

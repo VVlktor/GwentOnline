@@ -77,12 +77,15 @@ namespace GwentApi.Services
             {
                 gwentActionType = GwentActionType.ScorchBoardCardPlayed;
             }
+            else if (card.Abilities.HasFlag(Abilities.Horn))
+                gwentActionType = GwentActionType.HornCardPlayed;
+            
 
             LaneClickedGwentActionResult actionResult = new()
             {
                 ActionType = gwentActionType,
                 KilledCards = [],
-                PlayedCards = [ boardCard ],
+                PlayedCards = [boardCard],
                 IsSuccess = true
             };
 
